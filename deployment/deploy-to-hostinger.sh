@@ -178,7 +178,7 @@ execute_remote_deployment() {
     log "STEP" "Executing remote deployment..."
 
     # Upload and execute the deployment script on the remote server
-    ssh_exec "bash -s" << 'REMOTE_SCRIPT'
+    ssh_exec "bash -s" << REMOTE_SCRIPT
 #!/bin/bash
 set -euo pipefail
 
