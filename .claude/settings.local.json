@@ -16,7 +16,18 @@
       "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"echo ''SSH connection successful''\")",
       "Bash(bash deployment/deploy-to-hostinger.sh)",
       "Bash(git commit -m \"Update Claude settings\")",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"cd /var/www/whs 2>/dev/null && pwd && git log -1 --oneline 2>/dev/null || echo ''Directory not yet ready''\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"ps aux | grep -E ''(git|composer|npm|php artisan)'' | grep -v grep | head -10\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"ls -la /var/www/whs/ 2>&1 | head -20\")",
+      "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"ls -lt /var/log/rotech-whs/*.log 2>/dev/null | head -5\")"
+	  "Bash(*)",
+      "Read(//**)",
+      "Write(//**)",
+      "Edit(//**)",
+      "Delete(//**)",
+      "Git(*)",
+      "SSH(*)"
     ],
     "deny": [],
     "ask": []
