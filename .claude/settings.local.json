@@ -8,7 +8,15 @@
       "Bash(chmod 644 /d/WHS5/whs5_deployment_key.pub)",
       "Bash(git config user.name \"Samil Rotech\")",
       "Bash(git config user.email \"samil@rotech.com\")",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git commit -m \"Initial commit: WHS5 - Workplace Health & Safety System\n\n- Laravel 12 + Vuexy theme integration\n- Complete WHS module implementation (Incidents, Risk Assessments, Emergency Response, Vehicles, Journeys, CAPA, Warehouse Equipment, Inspections, Contractors, Documents, Compliance, Safety Inspections, Training, Teams, PermitToWork)\n- Analytics Dashboard with comprehensive metrics\n- Multi-branch support system\n- Deployment scripts for Hostinger VPS\n- Database migrations and seeders\n- API Resources and Services layer\n- Role-based permission system (Spatie)\n\nReady for deployment to whs.rotechrural.site\")",
+      "Bash(git remote add origin https://github.com/Samilrotech/rotech-whs.git)",
+      "Bash(git push -u origin master)",
+      "Bash(git push -u origin master --force)",
+      "Bash(ssh -o StrictHostKeyChecking=no -i /d/WHS5/whs5_deployment_key root@147.79.66.172 \"echo ''SSH connection successful''\")",
+      "Bash(bash deployment/deploy-to-hostinger.sh)",
+      "Bash(git commit -m \"Update Claude settings\")",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
