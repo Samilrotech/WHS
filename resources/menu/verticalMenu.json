@@ -1,0 +1,195 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base ti tabler-smart-home",
+      "slug": "dashboard-analytics"
+    },
+    {
+      "menuHeader": "Administration"
+    },
+    {
+      "url": "branches",
+      "name": "Branch Management",
+      "icon": "menu-icon icon-base ti tabler-building",
+      "slug": "whs4-branches"
+    },
+    {
+      "url": "teams",
+      "name": "Team Management",
+      "icon": "menu-icon icon-base ti tabler-users-group",
+      "slug": "whs4-teams"
+    },
+    {
+      "menuHeader": "Safety & Incidents"
+    },
+    {
+      "url": "incidents",
+      "name": "Incident Management",
+      "icon": "menu-icon icon-base ti tabler-alert-triangle",
+      "slug": "whs4-incidents"
+    },
+    {
+      "url": "risk",
+      "name": "Risk Assessment",
+      "icon": "menu-icon icon-base ti tabler-shield-check",
+      "slug": "whs4-risk"
+    },
+    {
+      "url": "emergency",
+      "name": "Emergency Response",
+      "icon": "menu-icon icon-base ti tabler-alarm",
+      "slug": "whs4-emergency"
+    },
+    {
+      "url": "capa",
+      "name": "CAPA Management",
+      "icon": "menu-icon icon-base ti tabler-checklist",
+      "slug": "whs4-capa"
+    },
+    {
+      "menuHeader": "Assets & Equipment"
+    },
+    {
+      "url": "vehicles",
+      "name": "Vehicle Management",
+      "icon": "menu-icon icon-base ti tabler-car",
+      "slug": "whs4-vehicles"
+    },
+    {
+      "url": "journey",
+      "name": "Journey Management",
+      "icon": "menu-icon icon-base ti tabler-route",
+      "slug": "whs4-journey"
+    },
+    {
+      "url": "maintenance",
+      "name": "Maintenance Scheduling",
+      "icon": "menu-icon icon-base ti tabler-tool",
+      "slug": "whs4-maintenance"
+    },
+    {
+      "url": "warehouse-equipment",
+      "name": "Warehouse Equipment",
+      "icon": "menu-icon icon-base ti tabler-forklift",
+      "slug": "whs4-warehouse-equipment"
+    },
+    {
+      "menuHeader": "Inspections & Audits"
+    },
+    {
+      "url": "inspections",
+      "name": "Inspection Management",
+      "icon": "menu-icon icon-base ti tabler-clipboard-check",
+      "slug": "whs4-inspections"
+    },
+    {
+      "url": "safety-inspections",
+      "name": "Safety Inspections",
+      "icon": "menu-icon icon-base ti tabler-clipboard-list",
+      "slug": "whs4-safety-inspections"
+    },
+    {
+      "url": "permit-to-work",
+      "name": "Permit to Work",
+      "icon": "menu-icon icon-base ti tabler-license",
+      "slug": "whs4-permit"
+    },
+    {
+      "menuHeader": "People & Training"
+    },
+    {
+      "url": "training",
+      "name": "Training Management",
+      "icon": "menu-icon icon-base ti tabler-school",
+      "slug": "whs4-training"
+    },
+    {
+      "url": "contractors",
+      "name": "Contractor Management",
+      "icon": "menu-icon icon-base ti tabler-briefcase",
+      "slug": "whs4-contractors"
+    },
+    {
+      "menuHeader": "Documents & Reports"
+    },
+    {
+      "url": "documents",
+      "name": "Document Management",
+      "icon": "menu-icon icon-base ti tabler-folders",
+      "slug": "whs4-documents"
+    },
+    {
+      "url": "compliance",
+      "name": "Compliance Reporting",
+      "icon": "menu-icon icon-base ti tabler-report-analytics",
+      "slug": "whs4-compliance"
+    },
+    {
+      "url": "vehicle-reporting",
+      "name": "Vehicle Reporting Dashboard",
+      "icon": "menu-icon icon-base ti tabler-chart-bar",
+      "slug": "whs4-vehicle-reporting"
+    },
+    {
+      "menuHeader": "System"
+    },
+    {
+      "name": "User Management",
+      "icon": "menu-icon icon-base ti tabler-users",
+      "slug": "app-user",
+      "submenu": [
+        {
+          "url": "app/user/list",
+          "name": "Users List",
+          "slug": "app-user-list"
+        },
+        {
+          "url": "app/user/view/account",
+          "name": "User Profile",
+          "slug": "app-user-view-account"
+        }
+      ]
+    },
+    {
+      "name": "Roles & Permissions",
+      "icon": "menu-icon icon-base ti tabler-lock",
+      "slug": "app-access",
+      "submenu": [
+        {
+          "url": "app/access-roles",
+          "name": "Roles",
+          "slug": "app-access-roles"
+        },
+        {
+          "url": "app/access-permission",
+          "name": "Permissions",
+          "slug": "app-access-permission"
+        }
+      ]
+    },
+    {
+      "name": "Account Settings",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "slug": "pages-account-settings",
+      "submenu": [
+        {
+          "url": "pages/account-settings-account",
+          "name": "Account",
+          "slug": "pages-account-settings-account"
+        },
+        {
+          "url": "pages/account-settings-security",
+          "name": "Security",
+          "slug": "pages-account-settings-security"
+        },
+        {
+          "url": "pages/account-settings-notifications",
+          "name": "Notifications",
+          "slug": "pages-account-settings-notifications"
+        }
+      ]
+    }
+  ]
+}

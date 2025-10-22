@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/WHS4/vuexy-laravel-full/deployment/**)",
+      "Bash(git init)",
+      "Read(//d/WHS4/**)",
+      "Bash(chmod 600 /d/WHS5/whs5_deployment_key)",
+      "Bash(chmod 644 /d/WHS5/whs5_deployment_key.pub)",
+      "Bash(git config user.name \"Samil Rotech\")",
+      "Bash(git config user.email \"samil@rotech.com\")",
+      "Bash(git add .)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

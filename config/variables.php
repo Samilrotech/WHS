@@ -1,0 +1,32 @@
+<?php
+// Variables
+return [
+  "creatorName" => "Rotech",
+  "creatorUrl" => "https://rotech.com.au",
+  "templateName" => "WHS4",
+  "templateSuffix" => "Workplace Health & Safety System",
+  "templateVersion" => "3.0.0",
+  "templateFree" => false,
+  "templateDescription" => "WHS4 Sensei edition — modern workplace health & safety management.",
+  "templateKeyword" => "workplace safety, dashboard, whs, compliance, sensei design",
+  "licenseUrl" => null,
+  "livePreview" => null,
+  "productPage" => null,
+  "support" => null,
+  "moreThemes" => null,
+  "ogTitle" => "WHS4 Safety Dashboard",
+  "ogImage" => null,
+  "ogType" => "website",
+  "documentation" => null,
+  "generator" => "",
+  "changelog" => null,
+  "repository" => null,
+  "gitRepo" => null,
+  "gitRepoAccess" => null,
+  "githubFreeUrl" => null,
+  "facebookUrl" => null,
+  "twitterUrl" => null,
+  "githubUrl" => null,
+  "dribbbleUrl" => null,
+  "instagramUrl" => null
+];
