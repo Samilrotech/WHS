@@ -194,43 +194,43 @@ REPO_URL="${REPO_URL}"
 BRANCH="${BRANCH}"
 
 # Create log file
-mkdir -p "$LOG_DIR"
-REMOTE_LOG_FILE="$LOG_DIR/deployment_${DEPLOYMENT_ID}.log"
-exec 1> >(tee -a "$REMOTE_LOG_FILE")
+mkdir -p "\$LOG_DIR"
+REMOTE_LOG_FILE="\$LOG_DIR/deployment_\${DEPLOYMENT_ID}.log"
+exec 1> >(tee -a "\$REMOTE_LOG_FILE")
 exec 2>&1
 
-echo "=== Remote deployment started at $(date) ==="
+echo "=== Remote deployment started at \$(date) ==="
 
 # 1. Clone or update repository
-if [[ ! -d "$APP_DIR/.git" ]]; then
+if [[ ! -d "\$APP_DIR/.git" ]]; then
     echo "Cloning repository for first time..."
-    git clone "$REPO_URL" "$APP_DIR"
-    cd "$APP_DIR"
-    git checkout "$BRANCH"
+    git clone "\$REPO_URL" "\$APP_DIR"
+    cd "\$APP_DIR"
+    git checkout "\$BRANCH"
 else
     echo "Updating existing repository..."
-    cd "$APP_DIR"
+    cd "\$APP_DIR"
     git fetch origin
-    git reset --hard origin/$BRANCH
+    git reset --hard origin/\$BRANCH
 fi
 
 # 2. Enable maintenance mode
-if [[ "$MAINTENANCE_MODE" == "true" ]] && [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$MAINTENANCE_MODE" == "true" ]] && [[ "\$DRY_RUN" == "false" ]]; then
     echo "Enabling maintenance mode..."
     php artisan down --message="System maintenance in progress" --retry=300 || true
 fi
 
 # 3. Create backup
-if [[ "$SKIP_BACKUP" != "true" ]] && [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$SKIP_BACKUP" != "true" ]] && [[ "\$DRY_RUN" == "false" ]]; then
     echo "Creating backup..."
-    mkdir -p "$BACKUP_DIR"
-    backup_file="$BACKUP_DIR/backup_${DEPLOYMENT_ID}.tar.gz"
-    tar -czf "$backup_file" -C "$(dirname "$APP_DIR")" "$(basename "$APP_DIR")" --exclude=node_modules --exclude=.git --exclude=vendor
-    echo "Backup created: $backup_file"
+    mkdir -p "\$BACKUP_DIR"
+    backup_file="\$BACKUP_DIR/backup_\${DEPLOYMENT_ID}.tar.gz"
+    tar -czf "\$backup_file" -C "\$(dirname "\$APP_DIR")" "\$(basename "\$APP_DIR")" --exclude=node_modules --exclude=.git --exclude=vendor
+    echo "Backup created: \$backup_file"
 fi
 
 # 4. Install dependencies
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$DRY_RUN" == "false" ]]; then
     echo "Installing dependencies..."
     composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
@@ -248,7 +248,7 @@ if [[ ! -f ".env" ]] && [[ -f ".env.example" ]]; then
 fi
 
 # 6. Run migrations
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$DRY_RUN" == "false" ]]; then
     echo "Running migrations..."
     php artisan migrate --force
 fi
@@ -260,7 +260,7 @@ if [[ ! -L "public/storage" ]]; then
 fi
 
 # 8. Clear and cache configuration
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$DRY_RUN" == "false" ]]; then
     echo "Optimizing application..."
     php artisan config:cache
     php artisan route:cache
@@ -270,28 +270,28 @@ if [[ "$DRY_RUN" == "false" ]]; then
 fi
 
 # 9. Set permissions
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$DRY_RUN" == "false" ]]; then
     echo "Setting permissions..."
-    chown -R www-data:www-data "$APP_DIR"
-    chmod -R 755 "$APP_DIR"
-    chmod -R 775 "$APP_DIR/storage"
-    chmod -R 775 "$APP_DIR/bootstrap/cache"
+    chown -R www-data:www-data "\$APP_DIR"
+    chmod -R 755 "\$APP_DIR"
+    chmod -R 775 "\$APP_DIR/storage"
+    chmod -R 775 "\$APP_DIR/bootstrap/cache"
 fi
 
 # 10. Restart services
-if [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$DRY_RUN" == "false" ]]; then
     echo "Restarting services..."
     systemctl reload nginx || systemctl restart nginx
     systemctl restart php8.2-fpm || systemctl restart php8.1-fpm || systemctl restart php8.0-fpm
 fi
 
 # 11. Disable maintenance mode
-if [[ "$MAINTENANCE_MODE" == "true" ]] && [[ "$DRY_RUN" == "false" ]]; then
+if [[ "\$MAINTENANCE_MODE" == "true" ]] && [[ "\$DRY_RUN" == "false" ]]; then
     echo "Disabling maintenance mode..."
     php artisan up
 fi
 
-echo "=== Remote deployment completed at $(date) ==="
+echo "=== Remote deployment completed at \$(date) ==="
 REMOTE_SCRIPT
 }
 
@@ -380,7 +380,7 @@ cd "$APP_DIR"
 php artisan down --message="Emergency rollback in progress" --retry=60
 
 # Extract backup
-tar -xzf "$latest_backup" -C "$(dirname "$APP_DIR")"
+tar -xzf "$latest_backup" -C "\$(dirname "$APP_DIR")"
 
 # Clear caches
 php artisan cache:clear
