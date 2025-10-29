@@ -99,7 +99,7 @@
     @else
       <div class="whs-stack">
         @foreach($branches as $branch)
-          <x-whs.card class="whs-branch-card">
+          <x-whs.card class="whs-branch-card sensei-surface-card">
             <div class="whs-chip-group">
               <span class="whs-chip whs-chip--id">
                 <i class="icon-base ti ti-hash"></i>
@@ -154,6 +154,61 @@
                   </span>
                 </div>
               @endif
+            </div>
+
+            @php
+              $compliance = $branch->vehicle_compliance ?? ['vehicles' => [], 'inspections' => []];
+              $vehicleStats = $compliance['vehicles'] ?? [];
+              $inspectionStats = $compliance['inspections'] ?? [];
+              $latestInspection = $inspectionStats['latest_at'] ?? null;
+            @endphp
+
+            <div class="sensei-surface-card sensei-compliance-card mb-3">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="sensei-badge-dot" data-variant="{{ $branch->is_active ? 'success' : '' }}">Fleet</span>
+                  <h6 class="mb-0">Vehicle Compliance Snapshot</h6>
+                </div>
+                <span class="text-muted small">
+                  @if($latestInspection)
+                    Last inspection {{ $latestInspection?->diffForHumans() }}
+                  @else
+                    No inspections recorded yet
+                  @endif
+                </span>
+              </div>
+
+              <div class="sensei-stat-grid mb-3">
+                <div class="sensei-stat">
+                  <small>Fleet Size</small>
+                  <span>{{ $vehicleStats['total'] ?? 0 }}</span>
+                </div>
+                <div class="sensei-stat">
+                  <small>Assigned Drivers</small>
+                  <span>{{ $vehicleStats['assigned'] ?? 0 }}</span>
+                </div>
+                <div class="sensei-stat">
+                  <small>Upcoming Compliance</small>
+                  <span class="text-warning">{{ ($vehicleStats['inspection_due'] ?? 0) + ($vehicleStats['rego_expiring'] ?? 0) + ($vehicleStats['insurance_expiring'] ?? 0) }}</span>
+                </div>
+                <div class="sensei-stat">
+                  <small>Inspection Pass Rate</small>
+                  @if(!is_null($inspectionStats['compliance_rate'] ?? null))
+                    <span class="text-success">{{ $inspectionStats['compliance_rate'] }}%</span>
+                  @else
+                    <span class="text-muted">No data</span>
+                  @endif
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2">
+                <a href="{{ route('vehicles.index', ['branch' => $branch->id]) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="icon-base ti ti-car me-1"></i> Fleet view
+                </a>
+                <a href="{{ route('inspections.index', ['branch' => $branch->id]) }}" class="btn btn-sm btn-outline-secondary">
+                  <i class="icon-base ti ti-file-analytics me-1"></i> Inspection log
+                </a>
+              </div>
             </div>
 
             <div class="whs-card__footer">

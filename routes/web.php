@@ -10,7 +10,9 @@ use App\Modules\IncidentManagement\Controllers\IncidentController;
 use App\Modules\RiskAssessment\Controllers\RiskAssessmentController;
 use App\Modules\EmergencyResponse\Controllers\EmergencyResponseController;
 use App\Modules\VehicleManagement\Controllers\VehicleController;
+use App\Modules\VehicleManagement\Controllers\AssignedVehicleController;
 use App\Modules\InspectionManagement\Controllers\InspectionController;
+use App\Modules\InspectionManagement\Controllers\DriverVehicleInspectionController;
 use App\Modules\CAPAManagement\Controllers\CAPAController;
 use App\Modules\JourneyManagement\Controllers\JourneyController;
 use App\Modules\MaintenanceScheduling\Controllers\MaintenanceController;
@@ -30,9 +32,8 @@ Route::get('/offline', function () {
 })->name('offline');
 
 // Authentication Routes (Breeze)
-Route::middleware('guest')->group(function () {
-    require __DIR__.'/auth.php';
-});
+// Note: auth.php contains its own middleware groups (guest for login/register, auth for logout)
+require __DIR__.'/auth.php';
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -131,11 +132,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/alerts', [VehicleController::class, 'alerts'])->name('alerts');
     });
 
+    // Assigned vehicles & driver inspections
+    Route::prefix('my-vehicle-inspection')->name('driver.vehicle-inspections.')->group(function () {
+        Route::get('/', [AssignedVehicleController::class, 'index'])->name('index');
+        Route::get('/daily/{assignment?}', [DriverVehicleInspectionController::class, 'create'])->name('create');
+        Route::post('/daily', [DriverVehicleInspectionController::class, 'store'])->name('store');
+    });
+
     // Module 5: Inspection Management
     Route::prefix('inspections')->name('inspections.')->group(function () {
         Route::get('/', [InspectionController::class, 'index'])->name('index');
         Route::get('/create', [InspectionController::class, 'create'])->name('create');
         Route::post('/', [InspectionController::class, 'store'])->name('store');
+        Route::post('/monthly/start', [InspectionController::class, 'startMonthly'])->name('monthly.start');
         Route::get('/{inspection}', [InspectionController::class, 'show'])->name('show');
         Route::get('/{inspection}/edit', [InspectionController::class, 'edit'])->name('edit');
         Route::put('/{inspection}', [InspectionController::class, 'update'])->name('update');
@@ -276,7 +285,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Module 12: Team Management
-    Route::prefix('teams')->name('teams.')->group(function () {
+    Route::middleware('role:Admin|Manager')->prefix('teams')->name('teams.')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->name('index');
         Route::get('/create', [TeamController::class, 'create'])->name('create');
         Route::post('/', [TeamController::class, 'store'])->name('store');
@@ -284,10 +293,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{team}/edit', [TeamController::class, 'edit'])->name('edit');
         Route::put('/{team}', [TeamController::class, 'update'])->name('update');
         Route::delete('/{team}', [TeamController::class, 'destroy'])->name('destroy');
-
-        // Team member management
-        Route::post('/{team}/members', [TeamController::class, 'addMember'])->name('addMember');
-        Route::delete('/{team}/members/{user}', [TeamController::class, 'removeMember'])->name('removeMember');
+        Route::post('/{team}/on-leave', [TeamController::class, 'markOnLeave'])->name('on-leave');
+        Route::post('/{team}/activate', [TeamController::class, 'activate'])->name('activate');
+        Route::post('/{team}/deactivate', [TeamController::class, 'deactivate'])->name('deactivate');
+        Route::post('/{team}/reset-password', [TeamController::class, 'sendResetLink'])->name('reset-password');
     });
 
     // Module 13: Training Management

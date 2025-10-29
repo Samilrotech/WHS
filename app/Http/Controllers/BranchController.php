@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Modules\VehicleManagement\Services\VehicleService;
+use App\Modules\InspectionManagement\Models\Inspection;
+use Illuminate\Support\Carbon;
 
 class BranchController extends Controller
 {
+    public function __construct(private VehicleService $vehicleService)
+    {
+    }
+
+
     /**
      * Display a listing of branches
      */
@@ -38,6 +46,50 @@ class BranchController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $branchIds = $branches->getCollection()->pluck('id')->filter()->all();
+
+        $inspectionAggregates = empty($branchIds)
+            ? collect()
+            : Inspection::selectRaw("branch_id,
+                COUNT(*) as total,
+                SUM(status = 'pending') as pending,
+                SUM(status = 'completed') as completed,
+                SUM(overall_result IN ('fail_major','fail_critical')) as failed,
+                SUM(overall_result IN ('pass','pass_minor')) as passed,
+                MAX(inspection_date) as latest_at")
+                ->whereIn('branch_id', $branchIds)
+                ->groupBy('branch_id')
+                ->get()
+                ->keyBy('branch_id');
+
+        $branches->getCollection()->transform(function ($branch) use ($inspectionAggregates) {
+            $vehicleStats = $this->vehicleService->getStatistics($branch->id);
+            $inspectionData = $inspectionAggregates->get($branch->id);
+
+            $total = (int) ($inspectionData->total ?? 0);
+            $passed = (int) ($inspectionData->passed ?? 0);
+            $failed = (int) ($inspectionData->failed ?? 0);
+            $pending = (int) ($inspectionData->pending ?? 0);
+            $latestAt = $inspectionData && $inspectionData->latest_at
+                ? Carbon::parse($inspectionData->latest_at)
+                : null;
+            $complianceRate = $total > 0 ? round(($passed / $total) * 100) : null;
+
+            $branch->setAttribute('vehicle_compliance', [
+                'vehicles' => $vehicleStats,
+                'inspections' => [
+                    'total' => $total,
+                    'passed' => $passed,
+                    'failed' => $failed,
+                    'pending' => $pending,
+                    'compliance_rate' => $complianceRate,
+                    'latest_at' => $latestAt,
+                ],
+            ]);
+
+            return $branch;
+        });
+
         $statistics = [
             'total' => Branch::count(),
             'active' => Branch::where('is_active', true)->count(),
@@ -47,6 +99,7 @@ class BranchController extends Controller
 
         return view('content.branches.index', compact('branches', 'statistics'));
     }
+
 
     /**
      * Show the form for creating a new branch
@@ -76,12 +129,12 @@ class BranchController extends Controller
      */
     public function show(Branch $branch)
     {
-        $branch->load(['users' => function ($query) {
+        $branch->loadCount('users')->load(['users' => function ($query) {
             $query->orderBy('name');
         }]);
 
         $statistics = [
-            'total_employees' => $branch->users()->count(),
+            'total_employees' => $branch->users_count,
             'active_employees' => $branch->users()->where('is_active', true)->count(),
             'managers' => $branch->users()->role('Manager')->count(),
             'employees' => $branch->users()->role('Employee')->count(),
@@ -179,3 +232,6 @@ class BranchController extends Controller
         ];
     }
 }
+
+
+

@@ -45,6 +45,7 @@ class Vehicle extends Model
         'insurance_premium',
         'rego_expiry_date',
         'inspection_due_date',
+        'inspection_frequency',
         'qr_code_path',
         'status',
         'notes',
@@ -175,6 +176,16 @@ class Vehicle extends Model
     public function latestInspection()
     {
         return $this->hasOne(\App\Modules\InspectionManagement\Models\Inspection::class)
+            ->latest('inspection_date');
+    }
+
+    /**
+     * Latest driver pre-start inspection (daily)
+     */
+    public function latestPrestartInspection()
+    {
+        return $this->hasOne(\App\Modules\InspectionManagement\Models\Inspection::class)
+            ->where('inspection_type', 'pre_trip')
             ->latest('inspection_date');
     }
 }

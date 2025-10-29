@@ -13,7 +13,7 @@ class VehicleService
      */
     public function getPaginated(array $filters = []): LengthAwarePaginator
     {
-        $query = Vehicle::query()->with(['branch', 'currentAssignment.user']);
+        $query = Vehicle::query()->with(['branch', 'currentAssignment.user', 'latestInspection']);
 
         // Search filter
         if (!empty($filters['search'])) {
@@ -24,6 +24,11 @@ class VehicleService
                   ->orWhere('model', 'like', "%{$search}%")
                   ->orWhere('vin_number', 'like', "%{$search}%");
             });
+        }
+
+        // Branch filter
+        if (!empty($filters['branch'])) {
+            $query->where('branch_id', $filters['branch']);
         }
 
         // Status filter
@@ -149,7 +154,7 @@ class VehicleService
      */
     public function getAlertsAndReminders(?string $branchId = null): Collection
     {
-        $query = Vehicle::query()->with(['branch', 'currentAssignment.user']);
+        $query = Vehicle::query()->with(['branch', 'currentAssignment.user', 'latestInspection']);
 
         if ($branchId) {
             $query->where('branch_id', $branchId);

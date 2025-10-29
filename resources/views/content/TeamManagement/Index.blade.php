@@ -44,7 +44,7 @@
     metricCaption="All team members"
     :searchRoute="route('teams.index')"
     searchPlaceholder="Search members, roles, branches…"
-    :createRoute="'#'"
+    :createRoute="route('teams.create')"
     createLabel="Add member"
     createModal="addMemberModal"
   />
@@ -113,32 +113,61 @@
             </div>
 
             <div class="whs-card__body">
-              <div>
-                <h3>{{ $member['name'] }}</h3>
-                <p>{{ ucfirst($member['role']) }} • {{ $member['branch_name'] }}</p>
+              <div class="mb-3">
+                <h3 class="mb-1">{{ $member['name'] }}</h3>
+                <p class="sensei-micro-copy mb-0">{{ ucfirst($member['role']) }} &middot; {{ $member['branch_name'] }}</p>
               </div>
-              <div>
-                <span class="whs-location-label">Contact</span>
-                <span>{{ $member['email'] }} • {{ $member['phone'] }}</span>
-              </div>
-              <div>
-                <span class="whs-location-label">Certifications</span>
-                <span>
-                  @if($member['certifications_count'] > 0)
-                    <strong class="me-2">{{ $member['certifications_count'] }} Cert{{ $member['certifications_count'] > 1 ? 's' : '' }}</strong>
-                    @if($member['has_expiring_certs'])
-                      <span class="whs-chip whs-chip--severity whs-chip--severity-high">Expiring Soon</span>
+              <div class="sensei-meta-grid">
+                <div>
+                  <span>Contact</span>
+                  <span>{{ $member['email'] }} &middot; {{ $member['phone'] }}</span>
+                </div>
+                <div>
+                  <span>Certifications</span>
+                  <span>
+                    @if($member['certifications_count'] > 0)
+                      <strong class="me-2">{{ $member['certifications_count'] }} Cert{{ $member['certifications_count'] > 1 ? 's' : '' }}</strong>
+                      @if($member['has_expiring_certs'])
+                        <span class="whs-chip whs-chip--severity whs-chip--severity-high">Expiring Soon</span>
+                      @else
+                        <span class="whs-chip whs-chip--severity whs-chip--severity-low">Current</span>
+                      @endif
                     @else
-                      <span class="whs-chip whs-chip--severity whs-chip--severity-low">Current</span>
+                      <span class="text-muted">None</span>
                     @endif
+                  </span>
+                </div>
+                <div>
+                  <span>Assigned Vehicle</span>
+                  @if($member['current_vehicle'])
+                    @php $vehicle = $member['current_vehicle']; @endphp
+                    <span>
+                      <strong>{{ $vehicle['registration_number'] }}</strong> &middot; {{ $vehicle['make'] }} {{ $vehicle['model'] }}
+                      <span class="d-block text-muted small">Since {{ $vehicle['assigned_human'] }}</span>
+                    </span>
                   @else
-                    <span class="text-muted">None</span>
+                    <span class="text-muted">Not assigned</span>
                   @endif
-                </span>
-              </div>
-              <div>
-                <span class="whs-location-label">Last Active</span>
-                <span>{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</span>
+                </div>
+                <div>
+                  <span>Last Inspection</span>
+                  @if($member['latest_inspection'])
+                    @php $inspection = $member['latest_inspection']; @endphp
+                    @php $inspectionResult = $inspection['result'] ?? $inspection['status']; @endphp
+                    @php $inspectionBadge = in_array($inspectionResult, ['fail_major','fail_critical']) ? 'danger' : (in_array($inspectionResult, ['pass','pass_minor']) ? 'success' : 'info'); @endphp
+                    <span>
+                      <strong class="me-2">{{ strtoupper(str_replace('_', ' ', $inspectionResult)) }}</strong>
+                      <span class="badge bg-label-{{ $inspectionBadge }}">{{ ucfirst(str_replace('_', ' ', $inspectionResult)) }}</span>
+                      <span class="d-block text-muted small">{{ $inspection['date_human'] }}</span>
+                    </span>
+                  @else
+                    <span class="text-muted">No submissions yet</span>
+                  @endif
+                </div>
+                <div>
+                  <span>Last Active</span>
+                  <span>{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</span>
+                </div>
               </div>
             </div>
 
@@ -165,17 +194,23 @@
                 </button>
 
                 @if($member['status'] === 'active')
-                  <button type="button" class="whs-action-btn whs-action-btn--warning" onclick="markOnLeave('{{ $member['id'] }}', '{{ $member['name'] }}')">
-                    <i class="icon-base ti ti-calendar-x"></i>
-                    <span>Leave</span>
-                  </button>
+                  <form action="{{ route('teams.on-leave', $member['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Mark {{ $member['name'] }} as on leave?')">
+                    @csrf
+                    <button type="submit" class="whs-action-btn whs-action-btn--warning">
+                      <i class="icon-base ti ti-calendar-x"></i>
+                      <span>Leave</span>
+                    </button>
+                  </form>
                 @endif
 
                 @if($member['status'] === 'on_leave')
-                  <button type="button" class="whs-action-btn whs-action-btn--success" onclick="markActive('{{ $member['id'] }}', '{{ $member['name'] }}')">
-                    <i class="icon-base ti ti-check"></i>
-                    <span>Activate</span>
-                  </button>
+                  <form action="{{ route('teams.activate', $member['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Mark {{ $member['name'] }} as active?')">
+                    @csrf
+                    <button type="submit" class="whs-action-btn whs-action-btn--success">
+                      <i class="icon-base ti ti-check"></i>
+                      <span>Activate</span>
+                    </button>
+                  </form>
                 @endif
 
                 <form action="{{ route('teams.destroy', $member['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this team member?')">
@@ -313,10 +348,9 @@
               <label for="branch_id" class="form-label">Branch *</label>
               <select id="branch_id" name="branch_id" class="form-select" required>
                 <option value="">Select branch</option>
-                <option value="1">Head Office</option>
-                <option value="2">Newcastle</option>
-                <option value="3">Sydney</option>
-                <option value="4">Wollongong</option>
+                @foreach($branches as $branch)
+                  <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
               </select>
             </div>
 
@@ -424,21 +458,8 @@ function viewTrainingHistory(memberId, memberName) {
   new bootstrap.Modal(document.getElementById('trainingHistoryModal')).show();
 }
 
-// Mark member on leave
-function markOnLeave(memberId, memberName) {
-  if (confirm('Mark ' + memberName + ' as on leave?')) {
-    // TODO: Implement AJAX call
-    console.log('Mark on leave:', memberId);
-  }
-}
-
-// Mark member active
-function markActive(memberId, memberName) {
-  if (confirm('Mark ' + memberName + ' as active?')) {
-    // TODO: Implement AJAX call
-    console.log('Mark active:', memberId);
-  }
-}
 </script>
 @endsection
+
+
 

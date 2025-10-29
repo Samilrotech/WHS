@@ -2,6 +2,12 @@
 
 @section('title', 'Create Inspection')
 
+@php
+  $selectedVehicleId = $selectedVehicleId ?? null;
+  $selectedInspectionType = $selectedInspectionType ?? null;
+  $prefillOdometer = $selectedVehicle['odometer_reading'] ?? null;
+@endphp
+
 @section('content')
 @include('layouts.sections.flash-message')
 
@@ -34,7 +40,7 @@
                   <option value="">Select vehicle</option>
                   @foreach($vehicles as $vehicle)
                     <option
-                      value="{{ $vehicle['id'] }}"
+                      value="{{ $vehicle['id'] }}" {{ old('vehicle_id', $selectedVehicleId) == $vehicle['id'] ? 'selected' : '' }}
                       data-make="{{ $vehicle['make'] }}"
                       data-model="{{ $vehicle['model'] }}"
                       data-year="{{ $vehicle['year'] }}"
@@ -58,12 +64,12 @@
                 <label for="inspection_type" class="form-label">Inspection Type *</label>
                 <select id="inspection_type" name="inspection_type" class="form-select @error('inspection_type') is-invalid @enderror" required>
                   <option value="">Select type</option>
-                  <option value="monthly_routine" {{ old('inspection_type') === 'monthly_routine' ? 'selected' : '' }}>Monthly Routine</option>
-                  <option value="pre_trip" {{ old('inspection_type') === 'pre_trip' ? 'selected' : '' }}>Pre-Trip</option>
-                  <option value="post_incident" {{ old('inspection_type') === 'post_incident' ? 'selected' : '' }}>Post-Incident</option>
-                  <option value="annual_compliance" {{ old('inspection_type') === 'annual_compliance' ? 'selected' : '' }}>Annual Compliance</option>
-                  <option value="maintenance_followup" {{ old('inspection_type') === 'maintenance_followup' ? 'selected' : '' }}>Maintenance Follow-up</option>
-                  <option value="random_spot_check" {{ old('inspection_type') === 'random_spot_check' ? 'selected' : '' }}>Random Spot Check</option>
+                  <option value="monthly_routine" {{ old('inspection_type', $selectedInspectionType) === 'monthly_routine' ? 'selected' : '' }}>Monthly Routine</option>
+                  <option value="pre_trip" {{ old('inspection_type', $selectedInspectionType) === 'pre_trip' ? 'selected' : '' }}>Pre-Trip</option>
+                  <option value="post_incident" {{ old('inspection_type', $selectedInspectionType) === 'post_incident' ? 'selected' : '' }}>Post-Incident</option>
+                  <option value="annual_compliance" {{ old('inspection_type', $selectedInspectionType) === 'annual_compliance' ? 'selected' : '' }}>Annual Compliance</option>
+                  <option value="maintenance_followup" {{ old('inspection_type', $selectedInspectionType) === 'maintenance_followup' ? 'selected' : '' }}>Maintenance Follow-up</option>
+                  <option value="random_spot_check" {{ old('inspection_type', $selectedInspectionType) === 'random_spot_check' ? 'selected' : '' }}>Random Spot Check</option>
                 </select>
                 @error('inspection_type')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -122,7 +128,7 @@
                   id="odometer_reading"
                   name="odometer_reading"
                   class="form-control @error('odometer_reading') is-invalid @enderror"
-                  value="{{ old('odometer_reading') }}"
+                  value="{{ old('odometer_reading', $prefillOdometer) }}"
                   min="0">
                 @error('odometer_reading')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -250,3 +256,4 @@ window.addEventListener('load', function() {
 </script>
 @endsection
 @endsection
+

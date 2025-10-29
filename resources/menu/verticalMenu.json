@@ -58,6 +58,12 @@
       "slug": "whs4-vehicles"
     },
     {
+      "url": "my-vehicle-inspection",
+      "name": "Assigned Vehicles",
+      "icon": "menu-icon icon-base ti tabler-car",
+      "slug": "driver.vehicle-inspections"
+    },
+    {
       "url": "journey",
       "name": "Journey Management",
       "icon": "menu-icon icon-base ti tabler-route",
@@ -81,7 +87,7 @@
     {
       "url": "inspections",
       "name": "Inspection Management",
-      "icon": "menu-icon icon-base ti tabler-clipboard-check",
+      "icon": "menu-icon icon-base ti tabler-car",
       "slug": "whs4-inspections"
     },
     {

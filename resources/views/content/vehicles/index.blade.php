@@ -96,6 +96,51 @@
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
+      <form method="GET" class="card sensei-surface-card sensei-filter-card mb-4 border-0 p-3">
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-3">
+            <label for="filter_branch" class="form-label">Branch</label>
+            <select id="filter_branch" name="branch" class="form-select">
+              <option value="">All branches</option>
+              @foreach($branches as $branch)
+                <option value="{{ $branch->id }}" {{ ($filters['branch'] ?? '') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-lg-3">
+            <label for="filter_status" class="form-label">Status</label>
+            <select id="filter_status" name="status" class="form-select">
+              <option value="">All statuses</option>
+              <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Active</option>
+              <option value="maintenance" {{ ($filters['status'] ?? '') === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+              <option value="inactive" {{ ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+              <option value="sold" {{ ($filters['status'] ?? '') === 'sold' ? 'selected' : '' }}>Sold</option>
+            </select>
+          </div>
+          <div class="col-lg-3">
+            <label for="filter_assigned" class="form-label">Assignment</label>
+            <select id="filter_assigned" name="assigned" class="form-select">
+              <option value="all" {{ ($filters['assigned'] ?? 'all') === 'all' ? 'selected' : '' }}>All vehicles</option>
+              <option value="yes" {{ ($filters['assigned'] ?? '') === 'yes' ? 'selected' : '' }}>Assigned</option>
+              <option value="no" {{ ($filters['assigned'] ?? '') === 'no' ? 'selected' : '' }}>Available</option>
+            </select>
+          </div>
+          <div class="col-lg-3">
+            <label for="filter_make" class="form-label">Make</label>
+            <select id="filter_make" name="make" class="form-select">
+              <option value="">All makes</option>
+              @foreach($makes as $make)
+                <option value="{{ $make }}" {{ ($filters['make'] ?? '') === $make ? 'selected' : '' }}>{{ $make }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-12 d-flex gap-2 justify-content-end">
+            <button type="submit" class="btn btn-primary">Apply filters</button>
+            <a href="{{ route('vehicles.index') }}" class="btn btn-outline-secondary">Reset</a>
+          </div>
+        </div>
+      </form>
+
       <div class="whs-card-list">
         @forelse ($vehicles['data'] as $vehicle)
           @php
@@ -106,9 +151,14 @@
               'inactive' => 'Inactive',
               default => ucfirst($vehicle->status)
             };
+            $latestInspection = $vehicle->latestInspection;
+            if ($latestInspection && in_array($latestInspection->overall_result, ['fail_major', 'fail_critical'])) {
+              $severity = 'critical';
+            }
+            $assignedDriver = $vehicle->currentAssignment?->user;
           @endphp
 
-          <x-whs.card :severity="$severity">
+          <x-whs.card :severity="$severity" class="sensei-surface-card">
             <div class="whs-card__header">
               <span class="whs-chip whs-chip--id">{{ $vehicle->registration_number }}</span>
               <span class="whs-chip whs-chip--status whs-chip--status-{{ strtolower($statusLabel) }}">
@@ -150,10 +200,27 @@
               <div>
                 <span class="whs-location-label">Assignment</span>
                 <span>
-                  @if($vehicle->isAssigned())
+                  @if($vehicle->isAssigned() && $assignedDriver)
+                    <strong>{{ $assignedDriver->name }}</strong> &middot; since {{ optional($vehicle->currentAssignment->assigned_date)->diffForHumans() }}
+                  @elseif($vehicle->isAssigned())
                     Assigned
                   @else
-                    Available
+                    <span class="text-muted">Available for allocation</span>
+                  @endif
+                </span>
+              </div>
+              <div>
+                <span class="whs-location-label">Last Inspection</span>
+                <span>
+                  @if($latestInspection)
+                    @php
+                      $inspectionResult = $latestInspection->overall_result ?? $latestInspection->status;
+                      $badgeColor = in_array($inspectionResult, ['fail_major','fail_critical']) ? 'danger' : (in_array($inspectionResult, ['pass','pass_minor']) ? 'success' : 'info');
+                    @endphp
+                    {{ $latestInspection->inspection_date?->format('d M Y') }}
+                    <span class="badge bg-label-{{ $badgeColor }} ms-1">{{ ucfirst(str_replace('_', ' ', $inspectionResult)) }}</span>
+                  @else
+                    <span class="text-muted">No inspections logged</span>
                   @endif
                 </span>
               </div>

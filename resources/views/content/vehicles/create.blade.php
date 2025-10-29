@@ -180,6 +180,23 @@
             </div>
           </div>
 
+          <!-- Inspection cadence -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="inspection_frequency" class="form-label">Inspection cadence *</label>
+                <select id="inspection_frequency" name="inspection_frequency" class="form-select @error('inspection_frequency') is-invalid @enderror" required>
+                  @foreach($inspectionFrequencies as $value => $label)
+                    <option value="{{ $value }}" {{ old('inspection_frequency', 'monthly') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+                @error('inspection_frequency')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+          </div>
+
           <hr class="my-4">
 
           <h6 class="mb-3">Financial Information</h6>

@@ -5,6 +5,7 @@ namespace App\Modules\InspectionManagement\Models;
 use App\Models\Branch;
 use App\Models\User;
 use App\Modules\VehicleManagement\Models\Vehicle;
+use App\Modules\VehicleManagement\Models\VehicleAssignment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,7 @@ class Inspection extends Model
     protected $fillable = [
         'branch_id',
         'vehicle_id',
+        'vehicle_assignment_id',
         'inspector_user_id',
         'approved_by_user_id',
         'inspection_number',
@@ -99,6 +101,14 @@ class Inspection extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    /**
+     * Get the vehicle assignment linked to this inspection
+     */
+    public function vehicleAssignment(): BelongsTo
+    {
+        return $this->belongsTo(VehicleAssignment::class);
     }
 
     /**

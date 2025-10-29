@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 
 <!-- Bootstrap -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-uFUV7xvXzZge/3u9P/d9vywgqbiZ9erjRzCQXDpUe1koXSPo6e7iT730GpShypCs" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous" />
 
 <!-- Page Styles -->
 @yield('vendor-style')

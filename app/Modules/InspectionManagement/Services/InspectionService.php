@@ -54,6 +54,79 @@ class InspectionService
     }
 
     /**
+     * Quick-create a driver inspection for the current assignment
+     */
+    public function createDriverVehicleInspection(array $data): Inspection
+    {
+        $template = collect($this->getDriverQuickChecklist());
+
+        return DB::transaction(function () use ($data, $template) {
+            $inspection = Inspection::create([
+                'branch_id' => auth()->user()->branch_id,
+                'vehicle_id' => $data['vehicle_id'],
+                'vehicle_assignment_id' => $data['vehicle_assignment_id'] ?? null,
+                'inspector_user_id' => auth()->id(),
+                'inspection_number' => $this->generateInspectionNumber(),
+                'inspection_type' => 'pre_trip',
+                'inspection_date' => $data['inspection_date'] ?? now(),
+                'odometer_reading' => $data['odometer_reading'] ?? null,
+                'location' => $data['location'] ?? null,
+                'status' => 'pending',
+                'inspector_notes' => $data['inspector_notes'] ?? null,
+            ]);
+
+            foreach ($template as $index => $item) {
+                $slug = $item['slug'];
+                $result = $data['checks'][$slug] ?? 'pass';
+                $result = in_array($result, ['pass', 'fail', 'na'], true) ? $result : 'pass';
+
+                $defectSeverity = null;
+                $repairRequired = false;
+                $repairDueDate = null;
+
+                if ($result === 'fail') {
+                    $defectSeverity = $item['severity_on_fail'] ?? 'minor';
+                    $repairRequired = true;
+                    $repairDueDate = $this->calculateRepairDueDate($defectSeverity);
+                }
+
+                InspectionItem::create([
+                    'inspection_id' => $inspection->id,
+                    'item_category' => $item['category'],
+                    'item_name' => $item['name'],
+                    'item_description' => $item['description'] ?? null,
+                    'sequence_order' => $index + 1,
+                    'result' => $result,
+                    'defect_severity' => $defectSeverity,
+                    'defect_notes' => $data['notes'][$slug] ?? null,
+                    'repair_required' => $repairRequired,
+                    'repair_due_date' => $repairDueDate,
+                    'urgency' => $repairRequired ? ($item['urgency'] ?? 'urgent') : null,
+                    'safety_critical' => $item['safety_critical'] ?? false,
+                    'compliance_item' => $item['compliance'] ?? false,
+                    'compliance_standard' => $item['compliance_standard'] ?? null,
+                ]);
+            }
+
+            $inspection->update(['total_items_checked' => $template->count()]);
+
+            // Refresh stats and determine overall outcome
+            $inspection->load('items');
+            $this->updateInspectionStatistics($inspection);
+            $inspection->refresh();
+
+            $inspection->update([
+                'status' => 'completed',
+                'overall_result' => $this->determineOverallResult($inspection),
+                'defects_summary' => $this->summarizeFailedItems($inspection),
+                'recommendations' => $data['recommendations'] ?? null,
+            ]);
+
+            return $inspection->load(['vehicle', 'vehicleAssignment', 'inspector', 'items']);
+        });
+    }
+
+    /**
      * Create standard checklist items for the inspection
      */
     protected function createStandardChecklistItems(Inspection $inspection): void
@@ -135,6 +208,96 @@ class InspectionService
             ['category' => 'Exterior', 'name' => 'Doors and locks', 'description' => 'Check all doors open, close, and lock properly'],
             ['category' => 'Exterior', 'name' => 'Fuel cap', 'description' => 'Check fuel cap secure and seals properly'],
         ];
+    }
+
+    /**
+     * Driver daily inspection checklist template
+     */
+    public function getDriverQuickChecklist(): array
+    {
+        return [
+            [
+                'slug' => 'tyres_wheels',
+                'category' => 'Exterior',
+                'name' => 'Tyres & Wheels',
+                'description' => 'Tread depth, inflation, visible damage, wheel nuts secure',
+                'severity_on_fail' => 'critical',
+                'safety_critical' => true,
+            ],
+            [
+                'slug' => 'lights_indicators',
+                'category' => 'Exterior',
+                'name' => 'Lights & Indicators',
+                'description' => 'Headlights, brake lights, indicators operational',
+                'severity_on_fail' => 'major',
+                'safety_critical' => true,
+            ],
+            [
+                'slug' => 'brakes_handbrake',
+                'category' => 'Critical Systems',
+                'name' => 'Brakes & Handbrake',
+                'description' => 'Foot brake responsive, park brake holds on incline',
+                'severity_on_fail' => 'critical',
+                'safety_critical' => true,
+            ],
+            [
+                'slug' => 'windscreen_wipers',
+                'category' => 'Visibility',
+                'name' => 'Windscreen & Wipers',
+                'description' => 'Windscreen clear, wipers effective, washer fluid topped up',
+                'severity_on_fail' => 'major',
+            ],
+            [
+                'slug' => 'fluids_leaks',
+                'category' => 'Under Bonnet',
+                'name' => 'Fluid Levels & Leaks',
+                'description' => 'No visible leaks, engine oil/coolant within range',
+                'severity_on_fail' => 'major',
+            ],
+            [
+                'slug' => 'seatbelts_restraints',
+                'category' => 'Cabin',
+                'name' => 'Seatbelts & Restraints',
+                'description' => 'Belts latch securely, no fraying or damage',
+                'severity_on_fail' => 'critical',
+                'safety_critical' => true,
+            ],
+            [
+                'slug' => 'horn_warning_devices',
+                'category' => 'Cabin',
+                'name' => 'Horn & Warning Devices',
+                'description' => 'Horn, reversing alarm and other alerts working',
+                'severity_on_fail' => 'minor',
+            ],
+            [
+                'slug' => 'cleanliness_documents',
+                'category' => 'Ready To Operate',
+                'name' => 'Cab Clean & Documents',
+                'description' => 'Cab tidy, logbook and emergency gear present',
+                'severity_on_fail' => 'minor',
+            ],
+        ];
+    }
+
+    /**
+     * Build a compact summary of failed items for quick driver inspections
+     */
+    protected function summarizeFailedItems(Inspection $inspection): ?string
+    {
+        $failedItems = $inspection->items
+            ->where('result', 'fail')
+            ->map(function ($item) {
+                $note = trim((string) ($item->defect_notes ?? ''));
+                return $note
+                    ? "{$item->item_name}: {$note}"
+                    : "{$item->item_name}: Issue reported";
+            });
+
+        if ($failedItems->isEmpty()) {
+            return null;
+        }
+
+        return $failedItems->implode("\n");
     }
 
     /**

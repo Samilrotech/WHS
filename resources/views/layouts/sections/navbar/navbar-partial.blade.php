@@ -23,36 +23,69 @@ use Illuminate\Support\Facades\Route;
           autocomplete="off"
           spellcheck="false"
         >
-        <span class="sensei-search__shortcut" aria-hidden="true">
-          <kbd>Ctrl</kbd>
-          <span class="sensei-search__shortcut-plus">+</span>
-          <kbd>K</kbd>
-        </span>
-      </div>
 
-      <button type="submit" class="sensei-search__submit">
-        <span class="sensei-search__submit-text">Search</span>
-        <i class="ti ti-arrow-right" aria-hidden="true"></i>
-      </button>
+        <button type="submit" class="sensei-search__submit" aria-label="Run search">
+          <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+        </button>
+      </div>
     </form>
   </div>
 
   <div class="sensei-topbar__actions">
-    <div class="sensei-user">
-      <span class="sensei-user__avatar">
-        {{ strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2)) }}
-      </span>
-      <div class="sensei-user__meta">
-        <span class="sensei-user__name">{{ Auth::user()->name ?? 'WHS Operator' }}</span>
-        <span class="sensei-user__role">{{ Auth::user()->role->name ?? 'Administrator' }}</span>
-      </div>
-      <a
-        href="{{ Route::has('profile.show') ? route('profile.show') : '#' }}"
-        class="sensei-user__link"
-        aria-label="Profile"
+    <div class="sensei-user" data-user-menu>
+      <button
+        type="button"
+        class="sensei-user__trigger"
+        data-user-menu-trigger
+        aria-haspopup="true"
+        aria-expanded="false"
       >
-        <i class="ti ti-chevron-down"></i>
-      </a>
+        <span class="sensei-user__avatar">
+          {{ strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2)) }}
+        </span>
+        <span class="sensei-user__meta">
+          <span class="sensei-user__name">{{ Auth::user()->name ?? 'WHS Operator' }}</span>
+          <span class="sensei-user__role">{{ Auth::user()->role->name ?? 'Administrator' }}</span>
+        </span>
+        <i class="ti ti-chevron-down sensei-user__caret" aria-hidden="true"></i>
+      </button>
+
+      <div class="sensei-user__dropdown" data-user-menu-panel hidden>
+        <div class="sensei-user__dropdown-header">
+          <span class="sensei-user__initials">{{ strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2)) }}</span>
+          <div class="sensei-user__dropdown-meta">
+            <strong>{{ Auth::user()->name ?? 'WHS Operator' }}</strong>
+            <span>{{ Auth::user()->email ?? 'operator@example.com' }}</span>
+          </div>
+        </div>
+
+        <div class="sensei-user__dropdown-body">
+          @if(Route::has('profile.show'))
+            <a href="{{ route('profile.show') }}" class="sensei-user__dropdown-link">
+              <i class="ti ti-user-circle"></i>
+              <span>Profile</span>
+            </a>
+          @endif
+          <a href="{{ route('dashboard') }}" class="sensei-user__dropdown-link">
+            <i class="ti ti-layout-dashboard"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="sensei-user__dropdown-footer">
+          <form method="POST" action="{{ route('logout', absolute: false) }}" id="logout-form" data-logout-form>
+            @csrf
+            <button
+              type="submit"
+              class="sensei-user__dropdown-link sensei-user__dropdown-link--danger"
+              data-logout-trigger
+            >
+              <i class="ti ti-logout-2"></i>
+              <span>Log Out</span>
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </header>

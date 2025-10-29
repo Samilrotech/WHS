@@ -1,128 +1,108 @@
-@php
-  setcookie('contentLayout', 'wide', time() + 60 * 60 * 24 * 365, '/');
-  $pageConfigs = ['contentLayout' => 'wide'];
-@endphp
-
 @extends('layouts.layoutMaster')
 
 @section('title', 'Incident Management')
 
-@php
-  use Illuminate\Support\Str;
-@endphp
-
 @section('page-script')
 <script>
-  (function ensureWideLayout() {
-    var expires = new Date();
-    expires.setFullYear(expires.getFullYear() + 1);
-    document.cookie = 'contentLayout=wide;path=/;expires=' + expires.toUTCString();
-  })();
+  document.cookie = 'contentLayout=wide;path=/;max-age=' + 60 * 60 * 24 * 365;
 </script>
 @endsection
 
 @section('content')
-{{-- DO NOT CHANGE LAYOUT -- WHS4 Horizontal Avatar Pattern (see FRONTEND_STANDARDS.md) --}}
 @include('layouts.sections.flash-message')
 
 @php
+  use Illuminate\Support\Str;
+
   $openIncidents = $statistics['by_status']['investigating'] ?? 0;
   $resolvedIncidents = $statistics['by_status']['resolved'] ?? 0;
   $criticalIncidents = $statistics['by_severity']['critical'] ?? 0;
-  $pendingIncidents = ($statistics['total'] ?? 0) - $resolvedIncidents;
-
+  $pendingIncidents = max(0, ($statistics['total'] ?? 0) - $resolvedIncidents);
+  $resolutionRate = ($statistics['total'] ?? 0) > 0
+      ? round(($resolvedIncidents / $statistics['total']) * 100)
+      : null;
   $featuredIncident = $incidents->first();
-  $filterPills = [
-    ['label' => 'All branches', 'active' => true],
-    ['label' => 'Sydney', 'active' => false],
-    ['label' => 'Melbourne', 'active' => false],
-    ['label' => 'Critical', 'active' => $criticalIncidents > 0],
-    ['label' => 'Overdue', 'active' => false],
-  ];
+  $canEdit = auth()->user()?->can('edit incidents');
+  $canAssign = auth()->user()?->can('assign incidents');
+  $canDelete = auth()->user()?->can('delete incidents');
 @endphp
 
-<div class="incident-shell">
-  <header class="incident-shell__hero">
-    <div class="incident-shell__hero-main">
-      <div>
-        <span class="incident-eyebrow">Safety &amp; Incidents</span>
-        <h1 class="incident-title">Incident Management</h1>
-        <p class="incident-subtitle">Enterprise-grade command centre for every branch, with proactive signals and rapid triage tools.</p>
-      </div>
-      <div class="incident-hero-metric">
-        <span class="incident-hero-metric__label">Total visibility</span>
-        <span class="incident-hero-metric__value">{{ $statistics['total'] ?? 0 }}</span>
-        <span class="incident-hero-metric__caption">Active records in the WHS4 network</span>
-      </div>
-    </div>
-    <div class="incident-shell__hero-actions">
-      <form method="GET" action="{{ route('incidents.index') }}" class="incident-search">
-        <i class="icon-base ti ti-search incident-search__icon"></i>
-        <input type="search" name="q" value="{{ request('q') }}" class="incident-search__input" placeholder="Search incidents, branches, peopleâ€¦" aria-label="Search incidents">
+<div class="whs-shell">
+  <x-whs.hero
+    eyebrow="Safety & Incidents"
+    title="Incident Management"
+    subtitle="Capture, track, and resolve frontline safety incidents with real-time visibility into branch activity."
+    :metric="true"
+    metric-label="Total visibility"
+    :metric-value="$statistics['total'] ?? 0"
+    metric-caption="Active records in the WHS4 network"
+  >
+    <x-slot:actions>
+      <form method="GET" action="{{ route('incidents.index') }}" class="sensei-search sensei-search--hero" role="search">
+        <i class="icon-base ti ti-search sensei-search__icon"></i>
+        <input
+          type="search"
+          name="q"
+          value="{{ request('q') }}"
+          class="sensei-search__input"
+          placeholder="Search incident ID, description, or location..."
+          aria-label="Search incidents"
+        >
       </form>
       <a href="{{ route('incidents.create') }}" class="incident-primary-btn">
         <i class="icon-base ti ti-plus me-2"></i>
         Report incident
       </a>
-    </div>
-    <div class="incident-filter-pills">
-      @foreach ($filterPills as $pill)
-        <button type="button" class="incident-filter-pill{{ $pill['active'] ? ' is-active' : '' }}">{{ $pill['label'] }}</button>
-      @endforeach
-    </div>
-  </header>
+    </x-slot:actions>
+  </x-whs.hero>
 
-  <section class="incident-metrics">
-    <article class="incident-metric-card">
-      <div class="incident-metric-card__icon incident-metric-card__icon--brand">
-        <i class="icon-base ti ti-activity"></i>
-      </div>
-      <span class="incident-metric-card__label">Total Incidents</span>
-      <span class="incident-metric-card__value">{{ $statistics['total'] ?? 0 }}</span>
-      <span class="incident-metric-card__meta">Rolling 90 day capture</span>
-    </article>
+  <section class="whs-metrics">
+    <x-whs.metric-card
+      icon="ti-activity"
+      iconVariant="brand"
+      label="Total Incidents"
+      :value="$statistics['total'] ?? 0"
+      meta="Rolling 90 day capture"
+    />
 
-    <article class="incident-metric-card">
-      <div class="incident-metric-card__icon incident-metric-card__icon--critical">
-        <i class="icon-base ti ti-alert-triangle"></i>
-      </div>
-      <span class="incident-metric-card__label">Critical Alerts</span>
-      <span class="incident-metric-card__value">{{ $criticalIncidents }}</span>
-      <span class="incident-metric-card__meta text-danger">Requires executive review</span>
-    </article>
+    <x-whs.metric-card
+      icon="ti-alert-triangle"
+      iconVariant="critical"
+      label="Critical Alerts"
+      :value="$criticalIncidents"
+      meta="Requires review"
+    />
 
-    <article class="incident-metric-card">
-      <div class="incident-metric-card__icon incident-metric-card__icon--amber">
-        <i class="icon-base ti ti-clock-hour-6"></i>
-      </div>
-      <span class="incident-metric-card__label">In Progress</span>
-      <span class="incident-metric-card__value">{{ $openIncidents }}</span>
-      <span class="incident-metric-card__meta">Assigned to branch leads</span>
-    </article>
+    <x-whs.metric-card
+      icon="ti-clock-hour-6"
+      iconVariant="warning"
+      label="In Progress"
+      :value="$openIncidents"
+      meta="Pending investigation"
+    />
 
-    <article class="incident-metric-card">
-      <div class="incident-metric-card__icon incident-metric-card__icon--success">
-        <i class="icon-base ti ti-shield-check"></i>
-      </div>
-      <span class="incident-metric-card__label">Resolved</span>
-      <span class="incident-metric-card__value">{{ $resolvedIncidents }}</span>
-      <span class="incident-metric-card__meta text-success">Closed with corrective actions</span>
-    </article>
+    <x-whs.metric-card
+      icon="ti-shield-check"
+      iconVariant="success"
+      label="Resolved"
+      :value="$resolvedIncidents"
+      meta="Closed with actions"
+    />
   </section>
 
-  <div class="incident-layout">
-    <div class="incident-main">
-      <div class="incident-section-heading">
+  <div class="whs-layout">
+    <div class="whs-main">
+      <div class="whs-section-heading">
         <div>
           <h2>Live incident register</h2>
-          <p>Sorted by newest first with real-time branch syncing.</p>
+          <p>Sorted by newest first and filtered using the search above.</p>
         </div>
-        <span class="incident-updated">Updated {{ now()->format('H:i') }}</span>
+        <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
-      <div class="incident-card-list">
+      <div class="whs-list whs-list--staggered">
         @forelse ($incidents as $incident)
-          <article class="incident-card incident-card--{{ Str::slug($incident->severity) }}">
+          <x-whs.card class="incident-card sensei-surface-card">
             <div class="incident-card__header">
               <span class="incident-chip incident-chip--id">#{{ $incident->id }}</span>
               <span class="incident-chip incident-chip--status incident-chip--status-{{ Str::slug($incident->status) }}">
@@ -132,21 +112,29 @@
 
             <div class="incident-card__body">
               <div>
-                <h3>{{ ucfirst($incident->type) }}</h3>
-                <p>{{ $incident->incident_datetime->format('d M Y â€¢ H:i') }}</p>
+                <h3 class="incident-card__title">{{ ucfirst($incident->type) }}</h3>
+                <p class="incident-card__timestamp text-muted mb-0">
+                  {{ $incident->incident_datetime->format('d M Y · H:i') }}
+                </p>
               </div>
-              <div>
-                <span class="incident-location-label">Location</span>
-                <span>{{ $incident->location_specific ?? 'Not captured' }}</span>
-              </div>
-              <div>
-                <span class="incident-location-label">Severity</span>
-                <span class="incident-chip incident-chip--severity incident-chip--severity-{{ Str::slug($incident->severity) }}">{{ ucfirst($incident->severity) }}</span>
-              </div>
-              <div>
-                <span class="incident-location-label">Reported by</span>
-                <span>{{ $incident->user->name }}</span>
-              </div>
+              <dl class="incident-data">
+                <div class="incident-data__item">
+                  <dt>Location</dt>
+                  <dd>{{ $incident->location_specific ?? 'Not captured' }}</dd>
+                </div>
+                <div class="incident-data__item">
+                  <dt>Severity</dt>
+                  <dd>
+                    <span class="incident-chip incident-chip--severity incident-chip--severity-{{ Str::slug($incident->severity) }}">
+                      {{ ucfirst($incident->severity) }}
+                    </span>
+                  </dd>
+                </div>
+                <div class="incident-data__item">
+                  <dt>Reported by</dt>
+                  <dd>{{ $incident->user->name }}</dd>
+                </div>
+              </dl>
             </div>
 
             <div class="incident-card__footer">
@@ -155,26 +143,36 @@
                   <i class="icon-base ti ti-external-link"></i>
                   <span>Open</span>
                 </a>
-                <a href="{{ route('incidents.edit', $incident) }}" class="incident-action-btn" aria-label="Assign or update incident">
-                  <i class="icon-base ti ti-user-check"></i>
-                  <span>Assign</span>
-                </a>
-                <form action="{{ route('incidents.destroy', $incident) }}" method="POST" class="d-inline">
-                  @csrf
-                  @method('DELETE')
-                  <button type="submit" class="incident-action-btn incident-action-btn--danger" onclick="return confirm('Archive this incident?')">
-                    <i class="icon-base ti ti-archive"></i>
-                    <span>Archive</span>
-                  </button>
-                </form>
+
+                @if($canEdit)
+                  <a href="{{ route('incidents.edit', $incident) }}" class="incident-action-btn" aria-label="Update incident">
+                    <i class="icon-base ti ti-edit"></i>
+                    <span>Edit</span>
+                  </a>
+                @endif
+
+                @if($canAssign)
+                  <a href="{{ route('incidents.edit', $incident) }}" class="incident-action-btn" aria-label="Manage assignment">
+                    <i class="icon-base ti ti-user-check"></i>
+                    <span>Assign</span>
+                  </a>
+                @endif
+
+                @if($canDelete)
+                  <form action="{{ route('incidents.destroy', $incident) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="incident-action-btn incident-action-btn--danger" onclick="return confirm('Archive this incident?')">
+                      <i class="icon-base ti ti-archive"></i>
+                      <span>Archive</span>
+                    </button>
+                  </form>
+                @endif
               </div>
-              <button class="incident-card__more">
-                <i class="icon-base ti ti-dots"></i>
-              </button>
             </div>
-          </article>
+          </x-whs.card>
         @empty
-          <div class="incident-empty">
+          <x-whs.card class="incident-empty">
             <div class="incident-empty__content">
               <i class="icon-base ti ti-confetti incident-empty__icon"></i>
               <h3>All clear!</h3>
@@ -184,13 +182,13 @@
                 Log your first incident
               </a>
             </div>
-          </div>
+          </x-whs.card>
         @endforelse
       </div>
     </div>
 
     <aside class="incident-sidebar">
-      <div class="incident-sidebar__panel">
+      <x-whs.sidebar-panel>
         <h3>Executive snapshot</h3>
         <ul class="incident-sidebar__stats">
           <li>
@@ -202,21 +200,25 @@
             <strong class="text-danger">{{ $criticalIncidents }}</strong>
           </li>
           <li>
-            <span>SLA compliance</span>
-            <strong>85%</strong>
+            <span>Resolution rate</span>
+            <strong>{{ $resolutionRate !== null ? $resolutionRate . '%' : '—' }}</strong>
           </li>
         </ul>
-        <p class="incident-sidebar__caption">SLA compliance is calculated across the last 14 days of branch activity.</p>
-      </div>
+        <p class="incident-sidebar__caption">
+          {{ $resolutionRate !== null
+              ? 'Percentage of resolved incidents across this dataset.'
+              : 'Resolution data will appear once incidents have been closed.' }}
+        </p>
+      </x-whs.sidebar-panel>
 
-      <div class="incident-sidebar__panel">
+      <x-whs.sidebar-panel>
         <h3>Rapid preview</h3>
         @if ($featuredIncident)
           <div class="incident-preview">
             <span class="incident-chip incident-chip--id">#{{ $featuredIncident->id }}</span>
             <h4>{{ ucfirst($featuredIncident->type) }}</h4>
             <p class="incident-preview__meta">
-              {{ $featuredIncident->incident_datetime->format('d M Y â€¢ H:i') }} &bull;
+              {{ $featuredIncident->incident_datetime->format('d M Y · H:i') }} &bull;
               {{ $featuredIncident->location_specific ?? 'Unset location' }}
             </p>
             <p class="incident-preview__description">
@@ -232,9 +234,8 @@
             <span>Choose an item from the register to surface investigation notes, attachments, and task assignments.</span>
           </div>
         @endif
-      </div>
+      </x-whs.sidebar-panel>
     </aside>
   </div>
 </div>
 @endsection
-

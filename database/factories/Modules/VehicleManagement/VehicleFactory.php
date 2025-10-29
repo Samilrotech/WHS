@@ -34,6 +34,7 @@ class VehicleFactory extends Factory
             'insurance_premium' => $this->faker->numberBetween(800, 2000),
             'rego_expiry_date' => $this->faker->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
             'inspection_due_date' => $this->faker->dateTimeBetween('now', '+6 months')->format('Y-m-d'),
+            'inspection_frequency' => 'monthly',
             'status' => 'active',
             'notes' => $this->faker->optional()->sentence(),
             'qr_code_path' => null,

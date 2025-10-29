@@ -7,6 +7,7 @@ use App\Modules\InspectionManagement\Models\Inspection;
 use App\Modules\InspectionManagement\Models\InspectionItem;
 use App\Modules\InspectionManagement\Services\InspectionService;
 use App\Modules\VehicleManagement\Models\Vehicle;
+use App\Modules\VehicleManagement\Models\VehicleAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,6 +24,12 @@ class InspectionController extends Controller
     {
         $query = Inspection::with(['vehicle', 'inspector', 'approver'])
             ->latest('inspection_date');
+
+        if ($request->filled('branch')) {
+            $query->where('branch_id', $request->branch);
+        } elseif (auth()->check() && !auth()->user()->isAdmin()) {
+            $query->where('branch_id', auth()->user()->branch_id);
+        }
 
         // Filter by status
         if ($request->has('status') && $request->status !== 'all') {
@@ -62,7 +69,7 @@ class InspectionController extends Controller
         return view('content.inspections.index', [
             'inspections' => $inspections,
             'statistics' => $stats,
-            'filters' => $request->only(['status', 'type', 'result', 'vehicle_id', 'search']),
+            'filters' => $request->only(['status', 'type', 'result', 'vehicle_id', 'search', 'branch']),
         ]);
     }
 
@@ -85,8 +92,11 @@ class InspectionController extends Controller
     /**
      * Show form to create new inspection
      */
-    public function create()
+    public function create(Request $request)
     {
+        $selectedVehicleId = $request->query('vehicle_id');
+        $selectedInspectionType = $request->query('inspection_type');
+
         $vehicles = Vehicle::with('latestInspection')
             ->where('status', 'active')
             ->get()
@@ -103,9 +113,74 @@ class InspectionController extends Controller
                 ];
             });
 
+        $selectedVehicle = null;
+        if ($selectedVehicleId) {
+            $selectedVehicle = $vehicles->firstWhere('id', $selectedVehicleId);
+        }
+
         return view('content.inspections.create', [
             'vehicles' => $vehicles,
+            'selectedVehicleId' => $selectedVehicleId,
+            'selectedInspectionType' => $selectedInspectionType,
+            'selectedVehicle' => $selectedVehicle,
         ]);
+    }
+
+    /**
+     * Quick-create and immediately start a monthly inspection for a vehicle assignment.
+     */
+    public function startMonthly(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'vehicle_id' => 'required|uuid|exists:vehicles,id',
+            'vehicle_assignment_id' => 'nullable|uuid|exists:vehicle_assignments,id',
+        ]);
+
+        $vehicle = Vehicle::findOrFail($validated['vehicle_id']);
+
+        // Resume existing open monthly inspection if one already exists.
+        $existing = Inspection::where('vehicle_id', $vehicle->id)
+            ->where('inspection_type', 'monthly_routine')
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->latest()
+            ->first();
+
+        if ($existing) {
+            if ($existing->status === 'pending') {
+                $existing = $this->inspectionService->startInspection($existing);
+            }
+
+            return redirect()
+                ->route('inspections.show', $existing->id)
+                ->with('info', 'You already have a monthly inspection open for this vehicle. Resuming it now.');
+        }
+
+        $data = [
+            'vehicle_id' => $vehicle->id,
+            'inspection_type' => 'monthly_routine',
+            'inspection_date' => now(),
+            'odometer_reading' => $vehicle->odometer_reading,
+        ];
+
+        if (!empty($validated['vehicle_assignment_id'])) {
+            $assignment = VehicleAssignment::whereKey($validated['vehicle_assignment_id'])
+                ->where('user_id', auth()->id())
+                ->whereNull('returned_date')
+                ->first();
+
+            if (!$assignment || $assignment->vehicle_id !== $vehicle->id) {
+                return back()->with('error', 'That vehicle assignment is no longer active for you.');
+            }
+
+            $data['vehicle_assignment_id'] = $assignment->id;
+        }
+
+        $inspection = $this->inspectionService->createInspection($data);
+        $inspection = $this->inspectionService->startInspection($inspection);
+
+        return redirect()
+            ->route('inspections.show', $inspection->id)
+            ->with('success', 'Monthly inspection started. Begin checking items.');
     }
 
     /**

@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <form action="{{ route('team.update', $member['id'] ?? '1') }}" method="POST" id="editMemberForm">
+    <form action="{{ route('teams.update', $member['id'] ?? '1') }}" method="POST" id="editMemberForm">
       @csrf
       @method('PUT')
 
@@ -144,7 +144,7 @@
                 @php
                   $currentBranchId = old('branch_id', $member['branch_id'] ?? null);
                 @endphp
-                @foreach(\App\Models\Branch::active()->orderBy('name')->get() as $branch)
+                @foreach($branches as $branch)
                   <option value="{{ $branch->id }}" {{ $currentBranchId == $branch->id ? 'selected' : '' }}>
                     {{ $branch->name }}
                   </option>
@@ -163,10 +163,11 @@
                 @php
                   $currentRole = old('role', $member['role'] ?? 'employee');
                 @endphp
-                <option value="employee" {{ $currentRole == 'employee' ? 'selected' : '' }}>Employee</option>
-                <option value="supervisor" {{ $currentRole == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
-                <option value="manager" {{ $currentRole == 'manager' ? 'selected' : '' }}>Manager</option>
-                <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>Administrator</option>
+                @foreach($roles as $role)
+                  <option value="{{ $role['key'] }}" {{ $currentRole == $role['key'] ? 'selected' : '' }}>
+                    {{ $role['label'] }}
+                  </option>
+                @endforeach
               </select>
               @error('role')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -257,7 +258,7 @@
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('team.show', $member['id'] ?? '1') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('teams.show', $member['id'] ?? '1') }}" class="btn btn-outline-secondary">
               <i class='bx bx-x me-1'></i> Cancel
             </a>
             <div>
@@ -306,7 +307,7 @@
       </div>
       <div class="card-body">
         <div class="d-grid gap-2">
-          <a href="{{ route('team.show', $member['id'] ?? '1') }}" class="btn btn-outline-primary btn-sm">
+          <a href="{{ route('teams.show', $member['id'] ?? '1') }}" class="btn btn-outline-primary btn-sm">
             <i class='bx bx-show me-1'></i> View Profile
           </a>
 
@@ -337,7 +338,7 @@
         <h5 class="modal-title">Delete Team Member</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('team.destroy', $member['id'] ?? '1') }}" method="POST">
+      <form action="{{ route('teams.destroy', $member['id'] ?? '1') }}" method="POST">
         @csrf
         @method('DELETE')
         <div class="modal-body">
@@ -381,7 +382,7 @@
         <h5 class="modal-title">Force Password Reset</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('team.force-password-reset', $member['id'] ?? '1') }}" method="POST">
+      <form action="{{ route('teams.reset-password', $member['id'] ?? '1') }}" method="POST">
         @csrf
         <div class="modal-body">
           <div class="alert alert-warning mb-3">
@@ -511,3 +512,7 @@ function activateAccount() {
 }
 </script>
 @endsection
+
+
+
+

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Modules\InspectionManagement\Models\Inspection;
 
 class VehicleAssignment extends Model
 {
@@ -45,6 +47,14 @@ class VehicleAssignment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Inspections submitted during this assignment
+     */
+    public function inspections(): HasMany
+    {
+        return $this->hasMany(Inspection::class);
     }
 
     /**

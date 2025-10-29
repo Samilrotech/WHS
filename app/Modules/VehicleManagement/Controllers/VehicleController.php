@@ -4,6 +4,8 @@ namespace App\Modules\VehicleManagement\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\VehicleManagement\Models\Vehicle;
+use App\Modules\InspectionManagement\Models\Inspection;
+use App\Models\Branch;
 use App\Modules\VehicleManagement\Services\VehicleService;
 use App\Modules\VehicleManagement\Services\QRCodeService;
 use App\Modules\VehicleManagement\Services\DepreciationService;
@@ -22,9 +24,16 @@ class VehicleController extends Controller
      */
     public function index(Request $request)
     {
-        $vehicles = $this->vehicleService->getPaginated($request->all());
-        $statistics = $this->vehicleService->getStatistics(auth()->user()->branch_id);
-        $makes = $this->vehicleService->getUniqueMakes(auth()->user()->branch_id);
+        $branchFilter = $request->input('branch');
+        $user = $request->user();
+        if (!$branchFilter && !$user->isAdmin()) {
+            $branchFilter = $user->branch_id;
+        }
+
+        $vehicles = $this->vehicleService->getPaginated(array_merge($request->all(), ['branch' => $branchFilter]));
+        $statistics = $this->vehicleService->getStatistics($branchFilter);
+        $makes = $this->vehicleService->getUniqueMakes($branchFilter);
+        $branches = Branch::active()->orderBy('name')->get(['id', 'name']);
 
         return view('content.vehicles.index', [
             'vehicles' => [
@@ -36,7 +45,8 @@ class VehicleController extends Controller
             ],
             'statistics' => $statistics,
             'makes' => $makes,
-            'filters' => $request->only(['search', 'status', 'make', 'assigned']),
+            'branches' => $branches,
+            'filters' => $request->only(['search', 'status', 'make', 'assigned', 'branch']) + ['branch' => $branchFilter],
         ]);
     }
 
@@ -55,6 +65,10 @@ class VehicleController extends Controller
             'depreciationMethods' => [
                 'straight_line' => 'Straight Line',
                 'declining_balance' => 'Declining Balance',
+            ],
+            'inspectionFrequencies' => [
+                'monthly' => 'Monthly (standard fleet)',
+                'daily' => 'Daily prestart required',
             ],
         ]);
     }
@@ -83,6 +97,7 @@ class VehicleController extends Controller
             'insurance_premium' => 'nullable|numeric|min:0',
             'rego_expiry_date' => 'nullable|date',
             'inspection_due_date' => 'nullable|date',
+            'inspection_frequency' => 'required|in:monthly,daily',
             'status' => 'required|in:active,maintenance,inactive,sold',
             'notes' => 'nullable|string',
         ]);
@@ -123,11 +138,37 @@ class VehicleController extends Controller
             'last_service' => $vehicle->serviceRecords->first()?->service_date,
         ];
 
+        $recentInspections = $vehicle->inspections()
+            ->latest('inspection_date')
+            ->with(['inspector'])
+            ->limit(5)
+            ->get();
+
+        $latestInspection = $recentInspections->first();
+
+        $inspectionStats = [
+            'total' => Inspection::where('vehicle_id', $vehicle->id)->count(),
+            'failed' => Inspection::where('vehicle_id', $vehicle->id)->failed()->count(),
+            'critical' => Inspection::where('vehicle_id', $vehicle->id)->withCriticalDefects()->count(),
+            'pending' => Inspection::where('vehicle_id', $vehicle->id)->where('status', 'pending')->count(),
+            'passed' => Inspection::where('vehicle_id', $vehicle->id)->whereIn('overall_result', ['pass', 'pass_minor'])->count(),
+        ];
+
+        $currentAssignment = $vehicle->currentAssignment;
+        $canStartDriverInspection = $currentAssignment && auth()->id() === $currentAssignment->user_id;
+
         return view('content.vehicles.show', [
             'vehicle' => $vehicle,
             'depreciation_schedule' => $depreciationSchedule,
             'total_depreciation' => $totalDepreciation,
             'service_stats' => $serviceStats,
+            'latest_inspection' => $latestInspection,
+            'recent_inspections' => $recentInspections,
+            'inspection_stats' => $inspectionStats,
+            'can_start_driver_inspection' => $canStartDriverInspection,
+            'driver_inspection_url' => ($canStartDriverInspection && $currentAssignment)
+                ? route('driver.vehicle-inspections.create', ['assignment' => $currentAssignment->id])
+                : null,
             'qr_code_url' => $vehicle->qr_code_path
                 ? $this->qrCodeService->getQRCodeUrl($vehicle->qr_code_path)
                 : null,
@@ -150,6 +191,10 @@ class VehicleController extends Controller
             'depreciationMethods' => [
                 'straight_line' => 'Straight Line',
                 'declining_balance' => 'Declining Balance',
+            ],
+            'inspectionFrequencies' => [
+                'monthly' => 'Monthly (standard fleet)',
+                'daily' => 'Daily prestart required',
             ],
         ]);
     }
@@ -178,6 +223,7 @@ class VehicleController extends Controller
             'insurance_premium' => 'nullable|numeric|min:0',
             'rego_expiry_date' => 'nullable|date',
             'inspection_due_date' => 'nullable|date',
+            'inspection_frequency' => 'required|in:monthly,daily',
             'status' => 'required|in:active,maintenance,inactive,sold',
             'notes' => 'nullable|string',
         ]);
@@ -267,3 +313,4 @@ class VehicleController extends Controller
         return response()->json($alerts);
     }
 }
+

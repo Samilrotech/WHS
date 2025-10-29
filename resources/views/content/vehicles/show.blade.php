@@ -71,6 +71,107 @@
 
         <hr class="my-3">
 
+        <!-- Inspection Overview -->
+        <h6 class="text-muted mb-3">Inspection Overview</h6>
+        <div class="sensei-stat-grid mb-3">
+          @php
+            $passRate = ($inspection_stats['total'] ?? 0) > 0
+              ? round((($inspection_stats['passed'] ?? 0) / $inspection_stats['total']) * 100)
+              : null;
+          @endphp
+          <div class="sensei-stat">
+            <small>Total Inspections</small>
+            <span>{{ $inspection_stats['total'] ?? 0 }}</span>
+          </div>
+          <div class="sensei-stat">
+            <small>Pass Rate</small>
+            @if(!is_null($passRate))
+              <span class="text-success">{{ $passRate }}%</span>
+            @else
+              <span class="text-muted">No data</span>
+            @endif
+          </div>
+          <div class="sensei-stat">
+            <small>Pending Review</small>
+            <span class="text-warning">{{ $inspection_stats['pending'] ?? 0 }}</span>
+          </div>
+          <div class="sensei-stat">
+            <small>Failed / Critical</small>
+            <span class="text-danger">{{ $inspection_stats['failed'] ?? 0 }}
+              @if(($inspection_stats['critical'] ?? 0) > 0)
+                <span class="d-block text-danger small">{{ $inspection_stats['critical'] }} critical</span>
+              @endif
+            </span>
+          </div>
+        </div>
+
+        @if($latest_inspection)
+          <div class="alert alert-{{ $latest_inspection->hasCriticalDefects() ? 'danger' : ($latest_inspection->isFailed() ? 'warning' : 'success') }} mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong>Last Inspection:</strong>
+                {{ $latest_inspection->inspection_date?->format('d/m/Y') ?? 'N/A' }}<br>
+                <small class="text-muted">By {{ $latest_inspection->inspector?->name ?? 'Unknown inspector' }}</small>
+              </div>
+              <div class="text-end">
+                <span class="badge bg-{{ $latest_inspection->hasCriticalDefects() ? 'danger' : ($latest_inspection->isFailed() ? 'warning' : 'success') }}">
+                  {{ ucwords(str_replace('_', ' ', $latest_inspection->overall_result ?? $latest_inspection->status ?? 'pending')) }}
+                </span>
+                @if(($latest_inspection->critical_defects ?? 0) > 0 || ($latest_inspection->major_defects ?? 0) > 0 || ($latest_inspection->minor_defects ?? 0) > 0)
+                  <br>
+                  <small class="text-muted">
+                    {{ $latest_inspection->critical_defects ?? 0 }} critical /
+                    {{ $latest_inspection->major_defects ?? 0 }} major /
+                    {{ $latest_inspection->minor_defects ?? 0 }} minor
+                  </small>
+                @endif
+              </div>
+            </div>
+            @if($latest_inspection->inspector_notes)
+              <hr class="my-2">
+              <small class="text-muted">{{ \Illuminate\Support\Str::limit($latest_inspection->inspector_notes, 160) }}</small>
+            @endif
+          </div>
+        @else
+          <div class="alert alert-secondary mb-3">
+            No inspections recorded yet for this vehicle.
+          </div>
+        @endif
+
+        @if($recent_inspections->count() > 0)
+          <div class="table-responsive mb-4">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Inspector</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($recent_inspections as $inspection)
+                  @php
+                    $inspectionStatusClass = $inspection->hasCriticalDefects() ? 'danger' : ($inspection->isFailed() ? 'warning' : 'success');
+                  @endphp
+                  <tr>
+                    <td>{{ $inspection->inspection_date?->format('d/m/Y') ?? 'N/A' }}</td>
+                    <td>
+                      <span class="badge bg-{{ $inspectionStatusClass }}">
+                        {{ ucwords(str_replace('_', ' ', $inspection->overall_result ?? $inspection->status ?? 'pending')) }}
+                      </span>
+                    </td>
+                    <td>{{ $inspection->inspector?->name ?? 'N/A' }}</td>
+                    <td>{{ \Illuminate\Support\Str::limit($inspection->inspector_notes ?? $inspection->defects_summary, 60) }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        @endif
+
+        <hr class="my-3">
+
         <!-- Financial Information -->
         @if($vehicle->purchase_date || $vehicle->purchase_price)
           <h6 class="text-muted mb-3">Financial Information</h6>
@@ -262,6 +363,11 @@
         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#returnModal">
           <i class='icon-base ti ti-arrow-back-up me-1'></i> Return Vehicle
         </button>
+      @endif
+      @if($can_start_driver_inspection)
+        <a href="{{ $driver_inspection_url }}?vehicle_id={{ $vehicle->id }}" class="btn btn-success">
+          <i class='icon-base ti ti-clipboard-check me-1'></i> Start Daily Inspection
+        </a>
       @endif
       <a href="{{ route('vehicles.edit', $vehicle) }}" class="btn btn-primary">
         <i class='icon-base ti ti-edit me-1'></i> Edit

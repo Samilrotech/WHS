@@ -55,9 +55,6 @@ $activeClassFor = static function ($item) use ($matchesRoute, $hasActiveChild, $
       >
       <span class="sensei-sidebar__brand-name">ROTECH WHS</span>
     </a>
-    <button class="sensei-sidebar__close" data-sidebar-close aria-label="Close navigation">
-      <i class="ti ti-x"></i>
-    </button>
   </div>
 
   <nav class="sensei-nav">

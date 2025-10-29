@@ -12,7 +12,7 @@
   <!-- Main Content Column -->
   <div class="col-xl-9 col-lg-8 col-md-8">
     <!-- Member Profile Header -->
-    <div class="card mb-4">
+    <div class="card sensei-surface-card mb-4 border-0">
       <div class="card-body">
         <div class="d-flex align-items-start">
           <!-- Avatar -->
@@ -72,48 +72,81 @@
       </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="card mb-4">
-      <div class="card-header">
-        <h5 class="mb-0">Recent Activity</h5>
+    <!-- Vehicle Assignment & Inspections -->
+    <div class="card sensei-surface-card mb-4 border-0">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Vehicle Assignment & Compliance</h5>
+        @if($member['current_vehicle'])
+          <span class="badge bg-label-primary">Assigned</span>
+        @else
+          <span class="badge bg-label-secondary">Unassigned</span>
+        @endif
       </div>
       <div class="card-body">
-        @php
-          // In a real implementation, this would come from the database
-          $activities = [
-            ['action' => 'Reported Incident', 'details' => 'Near-miss incident at warehouse', 'date' => now()->subHours(2)->format('d/m/Y H:i'), 'icon' => 'bx-error-circle', 'color' => 'warning'],
-            ['action' => 'Completed Training', 'details' => 'Forklift Safety Refresher', 'date' => now()->subDays(1)->format('d/m/Y H:i'), 'icon' => 'bx-graduation', 'color' => 'success'],
-            ['action' => 'Equipment Inspection', 'details' => 'Forklift FK-001 - Passed', 'date' => now()->subDays(3)->format('d/m/Y H:i'), 'icon' => 'bx-check-circle', 'color' => 'success'],
-            ['action' => 'Document Uploaded', 'details' => 'Updated PPE Certificate', 'date' => now()->subDays(5)->format('d/m/Y H:i'), 'icon' => 'bx-upload', 'color' => 'info'],
-          ];
-        @endphp
-
-        @if(count($activities) > 0)
-        <div class="timeline">
-          @foreach($activities as $activity)
-          <div class="timeline-item">
-            <div class="timeline-event">
-              <div class="timeline-event-icon bg-label-{{ $activity['color'] }}">
-                <i class='bx {{ $activity['icon'] }}'></i>
-              </div>
-              <div>
-                <p class="mb-1"><strong>{{ $activity['action'] }}</strong></p>
-                <p class="mb-1">{{ $activity['details'] }}</p>
-                <small class="text-muted">{{ $activity['date'] }}</small>
-              </div>
-            </div>
+        <div class="row g-3 align-items-center">
+          <div class="col-md-6">
+            <small class="text-muted d-block mb-1">Current Vehicle</small>
+            @if($member['current_vehicle'])
+              @php $vehicle = $member['current_vehicle']; @endphp
+              <h6 class="mb-0">{{ $vehicle['registration_number'] }} &middot; {{ $vehicle['make'] }} {{ $vehicle['model'] }}</h6>
+              <p class="mb-0 text-muted">Assigned {{ $vehicle['assigned_human'] }} @if($vehicle['branch']) &middot; {{ $vehicle['branch'] }} @endif</p>
+            @else
+              <p class="mb-0 text-muted">No active vehicle assignment.</p>
+            @endif
           </div>
-          @endforeach
+          <div class="col-md-6">
+            <small class="text-muted d-block mb-1">Latest Inspection</small>
+            @if($member['latest_inspection'])
+              @php
+                $inspection = $member['latest_inspection'];
+                $inspectionResult = $inspection['result'] ?? $inspection['status'];
+                $inspectionBadge = in_array($inspectionResult, ['fail_major','fail_critical']) ? 'danger' : (in_array($inspectionResult, ['pass','pass_minor']) ? 'success' : 'info');
+              @endphp
+              <h6 class="mb-0">{{ strtoupper(str_replace('_', ' ', $inspectionResult)) }}</h6>
+              <p class="mb-0 text-muted">{{ $inspection['date_human'] }} @if($inspection['vehicle_registration']) &middot; {{ $inspection['vehicle_registration'] }} @endif</p>
+              <span class="badge bg-label-{{ $inspectionBadge }} mt-2">{{ ucfirst(str_replace('_', ' ', $inspectionResult)) }}</span>
+            @else
+              <p class="mb-0 text-muted">No driver inspections submitted yet.</p>
+            @endif
+          </div>
         </div>
+
+        <hr class="my-4">
+        <h6 class="mb-3">Recent Driver Inspections</h6>
+        @if(($recent_inspections ?? collect())->count() > 0)
+          <div class="table-responsive">
+            <table class="table table-sm align-middle sensei-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Vehicle</th>
+                  <th>Status</th>
+                  <th>Inspection #</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($recent_inspections as $inspection)
+                  @php
+                    $result = $inspection['result'] ?? $inspection['status'];
+                    $badge = in_array($result, ['fail_major','fail_critical']) ? 'danger' : (in_array($result, ['pass','pass_minor']) ? 'success' : 'info');
+                  @endphp
+                  <tr>
+                    <td>{{ $inspection['date'] }}<br><small class="text-muted">{{ $inspection['date_human'] }}</small></td>
+                    <td>{{ $inspection['vehicle_registration'] ?? 'N/A' }}</td>
+                    <td><span class="badge bg-label-{{ $badge }}">{{ ucfirst(str_replace('_', ' ', $result)) }}</span></td>
+                    <td>{{ strtoupper($inspection['number']) }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
         @else
-        <div class="alert alert-info mb-0">
-          <i class='bx bx-info-circle me-2'></i>
-          No recent activity recorded for this team member.
-        </div>
+          <div class="alert alert-info mb-0">
+            <i class="icon-base ti ti-info-circle me-1"></i> No inspections recorded for this team member yet.
+          </div>
         @endif
       </div>
     </div>
-
     <!-- Training Certifications -->
     <div class="card mb-4">
       <div class="card-header">
@@ -307,7 +340,7 @@
       <div class="card-body">
         <div class="d-grid gap-2">
           @if(auth()->user()->hasRole(['Manager', 'Admin']))
-          <a href="{{ route('team.edit', $member['id'] ?? '1') }}" class="btn btn-primary btn-sm">
+          <a href="{{ route('teams.edit', $member['id'] ?? '1') }}" class="btn btn-primary btn-sm">
             <i class='bx bx-edit me-1'></i> Edit Profile
           </a>
           @endif
@@ -336,7 +369,7 @@
           @endif
           @endif
 
-          <a href="{{ route('team.index') }}" class="btn btn-outline-secondary btn-sm">
+          <a href="{{ route('teams.index') }}" class="btn btn-outline-secondary btn-sm">
             <i class='bx bx-arrow-back me-1'></i> Back to Team
           </a>
         </div>
@@ -412,7 +445,7 @@
         <h5 class="modal-title">Reset Password</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('team.reset-password', $member['id'] ?? '1') }}" method="POST">
+      <form action="{{ route('teams.reset-password', $member['id'] ?? '1') }}" method="POST">
         @csrf
         <div class="modal-body">
           <div class="alert alert-warning mb-3">
@@ -441,7 +474,7 @@
         <h5 class="modal-title">Deactivate Account</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('team.deactivate', $member['id'] ?? '1') }}" method="POST">
+      <form action="{{ route('teams.deactivate', $member['id'] ?? '1') }}" method="POST">
         @csrf
         <div class="modal-body">
           <div class="alert alert-danger mb-3">
@@ -477,7 +510,7 @@
         <h5 class="modal-title">Activate Account</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('team.activate', $member['id'] ?? '1') }}" method="POST">
+      <form action="{{ route('teams.activate', $member['id'] ?? '1') }}" method="POST">
         @csrf
         <div class="modal-body">
           <div class="alert alert-success mb-3">
@@ -534,3 +567,4 @@ $(document).ready(function() {
 });
 </script>
 @endsection
+

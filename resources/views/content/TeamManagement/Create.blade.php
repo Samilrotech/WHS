@@ -10,7 +10,7 @@
 <div class="row">
   <!-- Main Form Column -->
   <div class="col-xl-9 col-lg-8 col-md-8">
-    <form action="{{ route('team.store') }}" method="POST" id="createMemberForm">
+    <form action="{{ route('teams.store') }}" method="POST" id="createMemberForm">
       @csrf
 
       <!-- Personal Information -->
@@ -92,7 +92,7 @@
               <label for="branch_id" class="form-label">Branch *</label>
               <select id="branch_id" name="branch_id" class="form-select select2 @error('branch_id') is-invalid @enderror" required>
                 <option value="">Select branch</option>
-                @foreach(\App\Models\Branch::active()->orderBy('name')->get() as $branch)
+                @foreach($branches as $branch)
                   <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
                     {{ $branch->name }}
                   </option>
@@ -109,10 +109,11 @@
               <label for="role" class="form-label">User Role *</label>
               <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
                 <option value="">Select role</option>
-                <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>Employee</option>
-                <option value="supervisor" {{ old('role') == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
-                <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager</option>
-                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrator</option>
+                @foreach($roles as $role)
+                  <option value="{{ $role['key'] }}" {{ old('role', 'employee') == $role['key'] ? 'selected' : '' }}>
+                    {{ $role['label'] }}
+                  </option>
+                @endforeach
               </select>
               @error('role')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -204,7 +205,7 @@
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('team.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('teams.index') }}" class="btn btn-outline-secondary">
               <i class='bx bx-x me-1'></i> Cancel
             </a>
             <button type="submit" class="btn btn-primary">
@@ -360,3 +361,6 @@ $(document).ready(function() {
 });
 </script>
 @endsection
+
+
+

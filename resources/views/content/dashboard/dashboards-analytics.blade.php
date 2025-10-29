@@ -94,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
     $vehicleTrend = $stats['vehicles_trend'] ?? 0;
     $inspectionTrend = $stats['inspections_trend'] ?? 0;
     $activeAlerts = $stats['active_emergency_alerts'] ?? 0;
+    $isEmployee = auth()->user()?->hasRole('Employee') ?? false;
 @endphp
 
 <div class="whs-shell">
@@ -162,6 +163,39 @@ document.addEventListener('DOMContentLoaded', function () {
           <a href="{{ route('incidents.create') }}" class="whs-btn-primary whs-btn-primary--ghost">
             <i class="icon-base ti ti-clipboard-plus"></i>
             Log Follow-up
+          </a>
+        </div>
+      </div>
+    </x-whs.card>
+  @endif
+
+  @if($userVehicleAssignment)
+    <x-whs.card severity="info">
+      <div class="sensei-alert">
+        <div class="sensei-alert__header">
+          <div>
+            <span class="section-eyebrow">Your Assigned Vehicle</span>
+            <h2>{{ $userVehicleAssignment->vehicle->make }} {{ $userVehicleAssignment->vehicle->model }} ({{ $userVehicleAssignment->vehicle->year }})</h2>
+          </div>
+          <span class="whs-chip whs-chip--status-brand">
+            <i class="icon-base ti ti-car"></i>
+            {{ $userVehicleAssignment->vehicle->registration_number }}
+          </span>
+        </div>
+        <p class="sensei-alert__body">
+          Daily pre-trip inspection required before operation. Current odometer: {{ number_format($userVehicleAssignment->vehicle->odometer_reading ?? 0) }} km.
+          @if($userVehicleAssignment->vehicle->inspection_due_date && $userVehicleAssignment->vehicle->isInspectionDue())
+            <strong class="text-danger">Inspection due: {{ $userVehicleAssignment->vehicle->inspection_due_date->format('d/m/Y') }}</strong>
+          @endif
+        </p>
+        <div class="sensei-alert__actions">
+          <a href="{{ route('driver.vehicle-inspections.create') }}" class="whs-btn-primary">
+            <i class="icon-base ti ti-clipboard-check"></i>
+            Start Daily Inspection
+          </a>
+          <a href="{{ route('vehicles.show', $userVehicleAssignment->vehicle) }}" class="whs-btn-primary whs-btn-primary--ghost">
+            <i class="icon-base ti ti-eye"></i>
+            Vehicle Details
           </a>
         </div>
       </div>
@@ -291,34 +325,45 @@ document.addEventListener('DOMContentLoaded', function () {
             </span>
             <span class="sensei-action__meta">Log a new incident record</span>
           </a>
-          <a href="{{ route('risk.create') }}" class="sensei-action sensei-action--warning">
-            <span class="sensei-action__label">
-              <i class="icon-base ti ti-shield"></i>
-              Create Risk Assessment
-            </span>
-            <span class="sensei-action__meta">Update current risk register</span>
-          </a>
-          <a href="{{ route('emergency.create') }}" class="sensei-action sensei-action--danger">
-            <span class="sensei-action__label">
-              <i class="icon-base ti ti-alarm"></i>
-              Trigger Emergency Alert
-            </span>
-            <span class="sensei-action__meta">Notify response teams instantly</span>
-          </a>
-          <a href="{{ route('inspections.create') }}" class="sensei-action sensei-action--info">
-            <span class="sensei-action__label">
-              <i class="icon-base ti ti-clipboard"></i>
-              New Inspection
-            </span>
-            <span class="sensei-action__meta">Schedule a site walkthrough</span>
-          </a>
-          <a href="{{ route('vehicles.index') }}" class="sensei-action sensei-action--success">
-            <span class="sensei-action__label">
-              <i class="icon-base ti ti-car"></i>
-              Manage Vehicles
-            </span>
-            <span class="sensei-action__meta">Monitor fleet readiness</span>
-          </a>
+
+          @if($isEmployee)
+            <a href="{{ route('driver.vehicle-inspections.create') }}" class="sensei-action sensei-action--info">
+              <span class="sensei-action__label">
+                <i class="icon-base ti ti-clipboard-check"></i>
+                Start Vehicle Inspection
+              </span>
+              <span class="sensei-action__meta">Complete your daily checklist</span>
+            </a>
+          @else
+            <a href="{{ route('risk.create') }}" class="sensei-action sensei-action--warning">
+              <span class="sensei-action__label">
+                <i class="icon-base ti ti-shield"></i>
+                Create Risk Assessment
+              </span>
+              <span class="sensei-action__meta">Update current risk register</span>
+            </a>
+            <a href="{{ route('emergency.create') }}" class="sensei-action sensei-action--danger">
+              <span class="sensei-action__label">
+                <i class="icon-base ti ti-alarm"></i>
+                Trigger Emergency Alert
+              </span>
+              <span class="sensei-action__meta">Notify response teams instantly</span>
+            </a>
+            <a href="{{ route('inspections.create') }}" class="sensei-action sensei-action--info">
+              <span class="sensei-action__label">
+                <i class="icon-base ti ti-clipboard"></i>
+                New Inspection
+              </span>
+              <span class="sensei-action__meta">Schedule a site walkthrough</span>
+            </a>
+            <a href="{{ route('vehicles.index') }}" class="sensei-action sensei-action--success">
+              <span class="sensei-action__label">
+                <i class="icon-base ti ti-car"></i>
+                Manage Vehicles
+              </span>
+              <span class="sensei-action__meta">Monitor fleet readiness</span>
+            </a>
+          @endif
         </div>
 
         <span class="section-eyebrow">System Status</span>

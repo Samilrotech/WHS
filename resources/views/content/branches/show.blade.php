@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <x-whs.card>
+    <x-whs.card class="sensei-surface-card">
       <div class="whs-chip-group">
         <span class="whs-chip whs-chip--id">
           <i class="icon-base ti ti-hash"></i>
@@ -143,12 +143,52 @@
         @endif
       </div>
 
-      <div class="whs-card__actions">
+      <div class="whs-card__actions d-flex flex-wrap gap-2">
         <x-whs.action-button
           :href="route('branches.edit', $branch->id)"
           icon="ti-edit"
         >
           Edit Branch
+        </x-whs.action-button>
+
+        <form action="{{ route('branches.toggleStatus', $branch->id) }}" method="POST" class="d-inline">
+          @csrf
+          <x-whs.action-button
+            type="submit"
+            icon="{{ $branch->is_active ? 'ti-pause' : 'ti-player-play' }}"
+            :variant="$branch->is_active ? 'ghost' : 'success'"
+          >
+            {{ $branch->is_active ? 'Deactivate' : 'Activate' }}
+          </x-whs.action-button>
+        </form>
+
+        @if($branch->users_count === 0)
+          <form action="{{ route('branches.destroy', $branch->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this branch? This action cannot be undone.')">
+            @csrf
+            @method('DELETE')
+            <x-whs.action-button type="submit" variant="danger" icon="ti-trash">
+              Delete
+            </x-whs.action-button>
+          </form>
+        @else
+          <x-whs.action-button variant="danger" icon="ti-trash" disabled>
+            Delete
+          </x-whs.action-button>
+        @endif
+
+        <x-whs.action-button
+          :href="route('vehicles.index', ['branch' => $branch->id])"
+          icon="ti-car"
+        >
+          Branch Vehicles
+        </x-whs.action-button>
+
+        <x-whs.action-button
+          :href="route('inspections.index', ['branch' => $branch->id])"
+          icon="ti-file-analytics"
+          variant="ghost"
+        >
+          Inspection Log
         </x-whs.action-button>
 
         <x-whs.action-button
@@ -171,7 +211,7 @@
     @if($branch->users->count() > 0)
       <div class="whs-stack">
         @foreach($branch->users as $user)
-          <x-whs.card>
+          <x-whs.card class="sensei-surface-card">
             <div class="whs-chip-group">
               <span class="whs-chip whs-chip--id">
                 <i class="icon-base ti ti-id"></i>
@@ -210,6 +250,18 @@
                   {{ $user->email }}
                 </span>
               </div>
+            </div>
+
+            <div class="whs-card__actions d-flex flex-wrap gap-2">
+              <x-whs.action-button :href="route('teams.show', $user->id)" icon="ti-external-link">
+                View Profile
+              </x-whs.action-button>
+              <x-whs.action-button :href="route('teams.edit', $user->id)" variant="ghost" icon="ti-edit">
+                Edit
+              </x-whs.action-button>
+              <x-whs.action-button href="mailto:{{ $user->email }}" variant="ghost" icon="ti-mail">
+                Email
+              </x-whs.action-button>
             </div>
           </x-whs.card>
         @endforeach

@@ -68,4 +68,87 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  const userMenus = document.querySelectorAll('[data-user-menu]');
+
+  userMenus.forEach(menu => {
+    const trigger = menu.querySelector('[data-user-menu-trigger]');
+    const panel = menu.querySelector('[data-user-menu-panel]');
+
+    if (!trigger || !panel) return;
+
+    const closeMenu = () => {
+      panel.hidden = true;
+      menu.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    };
+
+    const openMenu = () => {
+      panel.hidden = false;
+      menu.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+    };
+
+    trigger.addEventListener('click', event => {
+      event.stopPropagation();
+
+      if (panel.hidden) {
+        userMenus.forEach(otherMenu => {
+          if (otherMenu !== menu) {
+            const otherPanel = otherMenu.querySelector('[data-user-menu-panel]');
+            const otherTrigger = otherMenu.querySelector('[data-user-menu-trigger]');
+            if (otherPanel && otherTrigger) {
+              otherPanel.hidden = true;
+              otherMenu.classList.remove('is-open');
+              otherTrigger.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+
+    // Prevent panel clicks from closing the dropdown prematurely
+    panel.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+
+    document.addEventListener('click', event => {
+      if (!menu.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu.classList.contains('is-open')) {
+        closeMenu();
+        trigger.focus();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-logout-trigger]').forEach(button => {
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const form = button.closest('form');
+      if (!form) {
+        console.error('Logout button: Form not found');
+        return;
+      }
+
+      console.log('Logout triggered, submitting form...');
+
+      // Use requestSubmit for proper form validation, fallback to submit()
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
+    });
+  });
 });
