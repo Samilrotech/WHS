@@ -82,7 +82,7 @@
             <a href="{{ route('vehicles.show', $vehicle) }}" class="btn btn-outline-secondary">
               <i class="ti ti-car me-1"></i>View vehicle
             </a>
-            <a href="{{ route('inspections.create', ['vehicle_id' => $vehicle->id]) }}" class="btn btn-text-secondary">
+            <a href="{{ route('driver.vehicle-inspections.monthly.create', $assignment->id) }}" class="btn btn-text-secondary">
               <i class="ti ti-calendar-stats me-1"></i>Monthly inspection
             </a>
           </div>
@@ -143,7 +143,7 @@
           </div>
 
           <div class="d-flex flex-wrap gap-2 mt-4">
-            <a href="{{ route('inspections.create', ['vehicle_id' => $vehicle->id]) }}" class="btn btn-primary">
+            <a href="{{ route('driver.vehicle-inspections.monthly.create', $assignment->id) }}" class="btn btn-primary">
               <i class="ti ti-calendar-plus me-1"></i>Start monthly inspection
             </a>
             <a href="{{ route('vehicles.show', $vehicle) }}" class="btn btn-outline-secondary">

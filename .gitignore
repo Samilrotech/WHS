@@ -26,3 +26,9 @@ Thumbs.db
 # Deployment keys
 whs5_deployment_key
 whs5_deployment_key.pub
+hostinger_whs5_key
+hostinger_whs5_key.pub
+
+# Temporary files
+temp_*.php
+*.old

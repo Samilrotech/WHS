@@ -4,6 +4,7 @@ namespace App\Modules\InspectionManagement\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\InspectionManagement\Services\InspectionService;
+use App\Modules\VehicleManagement\Models\VehicleAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -102,5 +103,95 @@ class DriverVehicleInspectionController extends Controller
         return redirect()
             ->route('driver.vehicle-inspections.index')
             ->with('success', "Inspection {$inspection->inspection_number} submitted. We'll keep you posted if anything needs attention.");
+    }
+
+    /**
+     * Show the monthly inspection form for the driver's assigned vehicle.
+     */
+    public function monthly(Request $request, VehicleAssignment $assignment): View
+    {
+        $user = $request->user();
+
+        if ($assignment->user_id !== $user->id || $assignment->returned_date) {
+            abort(403, 'You are not authorised to access this inspection.');
+        }
+
+        $assignment->loadMissing('vehicle.branch');
+
+        return view('content.inspections.monthly-driver', [
+            'assignment' => $assignment,
+            'vehicle' => $assignment->vehicle,
+        ]);
+    }
+
+    /**
+     * Store the submitted monthly inspection.
+     */
+    public function storeMonthly(Request $request, VehicleAssignment $assignment): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($assignment->user_id !== $user->id || $assignment->returned_date) {
+            abort(403, 'You are not authorised to submit this inspection.');
+        }
+
+        $conditionOptions = ['good', 'attention', 'poor'];
+        $binaryOptions = ['yes', 'no'];
+
+        $validated = $request->validate([
+            'odometer_reading' => ['required', 'integer', 'min:0'],
+            'location' => ['nullable', 'string', 'max:255'],
+
+            'exterior_condition' => ['required', Rule::in($conditionOptions)],
+            'lights_condition' => ['required', Rule::in($conditionOptions)],
+            'body_condition' => ['required', Rule::in($conditionOptions)],
+            'interior_condition' => ['required', Rule::in($conditionOptions)],
+            'seatbelt_condition' => ['required', Rule::in($conditionOptions)],
+            'dashboard_lights' => ['required', Rule::in($binaryOptions)],
+            'air_conditioning' => ['required', Rule::in($binaryOptions)],
+            'tire_condition' => ['required', Rule::in($conditionOptions)],
+            'tread_condition' => ['required', Rule::in($conditionOptions)],
+
+            'tire_front_left_photo' => ['required', 'image', 'max:5120'],
+            'tire_front_right_photo' => ['required', 'image', 'max:5120'],
+            'tire_rear_left_photo' => ['required', 'image', 'max:5120'],
+            'tire_rear_right_photo' => ['required', 'image', 'max:5120'],
+
+            'brakes_normal' => ['required', Rule::in($binaryOptions)],
+            'steering_smooth' => ['required', Rule::in($binaryOptions)],
+            'noise_smoke' => ['required', Rule::in($binaryOptions)],
+
+            'issue_description' => ['nullable', 'string'],
+            'issue_photo' => ['nullable', 'image', 'max:5120'],
+
+            'incident_occurred' => ['required', Rule::in($binaryOptions)],
+            'incident_description' => ['required_if:incident_occurred,yes', 'nullable', 'string'],
+
+            'next_service_date' => ['required', 'date'],
+            'next_service_kilometre' => ['required', 'integer', 'min:0'],
+
+            'vehicle_photo_front' => ['required', 'image', 'max:5120'],
+            'vehicle_photo_rear' => ['required', 'image', 'max:5120'],
+            'vehicle_photo_driver_side' => ['required', 'image', 'max:5120'],
+            'vehicle_photo_passenger_side' => ['required', 'image', 'max:5120'],
+            'vehicle_photo_interior' => ['required', 'image', 'max:5120'],
+
+            'employee_confirmation' => ['accepted'],
+        ], [
+            'employee_confirmation.accepted' => 'You must confirm the inspection details before submitting.',
+            'incident_description.required_if' => 'Please describe the accident or damage for this month.',
+        ]);
+
+        $inspection = $this->inspectionService->createMonthlyDriverInspection($assignment, $validated);
+
+        if (!empty($validated['odometer_reading'])) {
+            $assignment->vehicle->update([
+                'odometer_reading' => (int) $validated['odometer_reading'],
+            ]);
+        }
+
+        return redirect()
+            ->route('inspections.show', $inspection->id)
+            ->with('success', "Monthly inspection {$inspection->inspection_number} submitted successfully.");
     }
 }

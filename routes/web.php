@@ -137,6 +137,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AssignedVehicleController::class, 'index'])->name('index');
         Route::get('/daily/{assignment?}', [DriverVehicleInspectionController::class, 'create'])->name('create');
         Route::post('/daily', [DriverVehicleInspectionController::class, 'store'])->name('store');
+        Route::get('/monthly/{assignment}', [DriverVehicleInspectionController::class, 'monthly'])->name('monthly.create');
+        Route::post('/monthly/{assignment}', [DriverVehicleInspectionController::class, 'storeMonthly'])->name('monthly.store');
     });
 
     // Module 5: Inspection Management

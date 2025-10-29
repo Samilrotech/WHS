@@ -5,7 +5,11 @@ namespace App\Modules\InspectionManagement\Services;
 use App\Modules\InspectionManagement\Models\Inspection;
 use App\Modules\InspectionManagement\Models\InspectionItem;
 use App\Modules\VehicleManagement\Models\Vehicle;
+use App\Modules\VehicleManagement\Models\VehicleAssignment;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class InspectionService
 {
@@ -127,11 +131,163 @@ class InspectionService
     }
 
     /**
+     * Create a monthly inspection submitted by a driver.
+     */
+    public function createMonthlyDriverInspection(VehicleAssignment $assignment, array $data): Inspection
+    {
+        $assignment->loadMissing('vehicle.branch');
+        $vehicle = $assignment->vehicle;
+
+        return DB::transaction(function () use ($assignment, $vehicle, $data) {
+            $inspection = Inspection::create([
+                'branch_id' => $vehicle->branch_id,
+                'vehicle_id' => $vehicle->id,
+                'vehicle_assignment_id' => $assignment->id,
+                'inspector_user_id' => auth()->id(),
+                'inspection_number' => $this->generateInspectionNumber(),
+                'inspection_type' => 'monthly_routine',
+                'inspection_date' => now(),
+                'odometer_reading' => $data['odometer_reading'],
+                'location' => $data['location'] ?? null,
+                'status' => 'in_progress',
+                'inspector_notes' => $data['issue_description'] ?? null,
+            ]);
+
+            $order = 1;
+            $createItem = function (array $attributes) use ($inspection, &$order) {
+                $item = new InspectionItem([
+                    'item_category' => $attributes['category'],
+                    'item_name' => $attributes['name'],
+                    'item_description' => $attributes['description'] ?? null,
+                    'sequence_order' => $order++,
+                    'result' => $attributes['result'],
+                    'defect_severity' => $attributes['severity'] ?? null,
+                    'measurement_value' => $attributes['value'] ?? null,
+                    'defect_notes' => $attributes['notes'] ?? null,
+                    'photo_paths' => $attributes['photos'] ?? null,
+                    'safety_critical' => $attributes['safety_critical'] ?? false,
+                    'compliance_item' => $attributes['compliance_item'] ?? false,
+                ]);
+
+                $inspection->items()->save($item);
+            };
+
+            $createItem($this->monthlyConditionItem('Vehicle Condition', 'Exterior condition', $data['exterior_condition']));
+            $createItem($this->monthlyConditionItem('Vehicle Condition', 'Lights, mirrors, glass, wipers', $data['lights_condition']));
+            $createItem($this->monthlyConditionItem('Vehicle Condition', 'Body condition (scratches, dents, rust)', $data['body_condition']));
+            $createItem($this->monthlyConditionItem('Vehicle Condition', 'Interior condition', $data['interior_condition']));
+            $createItem($this->monthlyConditionItem('Vehicle Condition', 'Seats and seatbelts', $data['seatbelt_condition'], true));
+
+            $createItem($this->monthlyBinaryItem('Systems', 'Dashboard warning lights working', $data['dashboard_lights'], 'major'));
+            $createItem($this->monthlyBinaryItem('Systems', 'Air conditioning / heater operational', $data['air_conditioning'], 'minor'));
+
+            $createItem($this->monthlyConditionItem('Tyres', 'Overall tyre condition', $data['tire_condition'], true));
+            $createItem($this->monthlyConditionItem('Tyres', 'Tyre tread condition', $data['tread_condition'], true));
+
+            $tirePhotos = [
+                'front_left' => $this->storeMonthlyPhoto($data['tire_front_left_photo'], $inspection, 'tire-front-left'),
+                'front_right' => $this->storeMonthlyPhoto($data['tire_front_right_photo'], $inspection, 'tire-front-right'),
+                'rear_left' => $this->storeMonthlyPhoto($data['tire_rear_left_photo'], $inspection, 'tire-rear-left'),
+                'rear_right' => $this->storeMonthlyPhoto($data['tire_rear_right_photo'], $inspection, 'tire-rear-right'),
+            ];
+
+            $createItem([
+                'category' => 'Tyres',
+                'name' => 'Tyre photo evidence',
+                'result' => 'pass',
+                'value' => 'Uploaded',
+                'photos' => $tirePhotos,
+            ]);
+
+            $createItem($this->monthlyBinaryItem('General Operation', 'Brakes feel normal', $data['brakes_normal'], 'critical', true));
+            $createItem($this->monthlyBinaryItem('General Operation', 'Steering smooth', $data['steering_smooth'], 'major', true));
+            $createItem($this->monthlyBinaryItem('General Operation', 'No unusual noise or smoke observed', $data['noise_smoke'], 'major'));
+
+            $issueNotes = trim((string) ($data['issue_description'] ?? ''));
+            $issuePhotos = null;
+            if (!empty($data['issue_photo'])) {
+                $issuePhotos = [
+                    'issue' => $this->storeMonthlyPhoto($data['issue_photo'], $inspection, 'issue'),
+                ];
+            }
+
+            $createItem([
+                'category' => 'Issues & Repairs',
+                'name' => 'Problems noticed this month',
+                'result' => $issueNotes === '' ? 'pass' : 'fail',
+                'severity' => $issueNotes === '' ? null : 'minor',
+                'notes' => $issueNotes !== '' ? $issueNotes : null,
+                'photos' => $issuePhotos,
+            ]);
+
+            $createItem($this->monthlyBinaryItem(
+                'Incidents',
+                'Any accidents or damage this month',
+                $data['incident_occurred'],
+                'major',
+                false,
+                $data['incident_description'] ?? null
+            ));
+
+            $createItem([
+                'category' => 'Servicing',
+                'name' => 'Next service date',
+                'result' => 'pass',
+                'value' => \Carbon\Carbon::parse($data['next_service_date'])->format('d M Y'),
+            ]);
+
+            $createItem([
+                'category' => 'Servicing',
+                'name' => 'Next service odometer',
+                'result' => 'pass',
+                'value' => number_format((int) $data['next_service_kilometre']) . ' km',
+            ]);
+
+            $vehiclePhotos = [
+                'front' => $this->storeMonthlyPhoto($data['vehicle_photo_front'], $inspection, 'vehicle-front'),
+                'rear' => $this->storeMonthlyPhoto($data['vehicle_photo_rear'], $inspection, 'vehicle-rear'),
+                'driver_side' => $this->storeMonthlyPhoto($data['vehicle_photo_driver_side'], $inspection, 'vehicle-driver-side'),
+                'passenger_side' => $this->storeMonthlyPhoto($data['vehicle_photo_passenger_side'], $inspection, 'vehicle-passenger-side'),
+                'interior' => $this->storeMonthlyPhoto($data['vehicle_photo_interior'], $inspection, 'vehicle-interior'),
+            ];
+
+            $createItem([
+                'category' => 'Photo Evidence',
+                'name' => 'Vehicle condition photos',
+                'result' => 'pass',
+                'value' => 'Front, rear, sides, and interior uploaded',
+                'photos' => $vehiclePhotos,
+            ]);
+
+            $inspection->update(['total_items_checked' => $inspection->items()->count()]);
+
+            $inspection->load('items');
+            $this->updateInspectionStatistics($inspection);
+            $inspection->refresh();
+
+            $inspection->update([
+                'status' => 'completed',
+                'overall_result' => $this->determineOverallResult($inspection),
+                'defects_summary' => $this->summarizeFailedItems($inspection),
+                'next_inspection_due' => \Carbon\Carbon::parse($data['next_service_date']),
+            ]);
+
+            $vehicle->update([
+                'inspection_due_date' => \Carbon\Carbon::parse($data['next_service_date']),
+            ]);
+
+            return $inspection->load(['vehicle', 'vehicleAssignment', 'inspector', 'items']);
+        });
+    }
+
+    /**
      * Create standard checklist items for the inspection
      */
     protected function createStandardChecklistItems(Inspection $inspection): void
     {
-        $standardItems = $this->getStandardChecklistTemplate();
+        $standardItems = $inspection->inspection_type === 'monthly_routine'
+            ? $this->getMonthlyChecklistTemplate()
+            : $this->getStandardChecklistTemplate();
 
         foreach ($standardItems as $index => $item) {
             InspectionItem::create([
@@ -211,6 +367,33 @@ class InspectionService
     }
 
     /**
+     * Monthly inspection checklist template (simplified default).
+     */
+    protected function getMonthlyChecklistTemplate(): array
+    {
+        return [
+            ['category' => 'Vehicle Condition', 'name' => 'Exterior condition', 'description' => 'Overall exterior panels, paint, and fittings'],
+            ['category' => 'Vehicle Condition', 'name' => 'Lights, mirrors, glass, wipers', 'description' => 'All external visibility systems'],
+            ['category' => 'Vehicle Condition', 'name' => 'Body condition (scratches, dents, rust)', 'description' => 'Note any new damage or corrosion'],
+            ['category' => 'Vehicle Condition', 'name' => 'Interior condition', 'description' => 'Cab cleanliness and fittings'],
+            ['category' => 'Vehicle Condition', 'name' => 'Seats and seatbelts', 'description' => 'Mounts secure, belts retract correctly'],
+            ['category' => 'Systems', 'name' => 'Dashboard warning lights working', 'description' => 'No persistent warnings when ignition on'],
+            ['category' => 'Systems', 'name' => 'Air conditioning / heater operational', 'description' => 'Climate control blows at expected temperature'],
+            ['category' => 'Tyres', 'name' => 'Overall tyre condition', 'description' => 'Visible damage, inflation, wear patterns'],
+            ['category' => 'Tyres', 'name' => 'Tyre tread condition', 'description' => 'Adequate tread depth across all tyres'],
+            ['category' => 'Tyres', 'name' => 'Tyre photo evidence', 'description' => 'Photo record of each tyre'],
+            ['category' => 'General Operation', 'name' => 'Brakes feel normal', 'description' => 'Pedal feel, stopping response'],
+            ['category' => 'General Operation', 'name' => 'Steering smooth', 'description' => 'No pulling or stiffness'],
+            ['category' => 'General Operation', 'name' => 'No unusual noise or smoke observed', 'description' => 'Engine, exhaust, drivetrain'],
+            ['category' => 'Issues & Repairs', 'name' => 'Problems noticed this month', 'description' => 'Describe faults or concerns'],
+            ['category' => 'Incidents', 'name' => 'Any accidents or damage this month', 'description' => 'Log incidents or near misses'],
+            ['category' => 'Servicing', 'name' => 'Next service date', 'description' => 'Scheduled date for next service'],
+            ['category' => 'Servicing', 'name' => 'Next service odometer', 'description' => 'Kilometre reading for next service'],
+            ['category' => 'Photo Evidence', 'name' => 'Vehicle condition photos', 'description' => 'Front, rear, sides, interior'],
+        ];
+    }
+
+    /**
      * Driver daily inspection checklist template
      */
     public function getDriverQuickChecklist(): array
@@ -277,6 +460,57 @@ class InspectionService
                 'severity_on_fail' => 'minor',
             ],
         ];
+    }
+
+    /**
+     * Build an item definition for condition-based answers.
+     */
+    protected function monthlyConditionItem(string $category, string $name, string $value, bool $safetyCritical = false): array
+    {
+        [$result, $severity, $label] = match ($value) {
+            'good' => ['pass', null, 'Good'],
+            'attention' => ['fail', 'minor', 'Needs attention'],
+            'poor' => ['fail', 'major', 'Poor'],
+            default => ['pass', null, ucfirst($value)],
+        };
+
+        return [
+            'category' => $category,
+            'name' => $name,
+            'result' => $result,
+            'severity' => $severity,
+            'value' => $label,
+            'safety_critical' => $safetyCritical,
+        ];
+    }
+
+    /**
+     * Build an item definition for yes/no answers.
+     */
+    protected function monthlyBinaryItem(string $category, string $name, string $value, string $failSeverity = 'major', bool $safetyCritical = false, ?string $notes = null): array
+    {
+        $isPass = $value === 'yes';
+
+        return [
+            'category' => $category,
+            'name' => $name,
+            'result' => $isPass ? 'pass' : 'fail',
+            'severity' => $isPass ? null : $failSeverity,
+            'value' => $isPass ? 'Yes' : 'No',
+            'notes' => $notes,
+            'safety_critical' => $safetyCritical,
+        ];
+    }
+
+    /**
+     * Persist a monthly inspection photo and return an accessible path.
+     */
+    protected function storeMonthlyPhoto(UploadedFile $file, Inspection $inspection, string $prefix): string
+    {
+        $filename = sprintf('%s-%s.%s', $prefix, Str::uuid(), $file->getClientOriginalExtension());
+        $path = $file->storeAs("inspections/monthly/{$inspection->id}", $filename, 'public');
+
+        return Storage::url($path);
     }
 
     /**
