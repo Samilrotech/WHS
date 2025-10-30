@@ -14,4 +14,11 @@
       @include('layouts/sections/footer/footer')
     </div>
   </div>
+
+  {{-- Mobile Bottom Navigation --}}
+  @hasSection('mobile-nav')
+    @yield('mobile-nav')
+  @else
+    <x-mobile-nav :active="$mobileNavActive ?? 'dashboard'" />
+  @endif
 @endsection

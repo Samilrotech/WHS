@@ -30,6 +30,7 @@ class IncidentController extends Controller
             'incidents' => IncidentResource::collection($incidents),
             'filters' => $filters,
             'statistics' => $this->service->getStatistics(auth()->user()->branch_id),
+            'mobileNavActive' => 'incidents',
         ]);
     }
 

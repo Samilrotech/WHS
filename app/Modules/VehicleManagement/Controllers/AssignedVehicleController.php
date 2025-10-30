@@ -17,9 +17,11 @@ class AssignedVehicleController extends Controller
 
         $assignments = $user->vehicleAssignments()
             ->with([
-                'vehicle.branch',
-                'vehicle.latestPrestartInspection',
-                'vehicle.latestInspection',
+                'vehicle' => fn ($query) => $query->withTrashed()->with([
+                    'branch',
+                    'latestPrestartInspection',
+                    'latestInspection',
+                ]),
             ])
             ->whereNull('returned_date')
             ->orderByDesc('assigned_date')

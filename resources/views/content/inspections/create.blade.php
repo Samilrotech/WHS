@@ -11,7 +11,7 @@
 @section('content')
 @include('layouts.sections.flash-message')
 
-<div class="row">
+<div class="row inspection-create-page">
   <div class="col-12">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -158,7 +158,7 @@
           </div>
 
           <!-- Information Box -->
-          <div class="alert alert-primary" role="alert">
+          <div class="alert alert-primary inspection-create-info" role="alert">
             <h6 class="alert-heading">
               <i class="bx bx-info-circle me-1"></i> What Happens Next
             </h6>
@@ -171,7 +171,7 @@
           </div>
 
           <!-- Form Actions -->
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 inspection-create-actions">
             <button type="submit" class="btn btn-primary">
               <i class="bx bx-clipboard me-1"></i> Create Inspection
             </button>
@@ -184,6 +184,71 @@
     </div>
   </div>
 </div>
+
+@push('page-style')
+<style>
+  .inspection-create-page .card {
+    border-radius: 1rem;
+  }
+
+  .inspection-create-page .card-header {
+    gap: 0.75rem;
+  }
+
+  .inspection-create-page .card-header .btn {
+    min-height: 42px;
+  }
+
+  .inspection-create-page .form-control,
+  .inspection-create-page .form-select {
+    min-height: 46px;
+    border-radius: 0.85rem;
+  }
+
+  .inspection-create-info {
+    border-radius: 1rem;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .inspection-create-actions .btn {
+    min-height: 48px;
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    border-radius: 0.85rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .inspection-create-page .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.25rem 1.25rem 0.75rem;
+    }
+
+    .inspection-create-page .card-body {
+      padding: 1.25rem;
+    }
+
+    .inspection-create-actions {
+      flex-direction: column;
+    }
+
+    .inspection-create-actions .btn {
+      width: 100%;
+    }
+
+    #vehicleInfoCard .col-md-3 {
+      flex: 0 0 100%;
+      max-width: 100%;
+      margin-bottom: 0.75rem;
+    }
+
+    #vehicleInfoCard .col-md-3:last-child {
+      margin-bottom: 0;
+    }
+  }
+</style>
+@endpush
 
 @section('page-script')
 <script>

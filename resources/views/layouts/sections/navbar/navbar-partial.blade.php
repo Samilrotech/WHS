@@ -3,7 +3,33 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 @endphp
 
+@php
+  $user = Auth::user();
+  $displayName = $user->name ?? 'WHS Operator';
+  $firstName = strtok($displayName, ' ') ?: $displayName;
+@endphp
+
 <header class="sensei-topbar" data-sensei-topbar>
+  <div class="sensei-topbar__lead">
+    {{-- Mobile hamburger button --}}
+    <button
+      type="button"
+      class="sensei-topbar__hamburger d-md-none"
+      data-sidebar-toggle
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+      aria-controls="sensei-sidebar"
+    >
+      <i class="ti ti-menu-2" aria-hidden="true"></i>
+    </button>
+
+    {{-- Greeting (responsive) --}}
+    <div class="sensei-topbar__greeting">
+      <span class="d-none d-sm-inline">Welcome back,</span>
+      <strong>{{ $firstName }}</strong>
+    </div>
+  </div>
+
   <div class="sensei-topbar__search">
     <form
       method="GET"

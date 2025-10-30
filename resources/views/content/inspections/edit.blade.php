@@ -5,6 +5,23 @@
 @section('content')
 @include('layouts.sections.flash-message')
 
+@php
+  $vehicle = $inspection->vehicle;
+  $vehicleLabel = 'Vehicle record unavailable';
+
+  if ($vehicle) {
+      $make = trim((string) ($vehicle->make ?? ''));
+      $model = trim((string) ($vehicle->model ?? ''));
+      $details = trim($make . ' ' . $model);
+
+      $vehicleLabel = $vehicle->registration_number;
+
+      if ($details !== '') {
+          $vehicleLabel .= ' - ' . $details;
+      }
+  }
+@endphp
+
 <div class="row">
   <div class="col-12">
     <div class="card">
@@ -26,8 +43,14 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label class="form-label">Vehicle</label>
-                <input type="text" class="form-control" value="{{ $inspection->vehicle->registration_number }} - {{ $inspection->vehicle->make }} {{ $inspection->vehicle->model }}" readonly disabled>
-                <small class="text-muted">Vehicle cannot be changed after inspection creation</small>
+                <input type="text" class="form-control" value="{{ $vehicleLabel }}" readonly disabled>
+                <small class="text-muted">
+                  @if($vehicle)
+                    Vehicle cannot be changed after inspection creation
+                  @else
+                    Original vehicle record has been archived or removed
+                  @endif
+                </small>
               </div>
             </div>
 

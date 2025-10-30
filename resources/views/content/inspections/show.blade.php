@@ -5,18 +5,26 @@
 @section('content')
 @php
   use Illuminate\Support\Str;
+  $vehicle = $inspection->vehicle;
 @endphp
 @include('layouts.sections.flash-message')
 
-<div class="row">
+<div class="row inspection-details-page">
   <div class="col-12 col-lg-8">
     <!-- Inspection Header -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <div>
           <h5 class="mb-1">{{ $inspection->inspection_number }}</h5>
-          <p class="mb-0 text-muted">{{ $inspection->vehicle->registration_number }} - {{ $inspection->vehicle->make }} {{ $inspection->vehicle->model }}</p>
+          <p class="mb-0 text-muted">
+            @if($vehicle)
+              {{ $vehicle->registration_number }} - {{ $vehicle->make }} {{ $vehicle->model }}
+            @else
+              Vehicle record unavailable
+            @endif
+          </p>
         </div>
+
         <a href="{{ route('inspections.index') }}" class="btn btn-sm btn-outline-secondary">
           <i class="bx bx-arrow-back me-1"></i> Back
         </a>
@@ -70,16 +78,16 @@
         <h6 class="mb-0">{{ $category }}</h6>
       </div>
       <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-sm">
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-sm align-middle">
             <thead>
               <tr>
-                <th style="width: 40%">Item</th>
-                <th style="width: 15%">Result</th>
-                <th style="width: 15%">Severity</th>
-                <th style="width: 15%">Details</th>
-                <th style="width: 15%">Notes</th>
-                <th style="width: 15%">Photos</th>
+                <th scope="col">Item</th>
+                <th scope="col" class="text-nowrap">Result</th>
+                <th scope="col" class="text-nowrap">Severity</th>
+                <th scope="col" class="text-nowrap d-none d-lg-table-cell">Details</th>
+                <th scope="col" class="text-nowrap d-none d-lg-table-cell">Notes</th>
+                <th scope="col" class="text-nowrap">Photos</th>
               </tr>
             </thead>
             <tbody>
@@ -118,14 +126,14 @@
                     <span class="text-muted">-</span>
                   @endif
                 </td>
-                <td>
+                <td class="d-none d-lg-table-cell">
                   @if($item->measurement_value)
                     <span>{{ $item->measurement_value }}</span>
                   @else
                     <span class="text-muted">-</span>
                   @endif
                 </td>
-                <td>
+                <td class="d-none d-lg-table-cell">
                   @if($item->defect_notes)
                     <small>{{ Str::limit($item->defect_notes, 50) }}</small>
                   @else
@@ -161,6 +169,91 @@
               @endforeach
             </tbody>
           </table>
+        </div>
+
+        <div class="inspection-mobile-list d-md-none">
+          @foreach($items as $item)
+            <article class="inspection-mobile-card">
+              <header class="inspection-mobile-card__header">
+                <div>
+                  <h6 class="inspection-mobile-card__title">
+                    {{ $item->item_name }}
+                    @if($item->safety_critical)
+                      <span class="badge bg-label-danger ms-1 align-middle" title="Safety Critical">!</span>
+                    @endif
+                    @if($item->compliance_item)
+                      <span class="badge bg-label-warning ms-1 align-middle" title="Compliance">C</span>
+                    @endif
+                  </h6>
+                  @if($item->item_description)
+                    <p class="inspection-mobile-card__description">{{ $item->item_description }}</p>
+                  @endif
+                </div>
+                <div class="inspection-mobile-card__result">
+                  @switch($item->result)
+                    @case('pass') <span class="badge bg-success">Pass</span> @break
+                    @case('fail') <span class="badge bg-danger">Fail</span> @break
+                    @case('na') <span class="badge bg-secondary">N/A</span> @break
+                    @default <span class="badge bg-secondary">Pending</span>
+                  @endswitch
+                </div>
+              </header>
+
+              <dl class="inspection-mobile-card__meta">
+                <div>
+                  <dt>Severity</dt>
+                  <dd>
+                    @if($item->defect_severity && $item->defect_severity !== 'none')
+                      @switch($item->defect_severity)
+                        @case('critical') <span class="badge bg-danger">Critical</span> @break
+                        @case('major') <span class="badge bg-warning">Major</span> @break
+                        @case('minor') <span class="badge bg-info">Minor</span> @break
+                      @endswitch
+                    @else
+                      <span class="text-muted">-</span>
+                    @endif
+                  </dd>
+                </div>
+                <div>
+                  <dt>Details</dt>
+                  <dd>{{ $item->measurement_value ?? '-' }}</dd>
+                </div>
+                <div>
+                  <dt>Notes</dt>
+                  <dd>
+                    @if($item->defect_notes)
+                      {{ Str::limit($item->defect_notes, 100) }}
+                    @else
+                      <span class="text-muted">-</span>
+                    @endif
+                  </dd>
+                </div>
+              </dl>
+
+              @php
+                $mobilePhotos = $item->photo_gallery ?? [];
+              @endphp
+
+              @if(!empty($mobilePhotos))
+                <div class="inspection-mobile-card__photos">
+                  @foreach($mobilePhotos as $photo)
+                    <button
+                      type="button"
+                      class="inspection-photo-trigger"
+                      data-bs-toggle="modal"
+                      data-bs-target="#inspectionPhotoModal"
+                      data-photo-src="{{ $photo['url'] }}"
+                      data-photo-label="{{ $photo['label'] }}"
+                      data-photo-download="{{ $photo['download_url'] ?? $photo['url'] }}"
+                      data-photo-remote="{{ ($photo['remote'] ?? false) ? '1' : '0' }}">
+                      <img src="{{ $photo['url'] }}" alt="{{ $photo['label'] }}" class="inspection-photo-thumb">
+                      <span class="inspection-photo-label">{{ $photo['label'] }}</span>
+                    </button>
+                  @endforeach
+                </div>
+              @endif
+            </article>
+          @endforeach
         </div>
       </div>
     </div>
@@ -241,7 +334,7 @@
     <div class="card">
       <div class="card-body">
         <h6 class="card-title">Actions</h6>
-        <div class="d-grid gap-2">
+        <div class="d-grid gap-2 inspection-actions-grid">
           @if($inspection->status === 'pending')
             <form action="{{ route('inspections.start', $inspection) }}" method="POST">
               @csrf
@@ -261,7 +354,11 @@
             <a href="{{ route('inspections.edit', $inspection) }}" class="btn btn-outline-primary">Edit Details</a>
           @endif
 
-          <a href="{{ route('vehicles.show', $inspection->vehicle) }}" class="btn btn-outline-secondary">View Vehicle</a>
+          @if($vehicle)
+            <a href="{{ route('vehicles.show', $vehicle) }}" class="btn btn-outline-secondary">View Vehicle</a>
+          @else
+            <div class="text-muted small text-center">Vehicle record no longer available.</div>
+          @endif
         </div>
       </div>
     </div>
@@ -270,13 +367,13 @@
 
 <!-- Photo Preview Modal -->
 <div class="modal fade" id="inspectionPhotoModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Inspection Photo</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body text-center">
+      <div class="modal-body text-center p-3 p-sm-4">
         <img src="" alt="" id="inspectionPhotoModalImage" class="img-fluid rounded shadow-sm">
       </div>
       <div class="modal-footer">
@@ -317,17 +414,23 @@
 
 @push('page-style')
 <style>
+  .inspection-details-page .card {
+    border-radius: 1rem;
+  }
+
   .inspection-photo-trigger {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    width: 86px;
-    padding: 0.6rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.04);
+    gap: 0.5rem;
+    flex: 1 1 110px;
+    min-width: 96px;
+    max-width: 160px;
+    padding: 0.7rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(248, 250, 252, 0.12);
     color: inherit;
     transition: all 0.2s ease;
     cursor: pointer;
@@ -335,37 +438,156 @@
 
   .inspection-photo-trigger:hover,
   .inspection-photo-trigger:focus {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+    border-color: rgba(59, 130, 246, 0.45);
+    background: rgba(59, 130, 246, 0.12);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
     text-decoration: none;
   }
 
   .inspection-photo-thumb {
-    width: 64px;
-    height: 64px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
-    border-radius: 0.6rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background-color: rgba(15, 23, 42, 0.45);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background-color: rgba(15, 23, 42, 0.1);
   }
 
-.inspection-photo-label {
-  display: block;
-  text-align: center;
-  font-size: 0.72rem;
-  line-height: 1.1;
-  color: rgba(255, 255, 255, 0.85);
-}
+  .inspection-photo-label {
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1.15;
+    color: var(--bs-body-color, rgba(15, 23, 42, 0.75));
+    opacity: 0.85;
+  }
 
-#inspectionPhotoModalImage {
-  max-height: 70vh;
-  max-width: 100%;
-  width: auto;
-  display: block;
-  margin: 0 auto;
-  border-radius: 0.5rem;
-}
+  .inspection-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .table .inspection-photo-trigger {
+      flex: 0 0 auto;
+      min-width: 86px;
+      max-width: 120px;
+    }
+  }
+
+  .inspection-mobile-card {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 1rem;
+    padding: 1rem;
+    background: rgba(248, 250, 252, 0.4);
+    backdrop-filter: blur(2px);
+  }
+
+  .inspection-mobile-card__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .inspection-mobile-card__result {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .inspection-mobile-card__title {
+    margin-bottom: 0.35rem;
+  }
+
+  .inspection-mobile-card__description {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    color: rgba(51, 65, 85, 0.8);
+  }
+
+  .inspection-mobile-card__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .inspection-mobile-card__meta dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(100, 116, 139, 0.85);
+    margin-bottom: 0.15rem;
+  }
+
+  .inspection-mobile-card__meta dd {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .inspection-mobile-card__photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .inspection-actions-grid .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  #inspectionPhotoModalImage {
+    max-height: 75vh;
+    max-width: 100%;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 0.75rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .inspection-photo-trigger {
+      flex: 1 1 120px;
+      min-width: 88px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .inspection-details-page .card {
+      margin-bottom: 1.25rem;
+    }
+
+    .inspection-details-page .card-header,
+    .inspection-details-page .card-body {
+      padding: 1rem;
+    }
+
+    .inspection-mobile-card__meta {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #inspectionPhotoModalImage {
+      max-height: calc(100vh - 11rem);
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .inspection-mobile-card__meta {
+      grid-template-columns: 1fr;
+    }
+
+    .inspection-photo-trigger {
+      flex: 1 1 45%;
+      max-width: 48%;
+    }
+  }
 </style>
 @endpush
 

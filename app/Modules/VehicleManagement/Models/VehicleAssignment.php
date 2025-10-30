@@ -2,6 +2,7 @@
 
 namespace App\Modules\VehicleManagement\Models;
 
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ class VehicleAssignment extends Model
     protected $fillable = [
         'vehicle_id',
         'user_id',
+        'branch_id',
         'assigned_date',
         'returned_date',
         'odometer_start',
@@ -47,6 +49,14 @@ class VehicleAssignment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the branch associated with this assignment
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**

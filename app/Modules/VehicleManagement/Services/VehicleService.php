@@ -58,11 +58,6 @@ class VehicleService
      */
     public function create(array $data): Vehicle
     {
-        // Ensure branch_id is set from authenticated user if not provided
-        if (empty($data['branch_id']) && auth()->check()) {
-            $data['branch_id'] = auth()->user()->branch_id;
-        }
-
         $vehicle = Vehicle::create($data);
 
         // Generate QR code for the vehicle (skip if package not installed)
@@ -202,11 +197,16 @@ class VehicleService
 
         $vehicle->assignments()->create([
             'user_id' => $userId,
+            'branch_id' => $data['branch_id'] ?? $vehicle->branch_id,
             'assigned_date' => $data['assigned_date'] ?? now(),
             'odometer_start' => $data['odometer_start'] ?? $vehicle->odometer_reading,
             'purpose' => $data['purpose'] ?? null,
             'notes' => $data['notes'] ?? null,
         ]);
+
+        if (!empty($data['branch_id'])) {
+            $vehicle->update(['branch_id' => $data['branch_id']]);
+        }
 
         return $vehicle->fresh(['currentAssignment.user']);
     }

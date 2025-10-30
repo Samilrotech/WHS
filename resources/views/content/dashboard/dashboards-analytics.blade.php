@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
     </x-whs.card>
   @endif
 
-  @if($userVehicleAssignment)
+  @if($userVehicleAssignment && $userVehicleAssignment->vehicle)
     <x-whs.card severity="info">
       <div class="sensei-alert">
         <div class="sensei-alert__header">
@@ -198,6 +198,18 @@ document.addEventListener('DOMContentLoaded', function () {
             Vehicle Details
           </a>
         </div>
+      </div>
+    </x-whs.card>
+  @elseif($userVehicleAssignment)
+    <x-whs.card severity="info">
+      <div class="sensei-alert">
+        <div class="sensei-alert__header">
+          <div>
+            <span class="section-eyebrow">Your Assigned Vehicle</span>
+            <h2>Vehicle record unavailable</h2>
+          </div>
+        </div>
+        <p class="sensei-alert__body">The vehicle linked to your assignment is no longer available. Please contact your fleet administrator.</p>
       </div>
     </x-whs.card>
   @endif

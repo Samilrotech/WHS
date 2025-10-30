@@ -161,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
         // Inspection item updates
         Route::put('/{inspection}/items/{item}', [InspectionController::class, 'updateItem'])->name('updateItem');
         Route::post('/{inspection}/items/{item}/repair', [InspectionController::class, 'completeRepair'])->name('completeRepair');
+        Route::get('/{inspection}/items/{item}/photos/{photo}', [InspectionController::class, 'photo'])->name('photos.show');
     });
 
     // Module 6: CAPA Management

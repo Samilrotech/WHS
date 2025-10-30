@@ -24,7 +24,13 @@ class InspectionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Inspection::with(['vehicle', 'inspector', 'approver'])
+        $query = Inspection::with([
+                'vehicle' => function ($vehicleQuery) {
+                    $vehicleQuery->withTrashed();
+                },
+                'inspector',
+                'approver',
+            ])
             ->latest('inspection_date');
 
         if ($request->filled('branch')) {
@@ -58,7 +64,8 @@ class InspectionController extends Controller
             $query->where(function ($q) use ($request) {
                 $q->where('inspection_number', 'like', "%{$request->search}%")
                     ->orWhereHas('vehicle', function ($vq) use ($request) {
-                        $vq->where('registration_number', 'like', "%{$request->search}%");
+                        $vq->withTrashed()
+                            ->where('registration_number', 'like', "%{$request->search}%");
                     });
             });
         }
@@ -72,6 +79,7 @@ class InspectionController extends Controller
             'inspections' => $inspections,
             'statistics' => $stats,
             'filters' => $request->only(['status', 'type', 'result', 'vehicle_id', 'search', 'branch']),
+            'mobileNavActive' => 'inspections',
         ]);
     }
 
@@ -210,7 +218,9 @@ class InspectionController extends Controller
     public function show(Inspection $inspection)
     {
         $inspection->load([
-            'vehicle',
+            'vehicle' => function ($vehicleQuery) {
+                $vehicleQuery->withTrashed();
+            },
             'inspector',
             'approver',
             'items' => function ($query) {
@@ -313,7 +323,12 @@ class InspectionController extends Controller
             abort(403, 'Cannot edit inspection in current status');
         }
 
-        $inspection->load(['vehicle', 'items']);
+        $inspection->load([
+            'vehicle' => function ($vehicleQuery) {
+                $vehicleQuery->withTrashed();
+            },
+            'items',
+        ]);
 
         return view('content.inspections.edit', [
             'inspection' => $inspection,

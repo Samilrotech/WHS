@@ -46,7 +46,8 @@
       "Bash(powershell.exe -Command \"Start-Process powershell -ArgumentList ''-NoExit'', ''-Command'', ''cd D:\\WHS5; php artisan serve --host=127.0.0.1 --port=8002'' -WindowStyle Minimized\")",
       "Bash(powershell.exe -Command \"Get-Process -Id 21136 | Select-Object Id, ProcessName, Path | Format-List\")",
       "Bash(curl:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "mcp__sequential-thinking__sequentialthinking"
     ],
     "deny": [],
     "ask": []

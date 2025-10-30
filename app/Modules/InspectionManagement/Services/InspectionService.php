@@ -17,13 +17,14 @@ class InspectionService
      * Generate unique inspection number
      * Format: INS-{YEAR}-{BRANCH}-{SEQUENCE}
      */
-    protected function generateInspectionNumber(): string
+    protected function generateInspectionNumber(string $branchId): string
     {
         $year = now()->year;
-        $branchId = auth()->user()->branch_id;
 
-        $lastInspection = Inspection::where('branch_id', $branchId)
+        $lastInspection = Inspection::withoutGlobalScopes()
+            ->where('branch_id', $branchId)
             ->where('inspection_number', 'like', "INS-{$year}-%")
+            ->lockForUpdate()
             ->orderBy('inspection_number', 'desc')
             ->first();
 
@@ -43,9 +44,20 @@ class InspectionService
     public function createInspection(array $data): Inspection
     {
         return DB::transaction(function () use ($data) {
-            $data['branch_id'] = auth()->user()->branch_id;
+            $branchId = $data['branch_id'] ?? auth()->user()->branch_id;
+
+            if (!$branchId) {
+                $vehicle = Vehicle::find($data['vehicle_id']);
+                $branchId = $vehicle?->branch_id;
+            }
+
+            if (!$branchId) {
+                throw new \RuntimeException('Unable to determine branch for inspection number generation.');
+            }
+
+            $data['branch_id'] = $branchId;
             $data['inspector_user_id'] = auth()->id();
-            $data['inspection_number'] = $this->generateInspectionNumber();
+            $data['inspection_number'] = $this->generateInspectionNumber($branchId);
             $data['status'] = 'pending';
 
             $inspection = Inspection::create($data);
@@ -63,14 +75,20 @@ class InspectionService
     public function createDriverVehicleInspection(array $data): Inspection
     {
         $template = collect($this->getDriverQuickChecklist());
+        $vehicle = Vehicle::findOrFail($data['vehicle_id']);
+        $branchId = $vehicle->branch_id ?? auth()->user()->branch_id;
 
-        return DB::transaction(function () use ($data, $template) {
+        if (!$branchId) {
+            throw new \RuntimeException('Unable to determine branch for inspection number generation.');
+        }
+
+        return DB::transaction(function () use ($data, $template, $vehicle, $branchId) {
             $inspection = Inspection::create([
-                'branch_id' => auth()->user()->branch_id,
+                'branch_id' => $branchId,
                 'vehicle_id' => $data['vehicle_id'],
                 'vehicle_assignment_id' => $data['vehicle_assignment_id'] ?? null,
                 'inspector_user_id' => auth()->id(),
-                'inspection_number' => $this->generateInspectionNumber(),
+                'inspection_number' => $this->generateInspectionNumber($branchId),
                 'inspection_type' => 'pre_trip',
                 'inspection_date' => $data['inspection_date'] ?? now(),
                 'odometer_reading' => $data['odometer_reading'] ?? null,
@@ -144,7 +162,7 @@ class InspectionService
                 'vehicle_id' => $vehicle->id,
                 'vehicle_assignment_id' => $assignment->id,
                 'inspector_user_id' => auth()->id(),
-                'inspection_number' => $this->generateInspectionNumber(),
+                'inspection_number' => $this->generateInspectionNumber($vehicle->branch_id),
                 'inspection_type' => 'monthly_routine',
                 'inspection_date' => now(),
                 'odometer_reading' => $data['odometer_reading'],
@@ -508,9 +526,12 @@ class InspectionService
     protected function storeMonthlyPhoto(UploadedFile $file, Inspection $inspection, string $prefix): string
     {
         $filename = sprintf('%s-%s.%s', $prefix, Str::uuid(), $file->getClientOriginalExtension());
-        $path = $file->storeAs("inspections/monthly/{$inspection->id}", $filename, 'public');
 
-        return Storage::url($path);
+        return $file->storeAs(
+            "inspections/monthly/{$inspection->id}",
+            $filename,
+            'public'
+        );
     }
 
     /**

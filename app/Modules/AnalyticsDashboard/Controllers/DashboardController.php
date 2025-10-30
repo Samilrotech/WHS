@@ -25,7 +25,9 @@ class DashboardController
 
         $metrics = $this->analyticsService->getDashboardMetrics($branchId, $period);
 
-        return view('content.analytics-dashboard.index', compact('metrics', 'period'));
+        return view('content.analytics-dashboard.index', array_merge(compact('metrics', 'period'), [
+            'mobileNavActive' => 'dashboard',
+        ]));
     }
 
     /**

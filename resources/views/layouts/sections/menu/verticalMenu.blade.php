@@ -45,7 +45,7 @@ $activeClassFor = static function ($item) use ($matchesRoute, $hasActiveChild, $
 };
 @endphp
 
-<aside class="sensei-sidebar" data-sensei-sidebar>
+<aside class="sensei-sidebar" id="sensei-sidebar" data-sensei-sidebar>
   <div class="sensei-sidebar__brand">
     <a href="{{ url('/') }}" class="sensei-sidebar__brand-link">
       <img
@@ -55,6 +55,15 @@ $activeClassFor = static function ($item) use ($matchesRoute, $hasActiveChild, $
       >
       <span class="sensei-sidebar__brand-name">ROTECH WHS</span>
     </a>
+    {{-- Mobile close button --}}
+    <button
+      type="button"
+      class="sensei-sidebar__close d-md-none"
+      data-sidebar-close
+      aria-label="Close navigation menu"
+    >
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
   </div>
 
   <nav class="sensei-nav">

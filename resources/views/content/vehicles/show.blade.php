@@ -471,14 +471,29 @@
           <h5 class="modal-title">Assign Vehicle</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="user_id" class="form-label">Assign To *</label>
-            <select id="user_id" name="user_id" class="form-select" required>
-              <option value="">Select user</option>
-              {{-- Users will be populated via controller --}}
-            </select>
-          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="assignment_branch_id" class="form-label">Assign Branch *</label>
+              <select id="assignment_branch_id" name="branch_id" class="form-select" required>
+                <option value="">Select branch</option>
+                @foreach($assignable_branches as $branch)
+                  <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="user_id" class="form-label">Assign To *</label>
+              <select id="user_id" name="user_id" class="form-select" required>
+                <option value="">Select user</option>
+                @foreach($assignable_users as $user)
+                  <option
+                    value="{{ $user->id }}"
+                    data-branch="{{ $user->branch_id ?? '' }}">
+                    {{ $user->name }}@if($user->branch) ({{ $user->branch->name }}) @endif
+                  </option>
+                @endforeach
+              </select>
+            </div>
           <div class="mb-3">
             <label for="assigned_date" class="form-label">Assignment Date *</label>
             <input type="date" id="assigned_date" name="assigned_date" class="form-control" value="{{ date('Y-m-d') }}" required>
@@ -535,7 +550,53 @@
         </div>
       </div>
     </form>
-  </div>
+</div>
 </div>
 @endsection
+
+@push('page-script')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const branchSelect = document.getElementById('assignment_branch_id');
+    const userSelect = document.getElementById('user_id');
+
+    if (!branchSelect || !userSelect) {
+      return;
+    }
+
+    const defaultSelected = userSelect.value;
+
+    const filterUsers = () => {
+      const branchId = branchSelect.value;
+      let firstVisible = null;
+
+      Array.from(userSelect.options).forEach(option => {
+        if (!option.value) {
+          return;
+        }
+
+        const optionBranch = option.getAttribute('data-branch') || '';
+        const shouldShow = !branchId || optionBranch === branchId;
+        option.hidden = !shouldShow;
+
+        if (shouldShow && !firstVisible) {
+          firstVisible = option;
+        }
+      });
+
+      if (branchId && userSelect.selectedOptions.length) {
+        const selectedOption = userSelect.selectedOptions[0];
+        if (selectedOption.hidden) {
+          userSelect.value = firstVisible ? firstVisible.value : '';
+        }
+      } else if (!branchId && defaultSelected) {
+        userSelect.value = defaultSelected;
+      }
+    };
+
+    branchSelect.addEventListener('change', filterUsers);
+    filterUsers();
+  });
+</script>
+@endpush
 

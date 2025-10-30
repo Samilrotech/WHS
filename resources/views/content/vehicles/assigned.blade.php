@@ -53,6 +53,13 @@
             : 'Due before operating';
         @endphp
 
+        @if(!$vehicle)
+          <x-whs.card class="sensei-surface-card">
+            <div class="text-muted">The vehicle linked to this assignment is no longer available. Please contact your administrator.</div>
+          </x-whs.card>
+          @continue
+        @endif
+
         <x-whs.card class="sensei-surface-card">
           <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
             <div>
@@ -117,6 +124,13 @@
           $nextDue = $vehicle?->inspection_due_date;
           $overdue = $nextDue && $nextDue->isPast();
         @endphp
+
+        @if(!$vehicle)
+          <x-whs.card class="sensei-surface-card">
+            <div class="text-muted">The vehicle linked to this assignment is no longer available. Please contact your administrator.</div>
+          </x-whs.card>
+          @continue
+        @endif
 
         <x-whs.card class="sensei-surface-card">
           <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">

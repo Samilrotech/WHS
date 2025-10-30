@@ -3,9 +3,10 @@
 namespace App\Modules\VehicleManagement\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\VehicleManagement\Models\Vehicle;
 use App\Modules\InspectionManagement\Models\Inspection;
 use App\Models\Branch;
+use App\Models\User;
+use App\Modules\VehicleManagement\Models\Vehicle;
 use App\Modules\VehicleManagement\Services\VehicleService;
 use App\Modules\VehicleManagement\Services\QRCodeService;
 use App\Modules\VehicleManagement\Services\DepreciationService;
@@ -47,6 +48,7 @@ class VehicleController extends Controller
             'makes' => $makes,
             'branches' => $branches,
             'filters' => $request->only(['search', 'status', 'make', 'assigned', 'branch']) + ['branch' => $branchFilter],
+            'mobileNavActive' => 'vehicles',
         ]);
     }
 
@@ -157,6 +159,9 @@ class VehicleController extends Controller
         $currentAssignment = $vehicle->currentAssignment;
         $canStartDriverInspection = $currentAssignment && auth()->id() === $currentAssignment->user_id;
 
+        $assignableBranches = Branch::orderBy('name')->get(['id', 'name']);
+        $assignableUsers = User::with('branch')->orderBy('name')->get();
+
         return view('content.vehicles.show', [
             'vehicle' => $vehicle,
             'depreciation_schedule' => $depreciationSchedule,
@@ -172,6 +177,8 @@ class VehicleController extends Controller
             'qr_code_url' => $vehicle->qr_code_path
                 ? $this->qrCodeService->getQRCodeUrl($vehicle->qr_code_path)
                 : null,
+            'assignable_branches' => $assignableBranches,
+            'assignable_users' => $assignableUsers,
         ]);
     }
 
@@ -256,6 +263,7 @@ class VehicleController extends Controller
     public function assign(Request $request, Vehicle $vehicle)
     {
         $validated = $request->validate([
+            'branch_id' => 'required|uuid|exists:branches,id',
             'user_id' => 'required|exists:users,id',
             'assigned_date' => 'nullable|date',
             'odometer_start' => 'nullable|integer|min:0',

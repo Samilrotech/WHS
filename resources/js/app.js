@@ -1,28 +1,57 @@
 import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const sidebar = document.querySelector('[data-sensei-sidebar]');
-  const openToggle = document.querySelector('[data-sidebar-toggle]');
-  const closeToggle = document.querySelector('[data-sidebar-close]');
+  // Sidebar toggle functionality
+  const sidebar = document.getElementById('sensei-sidebar');
+  const toggleButtons = document.querySelectorAll('[data-sidebar-toggle]');
+  const closeButtons = document.querySelectorAll('[data-sidebar-close]');
   const body = document.body;
 
-  const toggleSidebar = () => {
+  function openSidebar() {
     if (!sidebar) return;
-    sidebar.classList.toggle('is-open');
-    body.classList.toggle('sensei-sidebar-open');
-  };
-
-  if (openToggle) {
-    openToggle.addEventListener('click', toggleSidebar);
+    sidebar.classList.add('is-open');
+    body.classList.add('sensei-sidebar-open');
+    toggleButtons.forEach(btn => btn.setAttribute('aria-expanded', 'true'));
   }
 
-  if (closeToggle) {
-    closeToggle.addEventListener('click', toggleSidebar);
+  function closeSidebar() {
+    if (!sidebar) return;
+    sidebar.classList.remove('is-open');
+    body.classList.remove('sensei-sidebar-open');
+    toggleButtons.forEach(btn => btn.setAttribute('aria-expanded', 'false'));
   }
 
+  function toggleSidebar() {
+    if (sidebar?.classList.contains('is-open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  }
+
+  // Toggle buttons (hamburger, More tab)
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', toggleSidebar);
+  });
+
+  // Close buttons
+  closeButtons.forEach(button => {
+    button.addEventListener('click', closeSidebar);
+  });
+
+  // Click overlay to close
+  if (sidebar) {
+    sidebar.addEventListener('click', (e) => {
+      if (e.target === sidebar && sidebar.classList.contains('is-open')) {
+        closeSidebar();
+      }
+    });
+  }
+
+  // ESC key to close
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && sidebar?.classList.contains('is-open')) {
-      toggleSidebar();
+      closeSidebar();
     }
   });
 

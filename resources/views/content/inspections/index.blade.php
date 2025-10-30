@@ -137,8 +137,15 @@
 
             <div class="whs-card__body">
               <div>
-                <h3>{{ $inspection->vehicle->registration_number }}</h3>
-                <p>{{ $typeLabel }} • {{ $inspection->inspection_date?->format('d M Y') ?? 'Not started' }}</p>
+                <h3 class="{{ $inspection->vehicle ? '' : 'text-muted' }}">
+                  {{ $inspection->vehicle?->registration_number ?? 'Vehicle unavailable' }}
+                </h3>
+                <p class="mb-0">
+                  {{ $typeLabel }} • {{ $inspection->inspection_date?->format('d M Y') ?? 'Not started' }}
+                </p>
+                @unless($inspection->vehicle)
+                  <p class="text-muted mb-0 small">Vehicle record has been archived or removed.</p>
+                @endunless
               </div>
               <div>
                 <span class="whs-location-label">Overall Result</span>

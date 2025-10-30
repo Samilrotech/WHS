@@ -99,7 +99,9 @@ class Analytics extends Controller
       ->pluck('count', 'status');
 
     // Check if current user has an assigned vehicle
-    $userVehicleAssignment = $user->currentVehicleAssignment()->with('vehicle')->first();
+    $userVehicleAssignment = $user->currentVehicleAssignment()
+      ->with(['vehicle' => fn ($query) => $query->withTrashed()])
+      ->first();
 
     return view('content.dashboard.dashboards-analytics', compact(
       'stats',
