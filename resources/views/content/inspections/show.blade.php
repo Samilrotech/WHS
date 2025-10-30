@@ -3,6 +3,9 @@
 @section('title', 'Inspection Details')
 
 @section('content')
+@php
+  use Illuminate\Support\Str;
+@endphp
 @include('layouts.sections.flash-message')
 
 <div class="row">
@@ -73,8 +76,10 @@
               <tr>
                 <th style="width: 40%">Item</th>
                 <th style="width: 15%">Result</th>
-                <th style="width: 20%">Severity</th>
-                <th style="width: 25%">Notes</th>
+                <th style="width: 15%">Severity</th>
+                <th style="width: 15%">Details</th>
+                <th style="width: 15%">Notes</th>
+                <th style="width: 15%">Photos</th>
               </tr>
             </thead>
             <tbody>
@@ -114,8 +119,40 @@
                   @endif
                 </td>
                 <td>
+                  @if($item->measurement_value)
+                    <span>{{ $item->measurement_value }}</span>
+                  @else
+                    <span class="text-muted">-</span>
+                  @endif
+                </td>
+                <td>
                   @if($item->defect_notes)
                     <small>{{ Str::limit($item->defect_notes, 50) }}</small>
+                  @else
+                    <span class="text-muted">-</span>
+                  @endif
+                </td>
+                <td>
+                  @php
+                    $photos = $item->photo_gallery ?? [];
+                  @endphp
+                  @if(!empty($photos))
+                    <div class="d-flex flex-wrap gap-2">
+                      @foreach($photos as $photo)
+                        <button
+                          type="button"
+                          class="inspection-photo-trigger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#inspectionPhotoModal"
+                          data-photo-src="{{ $photo['url'] }}"
+                          data-photo-label="{{ $photo['label'] }}"
+                          data-photo-download="{{ $photo['download_url'] ?? $photo['url'] }}"
+                          data-photo-remote="{{ ($photo['remote'] ?? false) ? '1' : '0' }}">
+                          <img src="{{ $photo['url'] }}" alt="{{ $photo['label'] }}" class="inspection-photo-thumb">
+                          <span class="inspection-photo-label">{{ $photo['label'] }}</span>
+                        </button>
+                      @endforeach
+                    </div>
                   @else
                     <span class="text-muted">-</span>
                   @endif
@@ -231,6 +268,27 @@
   </div>
 </div>
 
+<!-- Photo Preview Modal -->
+<div class="modal fade" id="inspectionPhotoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Inspection Photo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="" alt="" id="inspectionPhotoModalImage" class="img-fluid rounded shadow-sm">
+      </div>
+      <div class="modal-footer">
+        <a href="#" id="inspectionPhotoModalDownload" class="btn btn-primary" download>
+          <i class="ti ti-download me-1"></i>Download
+        </a>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Reject Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1">
   <div class="modal-dialog">
@@ -256,3 +314,132 @@
   </div>
 </div>
 @endsection
+
+@push('page-style')
+<style>
+  .inspection-photo-trigger {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 86px;
+    padding: 0.6rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: inherit;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .inspection-photo-trigger:hover,
+  .inspection-photo-trigger:focus {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+    text-decoration: none;
+  }
+
+  .inspection-photo-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: rgba(15, 23, 42, 0.45);
+  }
+
+.inspection-photo-label {
+  display: block;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#inspectionPhotoModalImage {
+  max-height: 70vh;
+  max-width: 100%;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+}
+</style>
+@endpush
+
+@push('page-script')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('inspectionPhotoModal');
+    if (!modalEl) {
+      return;
+    }
+
+    modalEl.addEventListener('show.bs.modal', event => {
+      const trigger = event.relatedTarget;
+      if (!trigger) {
+        return;
+      }
+
+      const src = trigger.getAttribute('data-photo-src');
+      const label = trigger.getAttribute('data-photo-label') || 'Inspection photo';
+
+      const imageEl = modalEl.querySelector('#inspectionPhotoModalImage');
+      const titleEl = modalEl.querySelector('.modal-title');
+      const downloadEl = modalEl.querySelector('#inspectionPhotoModalDownload');
+
+      if (imageEl) {
+        // Clear previous image first
+        imageEl.src = '';
+
+        // Add cache-busting timestamp to force fresh request
+        const cacheBustUrl = src + (src.includes('?') ? '&' : '?') + '_t=' + Date.now();
+
+        // Set new source
+        imageEl.src = cacheBustUrl;
+        imageEl.alt = label;
+      }
+      if (titleEl) {
+        titleEl.textContent = label;
+      }
+      if (downloadEl) {
+        const downloadHref = trigger.getAttribute('data-photo-download') || src;
+        const isRemote = trigger.getAttribute('data-photo-remote') === '1';
+        downloadEl.href = downloadHref;
+
+        if (isRemote) {
+          downloadEl.removeAttribute('download');
+          downloadEl.setAttribute('target', '_blank');
+        } else {
+          downloadEl.removeAttribute('target');
+          const safeName = label.replace(/[^\w\d\-]+/g, '_');
+          try {
+            const url = new URL(downloadHref, window.location.origin);
+            const pathname = url.pathname;
+            const extension = pathname.lastIndexOf('.') !== -1 ? pathname.substring(pathname.lastIndexOf('.') + 1) : 'jpg';
+            downloadEl.setAttribute('download', `${safeName || 'inspection-photo'}.${extension}`);
+          } catch (e) {
+            downloadEl.setAttribute('download', `${safeName || 'inspection-photo'}.jpg`);
+          }
+        }
+      }
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+      const imageEl = modalEl.querySelector('#inspectionPhotoModalImage');
+      if (imageEl) {
+        imageEl.src = '';
+        imageEl.alt = '';
+      }
+      const downloadEl = modalEl.querySelector('#inspectionPhotoModalDownload');
+      if (downloadEl) {
+        downloadEl.removeAttribute('download');
+        downloadEl.removeAttribute('href');
+        downloadEl.removeAttribute('target');
+      }
+    });
+  });
+</script>
+@endpush

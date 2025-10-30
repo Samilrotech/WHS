@@ -10,6 +10,8 @@ use App\Modules\VehicleManagement\Models\Vehicle;
 use App\Modules\VehicleManagement\Models\VehicleAssignment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class InspectionController extends Controller
 {
@@ -216,6 +218,73 @@ class InspectionController extends Controller
             },
         ]);
 
+        $inspection->items->transform(function ($item) use ($inspection) {
+            $photos = collect($item->photo_paths ?? [])
+                ->filter()
+                ->map(function ($entry, $key) use ($inspection, $item) {
+                    $label = is_string($key)
+                        ? Str::title(str_replace('_', ' ', $key))
+                        : 'Photo ' . ((int) $key + 1);
+
+                    $value = $entry;
+                    if (is_array($entry)) {
+                        $value = $entry['path'] ?? $entry['url'] ?? '';
+                    }
+
+                    if (!is_string($value) || $value === '') {
+                        return null;
+                    }
+
+                    if (Str::startsWith($value, ['http://', 'https://'])) {
+                        return [
+                            'label' => $label,
+                            'url' => $value,
+                            'download_url' => $value,
+                            'remote' => true,
+                        ];
+                    }
+
+                    $relative = Str::of($value)
+                        ->replaceFirst('/storage/', '')
+                        ->replaceFirst('storage/', '')
+                        ->ltrim('/')
+                        ->value();
+
+                    if ($relative === '') {
+                        return null;
+                    }
+
+                    if (!Storage::disk('public')->exists($relative)) {
+                        return null;
+                    }
+
+                    $photoKey = is_string($key) ? $key : (string) $key;
+
+                    return [
+                        'label' => $label,
+                        'url' => route('inspections.photos.show', [
+                            'inspection' => $inspection->id,
+                            'item' => $item->id,
+                            'photo' => $photoKey,
+                        ]),
+                        'download_url' => route('inspections.photos.show', [
+                            'inspection' => $inspection->id,
+                            'item' => $item->id,
+                            'photo' => $photoKey,
+                            'download' => 1,
+                        ]),
+                        'remote' => false,
+                    ];
+                })
+                ->filter()
+                ->values()
+                ->all();
+
+            $item->photo_gallery = $photos;
+
+            return $item;
+        });
+
         // Group items by category for better display
         $itemsByCategory = $inspection->items->groupBy('item_category');
 
@@ -413,4 +482,81 @@ class InspectionController extends Controller
 
         return back()->with('success', 'Repair marked as completed.');
     }
+
+    /**
+     * Serve an inspection photo for preview or download.
+     */
+    public function photo(Request $request, Inspection $inspection, InspectionItem $item, string $photo)
+    {
+        if ($item->inspection_id !== $inspection->id) {
+            abort(404);
+        }
+
+        $photoPaths = $item->photo_paths ?? [];
+        if (!is_array($photoPaths)) {
+            $photoPaths = [];
+        }
+
+        $key = array_key_exists($photo, $photoPaths) ? $photo : null;
+        if ($key === null && is_numeric($photo) && array_key_exists((int) $photo, $photoPaths)) {
+            $key = (int) $photo;
+        }
+
+        if ($key === null) {
+            abort(404);
+        }
+
+        $value = $photoPaths[$key];
+        if (is_array($value)) {
+            $value = $value['path'] ?? $value['url'] ?? '';
+        }
+
+        if (!is_string($value) || $value === '') {
+            abort(404);
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://'])) {
+            return redirect()->away($value);
+        }
+
+        $relative = Str::of($value)
+            ->replaceFirst('/storage/', '')
+            ->replaceFirst('storage/', '')
+            ->ltrim('/')
+            ->value();
+
+        if ($relative === '') {
+            abort(404);
+        }
+
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists($relative)) {
+            abort(404);
+        }
+
+        $mime = $disk->mimeType($relative) ?: 'application/octet-stream';
+        $download = $request->boolean('download');
+
+        $baseName = basename($relative);
+        $safeName = Str::slug($inspection->inspection_number . '-' . $item->item_name . '-' . $key);
+        $extension = pathinfo($relative, PATHINFO_EXTENSION) ?: pathinfo($baseName, PATHINFO_EXTENSION);
+        $downloadName = $safeName !== '' ? ($extension ? "{$safeName}.{$extension}" : $safeName) : $baseName;
+
+        if ($download) {
+            return $disk->download($relative, $downloadName, [
+                'Content-Type' => $mime,
+            ]);
+        }
+
+        return $disk->response($relative, $downloadName, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . $downloadName . '"',
+            'Cache-Control' => 'private, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
 }
