@@ -25,17 +25,17 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Hostinger configuration
-HOSTINGER_HOST="${HOSTINGER_HOST:-147.79.66.172}"
+HOSTINGER_HOST="${HOSTINGER_HOST:-147.79.67.122}"
 HOSTINGER_USER="${HOSTINGER_USER:-root}"
-HOSTINGER_SSH_KEY="${HOSTINGER_SSH_KEY:-/d/WHS5/whs5_deployment_key}"
-DOMAIN="${DOMAIN:-whs.rotechrural.site}"
+HOSTINGER_SSH_KEY="${HOSTINGER_SSH_KEY:-~/.ssh/rotech_hostinger}"
+DOMAIN="${DOMAIN:-whs.rotechrural.com.au}"
 
 # Application configuration
 APP_NAME="${APP_NAME:-rotech-whs5}"
 APP_DIR="${APP_DIR:-/var/www/whs}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/rotech-whs}"
 LOG_DIR="${LOG_DIR:-/var/log/rotech-whs}"
-REPO_URL="${REPO_URL:-https://github.com/Samilrotech/rotech-whs.git}"
+REPO_URL="${REPO_URL:-https://github.com/Samilrotech/WHS.git}"
 BRANCH="${BRANCH:-master}"
 
 # Database configuration (loaded from remote .env)

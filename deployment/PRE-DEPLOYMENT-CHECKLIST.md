@@ -3,9 +3,9 @@
 ## ✅ Pre-Deployment Requirements
 
 ### 1. Hostinger Configuration
-- [ ] **Subdomain Created**: `whs.rotechrural.site` pointing to `/var/www/whs`
+- [ ] **Domain Created**: `whs.rotechrural.com.au` pointing to `/var/www/whs`
 - [ ] **SSH Key Added**: Public key added to Hostinger authorized_keys
-- [ ] **SSH Connection Tested**: ✅ Connection successful (147.79.66.172)
+- [ ] **SSH Connection Tested**: ✅ Connection successful (147.79.67.122)
 - [ ] **Directory Structure**: Create `/var/www/whs` directory on server
 
 ### 2. Database Setup
@@ -45,7 +45,7 @@
 ### First-Time Deployment (Full Setup)
 ```bash
 # SSH into server manually first time to set up directories
-ssh -i /d/WHS5/whs5_deployment_key root@147.79.66.172
+ssh -i ~/.ssh/rotech_hostinger root@147.79.67.122
 
 # On server:
 mkdir -p /var/www/whs
@@ -95,7 +95,7 @@ bash deployment/deploy-to-hostinger.sh --rollback
 ### 1. Configure Environment Variables
 SSH into server and update `.env`:
 ```bash
-ssh -i /d/WHS5/whs5_deployment_key root@147.79.66.172
+ssh -i ~/.ssh/rotech_hostinger root@147.79.67.122
 cd /var/www/whs
 nano .env
 
@@ -103,7 +103,7 @@ nano .env
 APP_NAME="Rotech WHS5"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://whs.rotechrural.site
+APP_URL=https://whs.rotechrural.com.au
 
 DB_DATABASE=rotech_whs
 DB_USERNAME=rotech_user
@@ -123,12 +123,12 @@ php artisan config:cache
 
 ### 3. Configure Nginx
 ```bash
-nano /etc/nginx/sites-available/whs.rotechrural.site
+nano /etc/nginx/sites-available/whs.rotechrural.com.au
 
 # Add this configuration:
 server {
     listen 80;
-    server_name whs.rotechrural.site;
+    server_name whs.rotechrural.com.au;
     root /var/www/whs/public;
 
     add_header X-Frame-Options "SAMEORIGIN";
@@ -159,7 +159,7 @@ server {
 }
 
 # Enable site
-ln -s /etc/nginx/sites-available/whs.rotechrural.site /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/whs.rotechrural.com.au /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
@@ -170,12 +170,12 @@ systemctl reload nginx
 apt-get install certbot python3-certbot-nginx
 
 # Get SSL certificate
-certbot --nginx -d whs.rotechrural.site
+certbot --nginx -d whs.rotechrural.com.au
 ```
 
 ### 5. Verify Deployment
-- [ ] Visit http://whs.rotechrural.site - Site loads
-- [ ] Visit https://whs.rotechrural.site - SSL works
+- [ ] Visit http://whs.rotechrural.com.au - Site loads
+- [ ] Visit https://whs.rotechrural.com.au - SSL works
 - [ ] Login page accessible
 - [ ] Dashboard loads correctly
 - [ ] All 5 modules accessible
@@ -272,5 +272,5 @@ For issues during deployment:
 ---
 
 **Deployment Script**: `/d/WHS5/deployment/deploy-to-hostinger.sh`
-**SSH Key**: `/d/WHS5/whs5_deployment_key`
-**GitHub Repo**: https://github.com/Samilrotech/rotech-whs
+**SSH Key**: `~/.ssh/rotech_hostinger`
+**GitHub Repo**: https://github.com/Samilrotech/WHS
