@@ -24,17 +24,6 @@ use Illuminate\Support\Facades\Route;
 <header class="sensei-topbar" data-sensei-topbar>
   {{-- Logo & Brand Section --}}
   <div class="sensei-topbar__brand">
-    <button
-      type="button"
-      class="sensei-topbar__hamburger d-md-none"
-      data-sidebar-toggle
-      aria-label="Open navigation menu"
-      aria-expanded="false"
-      aria-controls="sensei-sidebar"
-    >
-      <i class="ti ti-menu-2" aria-hidden="true"></i>
-    </button>
-
     <a href="{{ route('dashboard') }}" class="sensei-topbar__logo">
       <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural Logo" class="sensei-topbar__logo-img">
       <div class="sensei-topbar__brand-text">
@@ -49,10 +38,6 @@ use Illuminate\Support\Facades\Route;
     <div class="sensei-topbar__breadcrumb">
       <i class="ti ti-layout-dashboard sensei-topbar__breadcrumb-icon"></i>
       <span class="sensei-topbar__page-title">{{ $pageTitle }}</span>
-    </div>
-    <div class="sensei-topbar__greeting">
-      <span class="d-none d-lg-inline">Welcome back,</span>
-      <strong>{{ $firstName }}</strong>
     </div>
   </div>
 

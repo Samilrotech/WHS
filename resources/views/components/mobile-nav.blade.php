@@ -22,13 +22,6 @@
     <span class="mobile-nav__label">My Vehicle</span>
   </a>
 
-  <a href="{{ route('vehicles.index') }}"
-     class="mobile-nav__item {{ $active === 'vehicles' ? 'active' : '' }}"
-     aria-current="{{ $active === 'vehicles' ? 'page' : 'false' }}">
-    <i class="ti ti-car mobile-nav__icon" aria-hidden="true"></i>
-    <span class="mobile-nav__label">Fleet</span>
-  </a>
-
   <button type="button"
           class="mobile-nav__item"
           data-sidebar-toggle

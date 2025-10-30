@@ -3811,7 +3811,7 @@ body.sensei-sidebar-open::after {
   padding: 0.5rem;
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
 
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.25rem;
 
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
