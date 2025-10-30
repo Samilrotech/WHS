@@ -15,11 +15,11 @@
     <span class="mobile-nav__label">Incidents</span>
   </a>
 
-  <a href="{{ route('inspections.index') }}"
-     class="mobile-nav__item {{ $active === 'inspections' ? 'active' : '' }}"
-     aria-current="{{ $active === 'inspections' ? 'page' : 'false' }}">
-    <i class="ti ti-clipboard-check mobile-nav__icon" aria-hidden="true"></i>
-    <span class="mobile-nav__label">Inspections</span>
+  <a href="{{ route('driver.vehicle-inspections.index') }}"
+     class="mobile-nav__item {{ $active === 'assigned-vehicles' ? 'active' : '' }}"
+     aria-current="{{ $active === 'assigned-vehicles' ? 'page' : 'false' }}">
+    <i class="ti ti-car-garage mobile-nav__icon" aria-hidden="true"></i>
+    <span class="mobile-nav__label">My Vehicle</span>
   </a>
 
   <a href="{{ route('vehicles.index') }}"

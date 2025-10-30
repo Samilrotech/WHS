@@ -34,6 +34,7 @@ class AssignedVehicleController extends Controller
             'assignments' => $assignments,
             'dailyAssignments' => $dailyAssignments,
             'monthlyAssignments' => $monthlyAssignments,
+            'mobileNavActive' => 'assigned-vehicles',
         ]);
     }
 }
