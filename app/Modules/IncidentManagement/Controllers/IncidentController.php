@@ -9,6 +9,7 @@ use App\Modules\IncidentManagement\Requests\UpdateIncidentRequest;
 use App\Modules\IncidentManagement\Resources\IncidentResource;
 use App\Modules\IncidentManagement\Services\IncidentService;
 use App\Modules\IncidentManagement\Repositories\IncidentRepository;
+use App\Modules\VehicleManagement\Models\VehicleAssignment;
 use Illuminate\Http\Request;
 
 class IncidentController extends Controller
@@ -26,10 +27,18 @@ class IncidentController extends Controller
         $filters = $request->only(['type', 'severity', 'status', 'search', 'date_from', 'date_to']);
         $incidents = $this->repository->paginate(15, $filters);
 
+        // Get assigned vehicles count for the branch
+        $branchId = auth()->user()->branch_id;
+        $assignedVehiclesCount = VehicleAssignment::query()
+            ->whereNull('returned_date')
+            ->when($branchId, fn($q) => $q->whereHas('vehicle', fn($vq) => $vq->where('branch_id', $branchId)))
+            ->count();
+
         return view('content.incidents.index', [
             'incidents' => IncidentResource::collection($incidents),
             'filters' => $filters,
             'statistics' => $this->service->getStatistics(auth()->user()->branch_id),
+            'assignedVehiclesCount' => $assignedVehiclesCount,
             'mobileNavActive' => 'incidents',
         ]);
     }

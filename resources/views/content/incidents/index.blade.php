@@ -74,6 +74,14 @@
     />
 
     <x-whs.metric-card
+      icon="ti-car"
+      iconVariant="info"
+      label="Assigned Vehicles"
+      :value="$assignedVehiclesCount ?? 0"
+      meta="Currently in use"
+    />
+
+    <x-whs.metric-card
       icon="ti-clock-hour-6"
       iconVariant="warning"
       label="In Progress"
@@ -114,7 +122,7 @@
               <div>
                 <h3 class="incident-card__title">{{ ucfirst($incident->type) }}</h3>
                 <p class="incident-card__timestamp text-muted mb-0">
-                  {{ $incident->incident_datetime->format('d M Y · H:i') }}
+                  {{ $incident->incident_datetime->format('d M Y ï¿½ H:i') }}
                 </p>
               </div>
               <dl class="incident-data">
@@ -201,7 +209,7 @@
           </li>
           <li>
             <span>Resolution rate</span>
-            <strong>{{ $resolutionRate !== null ? $resolutionRate . '%' : '—' }}</strong>
+            <strong>{{ $resolutionRate !== null ? $resolutionRate . '%' : 'ï¿½' }}</strong>
           </li>
         </ul>
         <p class="incident-sidebar__caption">
@@ -218,7 +226,7 @@
             <span class="incident-chip incident-chip--id">#{{ $featuredIncident->id }}</span>
             <h4>{{ ucfirst($featuredIncident->type) }}</h4>
             <p class="incident-preview__meta">
-              {{ $featuredIncident->incident_datetime->format('d M Y · H:i') }} &bull;
+              {{ $featuredIncident->incident_datetime->format('d M Y ï¿½ H:i') }} &bull;
               {{ $featuredIncident->location_specific ?? 'Unset location' }}
             </p>
             <p class="incident-preview__description">
