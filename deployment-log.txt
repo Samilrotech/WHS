@@ -1,0 +1,4 @@
+[0;34mℹ️  [2025-10-31 08:24:41] 🚀 Starting WHS5 Hostinger Deployment v2.0.0[0m
+[0;34mℹ️  [2025-10-31 08:24:41] Deployment ID: deploy_20251031_082441[0m
+[0;35m🔄 [2025-10-31 08:24:41] Validating local environment...[0m
+[0;31m❌ [2025-10-31 08:24:41] SSH key not found: ~/.ssh/rotech_hostinger[0m

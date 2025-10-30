@@ -1,9 +1,9 @@
-@php
+<?php
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-@endphp
+?>
 
-@php
+<?php
   $user = Auth::user();
   $displayName = $user->name ?? 'WHS Operator';
   $firstName = strtok($displayName, ' ') ?: $displayName;
@@ -19,10 +19,10 @@ use Illuminate\Support\Facades\Route;
     str_contains($currentRouteName, 'dashboard') => 'Dashboard',
     default => 'WHS Management'
   };
-@endphp
+?>
 
 <header class="sensei-topbar" data-sensei-topbar>
-  {{-- Logo & Brand Section --}}
+  
   <div class="sensei-topbar__brand">
     <button
       type="button"
@@ -35,8 +35,8 @@ use Illuminate\Support\Facades\Route;
       <i class="ti ti-menu-2" aria-hidden="true"></i>
     </button>
 
-    <a href="{{ route('dashboard') }}" class="sensei-topbar__logo">
-      <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural Logo" class="sensei-topbar__logo-img">
+    <a href="<?php echo e(route('dashboard')); ?>" class="sensei-topbar__logo">
+      <img src="<?php echo e(asset('assets/img/branding/RR_RedWhite.png')); ?>" alt="Rotech Rural Logo" class="sensei-topbar__logo-img">
       <div class="sensei-topbar__brand-text">
         <span class="sensei-topbar__brand-name">WHS5</span>
         <span class="sensei-topbar__brand-tagline">Workplace Safety</span>
@@ -44,23 +44,23 @@ use Illuminate\Support\Facades\Route;
     </a>
   </div>
 
-  {{-- Context & Breadcrumb --}}
+  
   <div class="sensei-topbar__context">
     <div class="sensei-topbar__breadcrumb">
       <i class="ti ti-layout-dashboard sensei-topbar__breadcrumb-icon"></i>
-      <span class="sensei-topbar__page-title">{{ $pageTitle }}</span>
+      <span class="sensei-topbar__page-title"><?php echo e($pageTitle); ?></span>
     </div>
     <div class="sensei-topbar__greeting">
       <span class="d-none d-lg-inline">Welcome back,</span>
-      <strong>{{ $firstName }}</strong>
+      <strong><?php echo e($firstName); ?></strong>
     </div>
   </div>
 
-  {{-- Search --}}
+  
   <div class="sensei-topbar__search">
     <form
       method="GET"
-      action="{{ route('teams.index') }}"
+      action="<?php echo e(route('teams.index')); ?>"
       class="sensei-search"
       role="search"
       aria-label="Global search"
@@ -70,7 +70,7 @@ use Illuminate\Support\Facades\Route;
         <input
           type="search"
           name="q"
-          value="{{ request('q') }}"
+          value="<?php echo e(request('q')); ?>"
           placeholder="Search teams, incidents, assets..."
           class="sensei-search__input"
           autocomplete="off"
@@ -83,9 +83,9 @@ use Illuminate\Support\Facades\Route;
     </form>
   </div>
 
-  {{-- Actions: Notifications & User Menu --}}
+  
   <div class="sensei-topbar__actions">
-    {{-- Notifications Button --}}
+    
     <button
       type="button"
       class="sensei-topbar__notification-btn"
@@ -96,7 +96,7 @@ use Illuminate\Support\Facades\Route;
       <span class="sensei-topbar__notification-badge">3</span>
     </button>
 
-    {{-- User Menu --}}
+    
     <div class="sensei-user" data-user-menu>
       <button
         type="button"
@@ -106,40 +106,41 @@ use Illuminate\Support\Facades\Route;
         aria-expanded="false"
       >
         <span class="sensei-user__avatar">
-          {{ strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2)) }}
+          <?php echo e(strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2))); ?>
+
         </span>
         <span class="sensei-user__meta d-none d-lg-flex">
-          <span class="sensei-user__name">{{ Auth::user()->name ?? 'WHS Operator' }}</span>
-          <span class="sensei-user__role">{{ Auth::user()->role->name ?? 'Administrator' }}</span>
+          <span class="sensei-user__name"><?php echo e(Auth::user()->name ?? 'WHS Operator'); ?></span>
+          <span class="sensei-user__role"><?php echo e(Auth::user()->role->name ?? 'Administrator'); ?></span>
         </span>
         <i class="ti ti-chevron-down sensei-user__caret d-none d-lg-inline" aria-hidden="true"></i>
       </button>
 
       <div class="sensei-user__dropdown" data-user-menu-panel hidden>
         <div class="sensei-user__dropdown-header">
-          <span class="sensei-user__initials">{{ strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2)) }}</span>
+          <span class="sensei-user__initials"><?php echo e(strtoupper(substr(Auth::user()->name ?? 'WHS', 0, 2))); ?></span>
           <div class="sensei-user__dropdown-meta">
-            <strong>{{ Auth::user()->name ?? 'WHS Operator' }}</strong>
-            <span>{{ Auth::user()->email ?? 'operator@example.com' }}</span>
+            <strong><?php echo e(Auth::user()->name ?? 'WHS Operator'); ?></strong>
+            <span><?php echo e(Auth::user()->email ?? 'operator@example.com'); ?></span>
           </div>
         </div>
 
         <div class="sensei-user__dropdown-body">
-          @if(Route::has('profile.show'))
-            <a href="{{ route('profile.show') }}" class="sensei-user__dropdown-link">
+          <?php if(Route::has('profile.show')): ?>
+            <a href="<?php echo e(route('profile.show')); ?>" class="sensei-user__dropdown-link">
               <i class="ti ti-user-circle"></i>
               <span>Profile</span>
             </a>
-          @endif
-          <a href="{{ route('dashboard') }}" class="sensei-user__dropdown-link">
+          <?php endif; ?>
+          <a href="<?php echo e(route('dashboard')); ?>" class="sensei-user__dropdown-link">
             <i class="ti ti-layout-dashboard"></i>
             <span>Dashboard</span>
           </a>
         </div>
 
         <div class="sensei-user__dropdown-footer">
-          <form method="POST" action="{{ route('logout', absolute: false) }}" id="logout-form" data-logout-form>
-            @csrf
+          <form method="POST" action="<?php echo e(route('logout', absolute: false)); ?>" id="logout-form" data-logout-form>
+            <?php echo csrf_field(); ?>
             <button
               type="submit"
               class="sensei-user__dropdown-link sensei-user__dropdown-link--danger"
@@ -155,3 +156,4 @@ use Illuminate\Support\Facades\Route;
   </div>
 </header>
 
+<?php /**PATH D:\WHS5\resources\views/layouts/sections/navbar/navbar-partial.blade.php ENDPATH**/ ?>
