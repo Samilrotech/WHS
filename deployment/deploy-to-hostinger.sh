@@ -27,7 +27,7 @@ NC='\033[0m'
 # Hostinger configuration
 HOSTINGER_HOST="${HOSTINGER_HOST:-147.79.67.122}"
 HOSTINGER_USER="${HOSTINGER_USER:-root}"
-HOSTINGER_SSH_KEY="${HOSTINGER_SSH_KEY:-~/.ssh/rotech_hostinger}"
+HOSTINGER_SSH_KEY="${HOSTINGER_SSH_KEY:-/d/WHS5/hostinger_whs5_key}"
 DOMAIN="${DOMAIN:-whs.rotechrural.com.au}"
 
 # Application configuration
