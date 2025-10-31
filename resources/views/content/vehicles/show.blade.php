@@ -411,7 +411,7 @@
       <div class="card-body">
         <div class="mb-3">
           <small class="text-muted">Branch</small>
-          <h6 class="mb-0">{{ $vehicle->branch->name }}</h6>
+          <h6 class="mb-0">{{ $vehicle->branch?->name ?? 'Unassigned branch' }}</h6>
         </div>
         <div class="mb-3">
           <small class="text-muted">Status</small>
