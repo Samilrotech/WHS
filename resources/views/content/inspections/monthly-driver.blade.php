@@ -126,7 +126,7 @@
                     <p class="text-muted small mb-0">{{ $meta['help'] }}</p>
                   </div>
                 </div>
-                <div class="btn-group" role="group" aria-label="{{ $meta['label'] }}">
+                <div class="monthly-check__options" role="group" aria-label="{{ $meta['label'] }}">
                   @foreach($conditionOptions as $value => $option)
                     <input
                       type="radio"
@@ -163,7 +163,7 @@
                     <p class="text-muted small mb-0">{{ $meta['help'] }}</p>
                   </div>
                 </div>
-                <div class="btn-group" role="group" aria-label="{{ $meta['label'] }}">
+                <div class="monthly-binary__options" role="group" aria-label="{{ $meta['label'] }}">
                   <input
                     type="radio"
                     class="btn-check"
@@ -427,6 +427,37 @@
   </div>
 </div>
 @endsection
+
+@push('page-style')
+<style>
+  .monthly-check__options,
+  .monthly-binary__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .monthly-check__options .btn {
+    flex: 1 1 calc(33.333% - 0.5rem);
+    min-width: 120px;
+    text-transform: none;
+  }
+
+  .monthly-binary__options .btn {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 140px;
+    text-transform: none;
+  }
+
+  @media (max-width: 575.98px) {
+    .monthly-check__options .btn,
+    .monthly-binary__options .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>
+@endpush
 
 @push('page-script')
 <script>
