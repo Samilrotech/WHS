@@ -15,7 +15,7 @@
   <meta name="description" content="{{ config('variables.templateDescription') }}" />
   <meta name="keywords" content="{{ config('variables.templateKeyword') }}" />
 
-  <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+  <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
   <link rel="canonical" href="{{ url()->current() }}" />
 
   @include('layouts/sections/styles')

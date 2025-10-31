@@ -11,7 +11,7 @@
   <meta name="description" content="WHS4 is currently offline" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/assets/img/favicon/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
