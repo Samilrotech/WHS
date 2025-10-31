@@ -407,6 +407,41 @@
             </div>
           </div>
 
+          <div class="row">
+            <!-- Next Service Odometer -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="next_service_odometer" class="form-label">Next Service Odometer (km)</label>
+                <input
+                  type="number"
+                  id="next_service_odometer"
+                  name="next_service_odometer"
+                  class="form-control @error('next_service_odometer') is-invalid @enderror"
+                  value="{{ old('next_service_odometer', $vehicle->next_service_odometer) }}"
+                  placeholder="e.g., 150000">
+                @error('next_service_odometer')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
+            <!-- Next Service Due Date -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="next_service_due" class="form-label">Next Service Due Date</label>
+                <input
+                  type="date"
+                  id="next_service_due"
+                  name="next_service_due"
+                  class="form-control @error('next_service_due') is-invalid @enderror"
+                  value="{{ old('next_service_due', $vehicle->next_service_due?->format('Y-m-d')) }}">
+                @error('next_service_due')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+          </div>
+
           <hr class="my-4">
 
           <h6 class="mb-3">Additional Notes</h6>
