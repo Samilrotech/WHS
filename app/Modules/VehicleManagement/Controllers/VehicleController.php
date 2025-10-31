@@ -11,6 +11,7 @@ use App\Modules\VehicleManagement\Services\VehicleService;
 use App\Modules\VehicleManagement\Services\QRCodeService;
 use App\Modules\VehicleManagement\Services\DepreciationService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class VehicleController extends Controller
 {
@@ -58,6 +59,7 @@ class VehicleController extends Controller
     public function create()
     {
         return view('content.vehicles.create', [
+            'registrationStates' => config('vehicles.registration_states'),
             'statuses' => [
                 'active' => 'Active',
                 'maintenance' => 'In Maintenance',
@@ -82,6 +84,7 @@ class VehicleController extends Controller
     {
         $validated = $request->validate([
             'registration_number' => 'required|string|unique:vehicles',
+            'registration_state' => ['nullable', Rule::in(array_keys(config('vehicles.registration_states')))],
             'make' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
@@ -189,6 +192,7 @@ class VehicleController extends Controller
     {
         return view('content.vehicles.edit', [
             'vehicle' => $vehicle,
+            'registrationStates' => config('vehicles.registration_states'),
             'statuses' => [
                 'active' => 'Active',
                 'maintenance' => 'In Maintenance',
@@ -213,6 +217,7 @@ class VehicleController extends Controller
     {
         $validated = $request->validate([
             'registration_number' => 'required|string|unique:vehicles,registration_number,' . $vehicle->id,
+            'registration_state' => ['nullable', Rule::in(array_keys(config('vehicles.registration_states')))],
             'make' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),

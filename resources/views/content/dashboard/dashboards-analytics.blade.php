@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
           <span class="whs-chip whs-chip--status-brand">
             <i class="icon-base ti ti-car"></i>
+            {{ $userVehicleAssignment->vehicle->registration_state ? $userVehicleAssignment->vehicle->registration_state . ' · ' : '' }}
             {{ $userVehicleAssignment->vehicle->registration_number }}
           </span>
         </div>

@@ -69,7 +69,7 @@
               </div>
               <h3 class="mb-1">{{ $vehicle->make }} {{ $vehicle->model }} <span class="text-muted fw-normal">({{ $vehicle->year }})</span></h3>
               <div class="text-muted small d-flex flex-wrap gap-3">
-                <span><i class="ti ti-id me-1"></i>{{ $vehicle->registration_number }}</span>
+                <span><i class="ti ti-id me-1"></i>{{ $vehicle->registration_state ? $vehicle->registration_state . ' · ' : '' }}{{ $vehicle->registration_number }}</span>
                 <span><i class="ti ti-calendar me-1"></i>Assigned {{ $assignment->assigned_date?->format('d M Y') ?? '—' }}</span>
               </div>
             </div>
@@ -141,7 +141,7 @@
               </div>
               <h3 class="mb-1">{{ $vehicle->make }} {{ $vehicle->model }} <span class="text-muted fw-normal">({{ $vehicle->year }})</span></h3>
               <div class="text-muted small d-flex flex-wrap gap-3">
-                <span><i class="ti ti-id me-1"></i>{{ $vehicle->registration_number }}</span>
+                <span><i class="ti ti-id me-1"></i>{{ $vehicle->registration_state ? $vehicle->registration_state . ' · ' : '' }}{{ $vehicle->registration_number }}</span>
                 <span><i class="ti ti-calendar me-1"></i>Assigned {{ $assignment->assigned_date?->format('d M Y') ?? '—' }}</span>
               </div>
             </div>

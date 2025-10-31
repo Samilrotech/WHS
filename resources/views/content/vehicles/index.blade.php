@@ -160,7 +160,12 @@
 
           <x-whs.card :severity="$severity" class="sensei-surface-card">
             <div class="whs-card__header">
-              <span class="whs-chip whs-chip--id">{{ $vehicle->registration_number }}</span>
+              <span class="whs-chip whs-chip--id">
+                @if($vehicle->registration_state)
+                  <span class="text-uppercase fw-semibold me-1">{{ $vehicle->registration_state }}</span>
+                @endif
+                {{ $vehicle->registration_number }}
+              </span>
               <span class="whs-chip whs-chip--status whs-chip--status-{{ strtolower($statusLabel) }}">
                 {{ $statusLabel }}
               </span>

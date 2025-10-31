@@ -10,7 +10,12 @@
   <div class="col-md-8">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">{{ $vehicle->registration_number }} - {{ $vehicle->make }} {{ $vehicle->model }}</h5>
+        <h5 class="mb-0">
+          @if($vehicle->registration_state)
+            <span class="badge bg-label-secondary text-uppercase me-2">{{ $vehicle->registration_state }}</span>
+          @endif
+          {{ $vehicle->registration_number }} - {{ $vehicle->make }} {{ $vehicle->model }}
+        </h5>
         <div>
           @if($vehicle->status === 'active')
             <span class="badge bg-success">Active</span>
@@ -28,7 +33,13 @@
         <h6 class="text-muted mb-3">Vehicle Information</h6>
         <div class="row mb-3">
           <div class="col-md-6">
-            <p class="mb-2"><strong>Registration Number:</strong> {{ $vehicle->registration_number }}</p>
+            <p class="mb-2">
+              <strong>Registration Number:</strong>
+              {{ $vehicle->registration_number }}
+              @if($vehicle->registration_state)
+                <span class="badge bg-label-info ms-2">{{ $vehicle->registration_state }}</span>
+              @endif
+            </p>
             <p class="mb-2"><strong>Make:</strong> {{ $vehicle->make }}</p>
             <p class="mb-2"><strong>Model:</strong> {{ $vehicle->model }}</p>
             <p class="mb-2"><strong>Year:</strong> {{ $vehicle->year }}</p>

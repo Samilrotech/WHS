@@ -20,6 +20,7 @@ class VehicleService
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('registration_number', 'like', "%{$search}%")
+                  ->orWhere('registration_state', 'like', "%{$search}%")
                   ->orWhere('make', 'like', "%{$search}%")
                   ->orWhere('model', 'like', "%{$search}%")
                   ->orWhere('vin_number', 'like', "%{$search}%");

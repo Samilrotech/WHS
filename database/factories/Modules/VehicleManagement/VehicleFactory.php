@@ -16,6 +16,7 @@ class VehicleFactory extends Factory
             'id' => Str::uuid(),
             'branch_id' => null, // Must be set when using factory
             'registration_number' => strtoupper($this->faker->bothify('???###')),
+            'registration_state' => $this->faker->randomElement(array_keys(config('vehicles.registration_states'))),
             'make' => $this->faker->randomElement(['Toyota', 'Ford', 'Nissan', 'Holden', 'Isuzu', 'Mazda']),
             'model' => $this->faker->randomElement(['Hilux', 'Ranger', 'Navara', 'Colorado', 'BT-50', 'Amarok']),
             'year' => $this->faker->numberBetween(2015, 2024),

@@ -55,7 +55,7 @@
               <h3 class="mb-1 text-capitalize">{{ $vehicle->make }} {{ $vehicle->model }} <span class="fw-normal text-muted">({{ $vehicle->year }})</span></h3>
               <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
                 <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-3 py-2">
-                  <i class="ti ti-id me-1"></i>{{ $vehicle->registration_number }}
+                  <i class="ti ti-id me-1"></i>{{ $vehicle->registration_state ? $vehicle->registration_state . ' · ' : '' }}{{ $vehicle->registration_number }}
                 </span>
                 <span><i class="ti ti-map-pin me-1"></i>{{ $vehicle->branch?->name ?? 'Branch pending' }}</span>
                 <span><i class="ti ti-calendar me-1"></i>Assigned {{ optional($assignment->assigned_date)->format('d M Y') ?? '—' }}</span>
@@ -464,4 +464,3 @@
   })();
 </script>
 @endpush
-

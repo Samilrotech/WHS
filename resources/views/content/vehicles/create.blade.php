@@ -22,7 +22,7 @@
 
           <div class="row">
             <!-- Registration Number -->
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="mb-3">
                 <label for="registration_number" class="form-label">Registration Number *</label>
                 <input
@@ -38,8 +38,29 @@
               </div>
             </div>
 
+            <!-- Registration State -->
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="registration_state" class="form-label">Registration State</label>
+                <select
+                  id="registration_state"
+                  name="registration_state"
+                  class="form-select @error('registration_state') is-invalid @enderror">
+                  <option value="">Select state</option>
+                  @foreach($registrationStates as $code => $label)
+                    <option value="{{ $code }}" @selected(old('registration_state') === $code)>
+                      {{ $label }}
+                    </option>
+                  @endforeach
+                </select>
+                @error('registration_state')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
             <!-- VIN Number -->
-            <div class="col-md-6">
+            <div class="col-md-4">
               <div class="mb-3">
                 <label for="vin_number" class="form-label">VIN Number</label>
                 <input

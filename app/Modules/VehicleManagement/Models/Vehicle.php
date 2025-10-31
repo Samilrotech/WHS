@@ -27,6 +27,7 @@ class Vehicle extends Model
     protected $fillable = [
         'branch_id',
         'registration_number',
+        'registration_state',
         'make',
         'model',
         'year',
