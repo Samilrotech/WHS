@@ -1,5 +1,5 @@
 /**
- * WHS4 Sync Manager - Auto-sync offline data
+ * Rotech WHS Sync Manager - Auto-sync offline data
  *
  * Purpose: Synchronize offline changes with server when connection restored
  * Features:

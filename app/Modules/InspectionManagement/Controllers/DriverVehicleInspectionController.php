@@ -182,13 +182,20 @@ class DriverVehicleInspectionController extends Controller
             'incident_description.required_if' => 'Please describe the accident or damage for this month.',
         ]);
 
+        $currentOdometer = (int) $validated['odometer_reading'];
+        $nextServiceKm = (int) $validated['next_service_kilometre'];
+
+        if ($nextServiceKm <= $currentOdometer) {
+            $nextServiceKm = $currentOdometer;
+        }
+
+        $validated['next_service_kilometre'] = $nextServiceKm;
+
         $inspection = $this->inspectionService->createMonthlyDriverInspection($assignment, $validated);
 
-        if (!empty($validated['odometer_reading'])) {
-            $assignment->vehicle->update([
-                'odometer_reading' => (int) $validated['odometer_reading'],
-            ]);
-        }
+        $assignment->vehicle->update([
+            'odometer_reading' => $currentOdometer,
+        ]);
 
         return redirect()
             ->route('inspections.show', $inspection->id)

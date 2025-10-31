@@ -49,7 +49,7 @@ class MenuServiceProvider extends ServiceProvider
 
         $allowedSlugs = [
             'dashboard-analytics',
-            'whs4-incidents',
+            'incidents',
             'driver.vehicle-inspections',
         ];
 

@@ -1,5 +1,5 @@
 /**
- * WHS4 Service Worker - Offline-First PWA
+ * Rotech WHS Service Worker - Offline-First PWA
  *
  * Caching Strategies:
  * - Static Assets: CacheFirst (long-lived, immutable)
@@ -20,7 +20,7 @@ const { precacheAndRoute } = workbox.precaching;
 
 // Service Worker version (increment when updating SW)
 const SW_VERSION = '1.0.0';
-const CACHE_PREFIX = 'whs4-v1';
+const CACHE_PREFIX = 'rotech-whs-v1';
 
 // Cache names
 const STATIC_CACHE = `${CACHE_PREFIX}-static`;
@@ -361,12 +361,12 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received', event);
 
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'WHS4 Notification';
+  const title = data.title || 'Rotech WHS Notification';
   const options = {
     body: data.body || 'New safety alert',
     icon: '/images/pwa/icon-192x192.png',
     badge: '/images/pwa/icon-96x96.png',
-    tag: data.tag || 'whs4-notification',
+    tag: data.tag || 'rotech-whs-notification',
     data: data,
     actions: data.actions || [],
   };

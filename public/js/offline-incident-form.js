@@ -1,5 +1,5 @@
 /**
- * WHS4 Offline Incident Form Handler
+ * Rotech WHS Offline Incident Form Handler
  *
  * Purpose: Handle incident creation/editing while offline
  * Features:

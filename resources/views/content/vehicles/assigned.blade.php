@@ -79,6 +79,15 @@
                 Current odometer<br>
                 <strong>{{ number_format($vehicle->odometer_reading ?? 0) }} km</strong>
               </p>
+              @if($vehicle->next_service_odometer)
+                <p class="mb-0 text-muted small mt-2">
+                  Next service<br>
+                  <strong>{{ number_format($vehicle->next_service_odometer) }} km</strong>
+                  @if(($vehicle->odometer_reading ?? 0) >= $vehicle->next_service_odometer)
+                    <span class="text-danger fw-semibold ms-1">Due now</span>
+                  @endif
+                </p>
+              @endif
             </div>
           </div>
 
@@ -153,6 +162,15 @@
                 Next inspection due<br>
                 <strong>{{ $nextDue?->format('d M Y') ?? 'Not scheduled' }}</strong>
               </p>
+              @if($vehicle->next_service_odometer)
+                <p class="mb-0 text-muted small mt-2">
+                  Next service<br>
+                  <strong>{{ number_format($vehicle->next_service_odometer) }} km</strong>
+                  @if(($vehicle->odometer_reading ?? 0) >= $vehicle->next_service_odometer)
+                    <span class="text-danger fw-semibold ms-1">Due now</span>
+                  @endif
+                </p>
+              @endif
             </div>
           </div>
 

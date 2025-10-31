@@ -50,6 +50,8 @@ class Vehicle extends Model
         'qr_code_path',
         'status',
         'notes',
+        'next_service_odometer',
+        'next_service_due',
     ];
 
     protected $casts = [
@@ -63,6 +65,8 @@ class Vehicle extends Model
         'insurance_expiry_date' => 'date',
         'rego_expiry_date' => 'date',
         'inspection_due_date' => 'date',
+        'next_service_due' => 'date',
+        'next_service_odometer' => 'integer',
     ];
 
     /**

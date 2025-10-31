@@ -39,6 +39,8 @@ class VehicleFactory extends Factory
             'status' => 'active',
             'notes' => $this->faker->optional()->sentence(),
             'qr_code_path' => null,
+            'next_service_odometer' => $this->faker->numberBetween(1000, 4000) + 5000,
+            'next_service_due' => $this->faker->dateTimeBetween('now', '+6 months')->format('Y-m-d'),
         ];
     }
 

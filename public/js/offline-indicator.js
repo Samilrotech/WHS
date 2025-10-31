@@ -1,5 +1,5 @@
 /**
- * WHS4 Offline Indicator - Network Status UI Component
+ * Rotech WHS Offline Indicator - Network Status UI Component
  *
  * Purpose: Visual indicators for offline/online status and sync progress
  * Features:

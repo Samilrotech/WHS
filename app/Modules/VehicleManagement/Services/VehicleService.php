@@ -116,6 +116,9 @@ class VehicleService
         $inMaintenance = (clone $query)->where('status', 'maintenance')->count();
         $assigned = (clone $query)->whereHas('currentAssignment')->count();
         $available = $activeVehicles - $assigned;
+        $serviceDue = (clone $query)->whereNotNull('next_service_odometer')
+            ->whereColumn('odometer_reading', '>=', 'next_service_odometer')
+            ->count();
 
         // Alerts
         $regoExpiring = (clone $query)->where(function ($q) {
@@ -142,6 +145,7 @@ class VehicleService
             'rego_expiring' => $regoExpiring,
             'insurance_expiring' => $insuranceExpiring,
             'inspection_due' => $inspectionDue,
+            'service_due' => $serviceDue,
         ];
     }
 
@@ -168,6 +172,19 @@ class VehicleService
             ->orWhere(function ($qq) {
                 $qq->whereNotNull('inspection_due_date')
                    ->whereDate('inspection_due_date', '<=', now()->addDays(7));
+            })
+            ->orWhere(function ($qq) {
+                $qq->whereNotNull('next_service_due')
+                   ->whereDate('next_service_due', '<=', now()->addDays(30));
+            })
+            ->orWhere(function ($qq) {
+                $qq->whereNotNull('next_service_odometer')
+                   ->whereColumn('odometer_reading', '>=', 'next_service_odometer');
+            })
+            ->orWhere(function ($qq) {
+                $qq->whereNotNull('next_service_odometer')
+                   ->whereRaw('(next_service_odometer - odometer_reading) <= ?', [1000])
+                   ->whereRaw('(next_service_odometer - odometer_reading) >= 0');
             });
         })->get();
     }

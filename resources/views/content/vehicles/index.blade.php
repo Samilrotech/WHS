@@ -203,6 +203,22 @@
                 </span>
               </div>
               <div>
+                <span class="whs-location-label">Next Service</span>
+                <span>
+                  @php
+                    $serviceOverdue = $vehicle->next_service_odometer !== null && $vehicle->odometer_reading >= $vehicle->next_service_odometer;
+                  @endphp
+                  @if($vehicle->next_service_odometer)
+                    {{ number_format($vehicle->next_service_odometer) }} km
+                    @if($serviceOverdue)
+                      <span class="whs-chip whs-chip--severity whs-chip--severity-critical ms-1">Due now</span>
+                    @endif
+                  @else
+                    -
+                  @endif
+                </span>
+              </div>
+              <div>
                 <span class="whs-location-label">Assignment</span>
                 <span>
                   @if($vehicle->isAssigned() && $assignedDriver)

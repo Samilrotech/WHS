@@ -1,5 +1,5 @@
 /**
- * WHS4 Offline Database - IndexedDB with Dexie.js
+ * Rotech WHS Offline Database - IndexedDB with Dexie.js
  *
  * Purpose: Offline-first data storage for field workers
  * Features:
@@ -44,7 +44,7 @@ const OfflineDB = (function() {
     console.log('[OfflineDB] Initializing...');
 
     // Create Dexie database
-    db = new Dexie('WHS4_OfflineDB');
+    db = new Dexie('RotechWHS_OfflineDB');
 
     // Define database schema (version 1)
     db.version(DB_VERSION).stores({

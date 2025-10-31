@@ -188,6 +188,15 @@ document.addEventListener('DOMContentLoaded', function () {
           @if($userVehicleAssignment->vehicle->inspection_due_date && $userVehicleAssignment->vehicle->isInspectionDue())
             <strong class="text-danger">Inspection due: {{ $userVehicleAssignment->vehicle->inspection_due_date->format('d/m/Y') }}</strong>
           @endif
+          @if($userVehicleAssignment->vehicle->next_service_odometer)
+            <br>
+            <span>
+              Next service at {{ number_format($userVehicleAssignment->vehicle->next_service_odometer) }} km
+              @if(($userVehicleAssignment->vehicle->odometer_reading ?? 0) >= $userVehicleAssignment->vehicle->next_service_odometer)
+                <strong class="text-danger ms-1">Due now</strong>
+              @endif
+            </span>
+          @endif
         </p>
         <div class="sensei-alert__actions">
           <a href="{{ route('driver.vehicle-inspections.create') }}" class="whs-btn-primary">

@@ -6,6 +6,7 @@ use App\Modules\InspectionManagement\Models\Inspection;
 use App\Modules\InspectionManagement\Models\InspectionItem;
 use App\Modules\VehicleManagement\Models\Vehicle;
 use App\Modules\VehicleManagement\Models\VehicleAssignment;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -287,11 +288,13 @@ class InspectionService
                 'status' => 'completed',
                 'overall_result' => $this->determineOverallResult($inspection),
                 'defects_summary' => $this->summarizeFailedItems($inspection),
-                'next_inspection_due' => \Carbon\Carbon::parse($data['next_service_date']),
+                'next_inspection_due' => Carbon::parse($data['next_service_date']),
             ]);
 
             $vehicle->update([
-                'inspection_due_date' => \Carbon\Carbon::parse($data['next_service_date']),
+                'inspection_due_date' => Carbon::parse($data['next_service_date']),
+                'next_service_due' => Carbon::parse($data['next_service_date']),
+                'next_service_odometer' => (int) $data['next_service_kilometre'],
             ]);
 
             return $inspection->load(['vehicle', 'vehicleAssignment', 'inspector', 'items']);

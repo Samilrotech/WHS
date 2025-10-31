@@ -409,6 +409,13 @@
         <h5 class="mb-0">Quick Stats</h5>
       </div>
       <div class="card-body">
+        @php
+          $serviceOverdue = $vehicle->next_service_odometer !== null && $vehicle->odometer_reading >= $vehicle->next_service_odometer;
+          $serviceDueKmLabel = $vehicle->next_service_odometer !== null
+            ? number_format($vehicle->next_service_odometer) . ' km'
+            : 'Not recorded';
+          $serviceDueDateLabel = $vehicle->next_service_due?->format('d/m/Y');
+        @endphp
         <div class="mb-3">
           <small class="text-muted">Branch</small>
           <h6 class="mb-0">{{ $vehicle->branch?->name ?? 'Unassigned branch' }}</h6>
@@ -426,6 +433,18 @@
               <span class="badge bg-dark">{{ ucfirst($vehicle->status) }}</span>
             @endif
           </h6>
+        </div>
+        <div class="mb-3">
+          <small class="text-muted">Next service</small>
+          <h6 class="mb-0">
+            {{ $serviceDueKmLabel }}
+            @if($serviceOverdue)
+              <span class="badge bg-label-danger ms-2">Overdue</span>
+            @endif
+          </h6>
+          @if($serviceDueDateLabel)
+            <small class="text-muted">Due {{ $serviceDueDateLabel }}</small>
+          @endif
         </div>
         <div class="mb-3">
           <small class="text-muted">Created</small>

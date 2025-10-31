@@ -330,7 +330,7 @@
                   class="form-control @error('next_service_date') is-invalid @enderror"
                   id="next_service_date"
                   name="next_service_date"
-                  value="{{ old('next_service_date') }}"
+                  value="{{ old('next_service_date', optional($vehicle->next_service_due)->format('Y-m-d')) }}"
                   required>
                 @error('next_service_date')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -345,7 +345,7 @@
                     id="next_service_kilometre"
                     name="next_service_kilometre"
                     min="0"
-                    value="{{ old('next_service_kilometre') }}"
+                    value="{{ old('next_service_kilometre', $vehicle->next_service_odometer) }}"
                     required>
                   <span class="input-group-text">km</span>
                 </div>

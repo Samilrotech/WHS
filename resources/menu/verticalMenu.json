@@ -13,13 +13,13 @@
       "url": "branches",
       "name": "Branch Management",
       "icon": "menu-icon icon-base ti tabler-building",
-      "slug": "whs4-branches"
+      "slug": "branches"
     },
     {
       "url": "teams",
       "name": "Team Management",
       "icon": "menu-icon icon-base ti tabler-users-group",
-      "slug": "whs4-teams"
+      "slug": "teams"
     },
     {
       "menuHeader": "Safety & Incidents"
@@ -28,25 +28,25 @@
       "url": "incidents",
       "name": "Incident Management",
       "icon": "menu-icon icon-base ti tabler-alert-triangle",
-      "slug": "whs4-incidents"
+      "slug": "incidents"
     },
     {
       "url": "risk",
       "name": "Risk Assessment",
       "icon": "menu-icon icon-base ti tabler-shield-check",
-      "slug": "whs4-risk"
+      "slug": "risk"
     },
     {
       "url": "emergency",
       "name": "Emergency Response",
       "icon": "menu-icon icon-base ti tabler-alarm",
-      "slug": "whs4-emergency"
+      "slug": "emergency"
     },
     {
       "url": "capa",
       "name": "CAPA Management",
       "icon": "menu-icon icon-base ti tabler-checklist",
-      "slug": "whs4-capa"
+      "slug": "capa"
     },
     {
       "menuHeader": "Assets & Equipment"
@@ -55,7 +55,7 @@
       "url": "vehicles",
       "name": "Vehicle Management",
       "icon": "menu-icon icon-base ti tabler-car",
-      "slug": "whs4-vehicles"
+      "slug": "vehicles"
     },
     {
       "url": "my-vehicle-inspection",
@@ -67,19 +67,19 @@
       "url": "journey",
       "name": "Journey Management",
       "icon": "menu-icon icon-base ti tabler-route",
-      "slug": "whs4-journey"
+      "slug": "journey"
     },
     {
       "url": "maintenance",
       "name": "Maintenance Scheduling",
       "icon": "menu-icon icon-base ti tabler-tool",
-      "slug": "whs4-maintenance"
+      "slug": "maintenance"
     },
     {
       "url": "warehouse-equipment",
       "name": "Warehouse Equipment",
       "icon": "menu-icon icon-base ti tabler-forklift",
-      "slug": "whs4-warehouse-equipment"
+      "slug": "warehouse-equipment"
     },
     {
       "menuHeader": "Inspections & Audits"
@@ -88,19 +88,19 @@
       "url": "inspections",
       "name": "Inspection Management",
       "icon": "menu-icon icon-base ti tabler-car",
-      "slug": "whs4-inspections"
+      "slug": "inspections"
     },
     {
       "url": "safety-inspections",
       "name": "Safety Inspections",
       "icon": "menu-icon icon-base ti tabler-clipboard-list",
-      "slug": "whs4-safety-inspections"
+      "slug": "safety-inspections"
     },
     {
       "url": "permit-to-work",
       "name": "Permit to Work",
       "icon": "menu-icon icon-base ti tabler-license",
-      "slug": "whs4-permit"
+      "slug": "permit"
     },
     {
       "menuHeader": "People & Training"
@@ -109,13 +109,13 @@
       "url": "training",
       "name": "Training Management",
       "icon": "menu-icon icon-base ti tabler-school",
-      "slug": "whs4-training"
+      "slug": "training"
     },
     {
       "url": "contractors",
       "name": "Contractor Management",
       "icon": "menu-icon icon-base ti tabler-briefcase",
-      "slug": "whs4-contractors"
+      "slug": "contractors"
     },
     {
       "menuHeader": "Documents & Reports"
@@ -124,19 +124,19 @@
       "url": "documents",
       "name": "Document Management",
       "icon": "menu-icon icon-base ti tabler-folders",
-      "slug": "whs4-documents"
+      "slug": "documents"
     },
     {
       "url": "compliance",
       "name": "Compliance Reporting",
       "icon": "menu-icon icon-base ti tabler-report-analytics",
-      "slug": "whs4-compliance"
+      "slug": "compliance"
     },
     {
       "url": "vehicle-reporting",
       "name": "Vehicle Reporting Dashboard",
       "icon": "menu-icon icon-base ti tabler-chart-bar",
-      "slug": "whs4-vehicle-reporting"
+      "slug": "vehicle-reporting"
     },
     {
       "menuHeader": "System"

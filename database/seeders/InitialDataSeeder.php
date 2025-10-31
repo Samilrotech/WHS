@@ -60,7 +60,7 @@ class InitialDataSeeder extends Seeder
 
         // Create System Administrator (SaaS - No branch assignment initially)
         $admin = User::firstOrCreate(
-            ['email' => 'admin@whs4.com.au'],
+            ['email' => 'admin@rotechrural.com.au'],
             [
                 'branch_id' => null,
                 'name' => 'System Administrator',
@@ -83,7 +83,7 @@ class InitialDataSeeder extends Seeder
                 'state' => 'NSW',
                 'postcode' => '2000',
                 'phone' => '(02) 8123 4500',
-                'email' => 'sydney@whs4.com.au',
+                'email' => 'sydney@rotechrural.com.au',
                 'manager_name' => 'Amelia Carter',
                 'is_active' => true,
             ]
@@ -98,7 +98,7 @@ class InitialDataSeeder extends Seeder
                 'state' => 'QLD',
                 'postcode' => '4000',
                 'phone' => '(07) 3567 8800',
-                'email' => 'brisbane@whs4.com.au',
+                'email' => 'brisbane@rotechrural.com.au',
                 'manager_name' => 'Jacob Williams',
                 'is_active' => true,
             ]
@@ -113,7 +113,7 @@ class InitialDataSeeder extends Seeder
                 'state' => 'WA',
                 'postcode' => '6000',
                 'phone' => '(08) 9201 3322',
-                'email' => 'perth@whs4.com.au',
+                'email' => 'perth@rotechrural.com.au',
                 'manager_name' => 'Sienna Brooks',
                 'is_active' => false,
             ]
@@ -121,7 +121,7 @@ class InitialDataSeeder extends Seeder
 
         // Create sample driver with active vehicle assignment for quick inspections
         $driver = User::firstOrCreate(
-            ['email' => 'driver@whs4.com.au'],
+            ['email' => 'driver@rotechrural.com.au'],
             [
                 'branch_id' => $sydney->id,
                 'name' => 'Harper Collins',
@@ -189,7 +189,7 @@ class InitialDataSeeder extends Seeder
         );
 
         $this->command->info('');
-        $this->command->info('WHS4 SaaS System Initialized!');
+        $this->command->info('Rotech WHS System Initialized!');
         $this->command->info('');
         $this->command->info('Summary:');
         $this->command->info('   - 3 Roles created (Admin, Manager, Employee)');
@@ -199,9 +199,9 @@ class InitialDataSeeder extends Seeder
         $this->command->info('   - 1 Sample driver + vehicle assignment ready for inspections');
         $this->command->info('');
         $this->command->info('Login Credentials:');
-        $this->command->info('   Email:    admin@whs4.com.au');
+        $this->command->info('   Email:    admin@rotechrural.com.au');
         $this->command->info('   Password: Admin@2025!');
-        $this->command->info('   Driver:   driver@whs4.com.au / Driver@2025!');
+        $this->command->info('   Driver:   driver@rotechrural.com.au / Driver@2025!');
         $this->command->info('');
         $this->command->info('Next Steps:');
         $this->command->info('   1. Login as admin');
