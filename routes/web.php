@@ -288,7 +288,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Module 12: Team Management
-    Route::middleware('role:Admin|Manager')->prefix('teams')->name('teams.')->group(function () {
+    Route::middleware(['role:Admin|Manager', 'throttle:60,1'])->prefix('teams')->name('teams.')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->name('index');
         Route::get('/create', [TeamController::class, 'create'])->name('create');
         Route::post('/', [TeamController::class, 'store'])->name('store');
@@ -300,6 +300,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{team}/activate', [TeamController::class, 'activate'])->name('activate');
         Route::post('/{team}/deactivate', [TeamController::class, 'deactivate'])->name('deactivate');
         Route::post('/{team}/reset-password', [TeamController::class, 'sendResetLink'])->name('reset-password');
+    });
+
+    // Team Export with stricter rate limiting (GDPR)
+    Route::middleware(['auth', 'can:team.export', 'throttle:10,1'])->group(function () {
+        Route::post('/teams/export', [TeamController::class, 'export'])->name('teams.export');
     });
 
     // Module 13: Training Management

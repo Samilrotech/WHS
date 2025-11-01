@@ -22,6 +22,21 @@
 
 <div class="whs-shell">
 
+  {{-- Dense Table Feature Flag Notice (Phase 1-3 Rollout) --}}
+  @if($useDenseTable ?? false)
+  <div class="alert alert-info alert-dismissible mb-4" role="alert">
+    <h6 class="alert-heading mb-2">
+      <i class="bx bx-test-tube me-2"></i>
+      New Dense Table UI Active
+    </h6>
+    <p class="mb-0">
+      You're using the new high-density table interface as part of our gradual rollout.
+      <a href="#" class="alert-link" data-bs-toggle="modal" data-bs-target="#denseTableInfoModal">Learn more</a>
+    </p>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  @endif
+
   <!-- Certifications Expiring Alert -->
   @if(($statistics['certifications_expiring'] ?? 0) > 0)
   <div class="alert alert-warning alert-dismissible mb-4" role="alert">
@@ -95,6 +110,15 @@
         </div>
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
+
+      {{-- Export Button (GDPR Compliant) --}}
+      @can('team.export')
+      <div class="mb-3">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+          <i class="bx bx-download"></i> Export Employees
+        </button>
+      </div>
+      @endcan
 
       <div class="whs-card-list">
         @forelse ($members['data'] as $member)
@@ -173,10 +197,10 @@
 
             <div class="whs-card__footer">
               <div class="whs-card__actions">
-                <a href="{{ route('teams.show', $member['id']) }}" class="whs-action-btn" aria-label="View profile">
-                  <i class="icon-base ti ti-external-link"></i>
-                  <span>Open</span>
-                </a>
+                <button type="button" class="whs-action-btn" data-drawer-target="employeeDrawer{{ $member['id'] }}" aria-label="Quick view {{ $member['name'] }}">
+                  <i class="icon-base ti ti-eye"></i>
+                  <span>Quick View</span>
+                </button>
 
                 <a href="{{ route('teams.edit', $member['id']) }}" class="whs-action-btn" aria-label="Edit details">
                   <i class="icon-base ti ti-edit"></i>
@@ -441,6 +465,271 @@
     </div>
   </div>
 </div>
+
+{{-- Export Modal (GDPR Compliant) --}}
+@can('team.export')
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Export Employee Data</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('teams.export') }}" method="POST">
+        @csrf
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <i class="bx bx-info-circle"></i>
+            <strong>GDPR Notice:</strong> This export contains personal data. All exports are logged.
+          </div>
+
+          <input type="hidden" name="format" value="csv">
+
+          <label class="form-label">Fields to Export</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="fields[]" value="employee_id" checked>
+            <label class="form-check-label">Employee ID</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="fields[]" value="name" checked>
+            <label class="form-check-label">Name <span class="badge bg-warning">PII</span></label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="fields[]" value="email" checked>
+            <label class="form-check-label">Email <span class="badge bg-warning">PII</span></label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="fields[]" value="phone">
+            <label class="form-check-label">Phone <span class="badge bg-warning">PII</span></label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Export CSV</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+@endcan
+
+{{-- Dense Table Component Demo (Blocker #5) --}}
+@if($useDenseTable ?? false)
+<div class="card mt-4">
+  <div class="card-header">
+    <h5 class="card-title mb-0">
+      <i class="bx bx-table me-2"></i>
+      Dense Table Preview (New Component)
+    </h5>
+    <p class="text-muted small mb-0 mt-2">Demonstrating the new table-cell component with accessibility features</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Status</th>
+            <th>Branch</th>
+            <th>Last Active</th>
+            <th class="text-end">Incidents</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($members['data'] as $member)
+          <tr>
+            <x-whs.table-cell
+              type="avatar"
+              :value="$member['name']"
+              :meta="substr($member['name'], 0, 2)"
+              label="Employee name"
+            />
+
+            <x-whs.table-cell
+              type="badge"
+              :value="$member['status']"
+              label="Employment status"
+            />
+
+            <x-whs.table-cell
+              type="text"
+              :value="$member['branch_name']"
+              label="Branch location"
+            />
+
+            <x-whs.table-cell
+              type="date"
+              :value="$member['last_active']"
+              :meta="true"
+              label="Last activity date"
+            />
+
+            <x-whs.table-cell
+              type="numeric"
+              :value="$member['incidents_count'] ?? 0"
+              align="right"
+              label="Incident count"
+            />
+
+            <x-whs.table-cell type="actions" label="Available actions">
+              <button
+                type="button"
+                class="btn btn-sm btn-icon btn-label-primary"
+                data-drawer-target="employeeDrawer{{ $member['id'] }}"
+                aria-label="View {{ $member['name'] }}"
+              >
+                <i class="bx bx-show"></i>
+              </button>
+              <a
+                href="{{ route('teams.edit', $member['id']) }}"
+                class="btn btn-sm btn-icon btn-label-secondary"
+                aria-label="Edit {{ $member['name'] }}"
+              >
+                <i class="bx bx-edit"></i>
+              </a>
+            </x-whs.table-cell>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+@endif
+
+{{-- Side Drawer Component Demo (Blocker #5) - Employee Quick View --}}
+@foreach($members['data'] as $member)
+<x-whs.side-drawer
+  id="employeeDrawer{{ $member['id'] }}"
+  title="Employee Quick View"
+  size="lg"
+>
+  <div class="mb-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="avatar avatar-lg">
+        <span class="avatar-initial rounded bg-label-primary fs-4">
+          {{ substr($member['name'], 0, 2) }}
+        </span>
+      </div>
+      <div>
+        <h4 class="mb-1">{{ $member['name'] }}</h4>
+        <p class="text-muted mb-0">{{ $member['email'] }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6">
+      <label class="form-label small text-muted">Employee ID</label>
+      <p class="fw-semibold">{{ $member['employee_id'] }}</p>
+    </div>
+    <div class="col-6">
+      <label class="form-label small text-muted">Status</label>
+      <p>
+        <span class="badge bg-{{ $member['status'] === 'active' ? 'success' : 'secondary' }}">
+          {{ ucfirst($member['status']) }}
+        </span>
+      </p>
+    </div>
+    <div class="col-6">
+      <label class="form-label small text-muted">Branch</label>
+      <p class="fw-semibold">{{ $member['branch_name'] }}</p>
+    </div>
+    <div class="col-6">
+      <label class="form-label small text-muted">Role</label>
+      <p class="fw-semibold">{{ ucfirst($member['role']) }}</p>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h6 class="mb-3">Contact Information</h6>
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label small text-muted">Email</label>
+        <p>{{ $member['email'] }}</p>
+      </div>
+      @if($member['phone'])
+      <div class="col-12">
+        <label class="form-label small text-muted">Phone</label>
+        <p>{{ $member['phone'] }}</p>
+      </div>
+      @endif
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h6 class="mb-3">Activity Summary</h6>
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label small text-muted">Incidents</label>
+        <p class="fw-semibold fs-5 text-primary">{{ $member['incidents_count'] ?? 0 }}</p>
+      </div>
+      <div class="col-6">
+        <label class="form-label small text-muted">Last Active</label>
+        <p class="fw-semibold">{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if($member['current_vehicle'])
+  <div class="alert alert-info">
+    <strong>Currently Assigned Vehicle:</strong><br>
+    {{ $member['current_vehicle']['registration_number'] }} -
+    {{ $member['current_vehicle']['make'] }} {{ $member['current_vehicle']['model'] }}
+  </div>
+  @endif
+
+  <x-slot:footer>
+    <button type="button" class="btn btn-label-secondary" data-drawer-close="employeeDrawer{{ $member['id'] }}">
+      Close
+    </button>
+    <a href="{{ route('teams.show', $member['id']) }}" class="btn btn-primary">
+      <i class="bx bx-external-link me-2"></i>
+      View Full Profile
+    </a>
+    <a href="{{ route('teams.edit', $member['id']) }}" class="btn btn-label-primary">
+      <i class="bx bx-edit me-2"></i>
+      Edit Details
+    </a>
+  </x-slot:footer>
+</x-whs.side-drawer>
+@endforeach
+
+{{-- Dense Table Info Modal --}}
+@if($useDenseTable ?? false)
+<div class="modal fade" id="denseTableInfoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Dense Table UI - Phase {{ now()->isBefore('2025-11-08') ? '1' : (now()->isBefore('2025-11-22') ? '2' : '3') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>You're part of our gradual rollout!</strong></p>
+        <p>The new dense table interface features:</p>
+        <ul>
+          <li>✅ WCAG 2.1 AA accessibility compliance</li>
+          <li>✅ Keyboard navigation support</li>
+          <li>✅ Responsive design for mobile</li>
+          <li>✅ Improved data density</li>
+          <li>✅ Side drawer for quick actions</li>
+        </ul>
+        <hr>
+        <p class="small text-muted mb-0">
+          <strong>Rollout Schedule:</strong><br>
+          Phase 1 (Nov 1-7): Sydney Operations Centre<br>
+          Phase 2 (Nov 8-21): 50% A/B test<br>
+          Phase 3 (Nov 22+): 100% rollout
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+@endif
 
 @endsection
 

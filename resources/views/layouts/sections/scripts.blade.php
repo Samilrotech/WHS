@@ -3,5 +3,8 @@
 
 @yield('page-script')
 
+<!-- Component Scripts -->
+@stack('scripts')
+
 <!-- app JS -->
 @vite(['resources/js/app.js'])

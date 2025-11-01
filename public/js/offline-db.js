@@ -31,7 +31,7 @@ const OfflineDB = (function() {
   let isReady = false;
 
   // Database version
-  const DB_VERSION = 1;
+  const DB_VERSION = 2; // Incremented for syncConflicts table
 
   /**
    * Initialize IndexedDB with Dexie
@@ -62,6 +62,9 @@ const OfflineDB = (function() {
 
       // Sync Queue (pending changes to sync)
       syncQueue: '++id, entity_type, entity_id, operation, data, created_at, attempts, last_attempt',
+
+      // Sync Conflicts (optimistic locking conflicts)
+      syncConflicts: '++id, entity_type, entity_id, operation, client_data, client_version, server_data, server_version, detected_at, resolved',
 
       // Photos (Base64-encoded for offline access)
       photos: '++id, entity_type, entity_id, file_name, base64_data, mime_type, file_size, created_at, synced',

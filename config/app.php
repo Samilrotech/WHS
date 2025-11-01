@@ -107,6 +107,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Dense Table Feature Flag
+    |--------------------------------------------------------------------------
+    |
+    | This setting controls the emergency disable switch for the Dense Table
+    | UI feature. Set to false to disable the feature for all users immediately.
+    | Default: true (feature rollout active based on DenseTableFeature logic).
+    |
+    */
+
+    'dense_table_enabled' => env('DENSE_TABLE_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

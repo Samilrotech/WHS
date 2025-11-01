@@ -34,6 +34,7 @@ class InitialDataSeeder extends Seeder
             'assign incidents',
             'close incidents',
             'view all branches',
+            'team.export', // Export employee data (PII) - GDPR audited
         ];
 
         foreach ($permissions as $permission) {

@@ -221,7 +221,10 @@ const SyncManager = (function() {
       case 'UPDATE':
         url = `/incidents/${data.id}`;
         method = 'PUT';
-        body = JSON.stringify(data);
+        body = JSON.stringify({
+          ...data,
+          version: data.version, // Include version for conflict detection
+        });
         break;
 
       case 'DELETE':
@@ -245,12 +248,29 @@ const SyncManager = (function() {
       body: body
     });
 
+    // Handle conflict (409) responses
+    if (response.status === 409) {
+      const conflictData = await response.json();
+      await handleSyncConflict(operation, data, localId, conflictData);
+      throw new Error('Conflict detected - user resolution required');
+    }
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Server error: ${response.status} - ${errorText}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+
+    // Update local version after successful sync
+    if (result.version) {
+      const localRecord = await OfflineDB.getIncident(localId);
+      if (localRecord) {
+        await OfflineDB.updateIncident(localId, { version: result.version });
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -446,6 +466,59 @@ const SyncManager = (function() {
     if (syncInterval) {
       clearInterval(syncInterval);
       syncInterval = null;
+    }
+  }
+
+  /**
+   * Handle sync conflict (optimistic locking)
+   * @param {string} operation - Operation type
+   * @param {Object} clientData - Client version of data
+   * @param {number} localId - Local record ID
+   * @param {Object} serverResponse - Server conflict response
+   */
+  async function handleSyncConflict(operation, clientData, localId, serverResponse) {
+    console.warn('[SyncManager] Conflict detected:', { operation, clientData, serverResponse });
+
+    // Store conflict in IndexedDB for later resolution
+    await OfflineDB.db.syncConflicts.add({
+      entity_type: 'incident',
+      entity_id: localId,
+      operation: operation,
+      client_data: clientData,
+      client_version: clientData.version,
+      server_data: serverResponse.server_data,
+      server_version: serverResponse.server_version,
+      detected_at: new Date().toISOString(),
+      resolved: false,
+    });
+
+    // Show notification to user
+    showConflictNotification();
+  }
+
+  /**
+   * Show conflict notification to user
+   */
+  function showConflictNotification() {
+    if (typeof Toastify !== 'undefined') {
+      Toastify({
+        text: '⚠️ Sync Conflict: Some changes conflict with server updates. Click to resolve.',
+        duration: -1, // Persistent until clicked
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#ff9f43",
+        onClick: function() {
+          // Open conflict resolver UI
+          if (typeof window.openConflictResolver === 'function') {
+            window.openConflictResolver();
+          } else {
+            window.location.href = '/sync-conflicts';
+          }
+        }
+      }).showToast();
+    } else {
+      // Fallback to alert
+      alert('⚠️ Sync Conflict: Some of your offline changes conflict with server updates. Please resolve conflicts.');
     }
   }
 

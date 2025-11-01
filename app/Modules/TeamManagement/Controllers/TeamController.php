@@ -42,11 +42,30 @@ class TeamController extends Controller
         $currentUser = $request->user();
 
         $filters = [
-            'search' => trim((string) $request->input('search')), 
+            'search' => trim((string) $request->input('search')),
             'branch' => $request->input('branch'),
             'role' => $request->input('role'),
             'status' => $request->input('status'),
         ];
+
+        // Define allowed sort columns (whitelist) - SQL injection protection
+        $allowedSortColumns = [
+            'name',
+            'email',
+            'phone',
+            'employee_id',
+            'employment_status',
+            'created_at',
+            'updated_at',
+        ];
+
+        // Get sort parameters with validation
+        $sortColumn = $request->input('sort', 'name');
+        $sortDirection = strtolower($request->input('direction', 'asc'));
+
+        // Validate against whitelist (strict type checking prevents type juggling attacks)
+        $sortColumn = in_array($sortColumn, $allowedSortColumns, true) ? $sortColumn : 'name';
+        $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
 
         $query = User::query()
             ->with(['branch', 'roles', 'currentVehicleAssignment.vehicle'])
@@ -79,7 +98,8 @@ class TeamController extends Controller
         }
 
         /** @var LengthAwarePaginator $users */
-        $users = $query->orderBy('name')->paginate(12)->withQueryString();
+        $users = $query->orderBy($sortColumn, $sortDirection)
+            ->paginate(50)->withQueryString();
 
         $userIds = $users->getCollection()->pluck('id')->all();
 
@@ -116,12 +136,16 @@ class TeamController extends Controller
 
         $branches = Branch::active()->orderBy('name')->get(['id', 'name']);
 
+        // Feature flag: Dense Table UI (3-phase rollout)
+        $useDenseTable = \Laravel\Pennant\Feature::for($currentUser)->active('dense-table');
+
         return view('content.TeamManagement.Index', [
             'members' => $members,
             'statistics' => $statistics,
             'filters' => $filters,
             'branches' => $branches,
             'paginator' => $users,
+            'useDenseTable' => $useDenseTable,
         ]);
     }
 
@@ -242,6 +266,26 @@ class TeamController extends Controller
         $validated = $this->validateMember($request, $team);
         $roleName = $this->resolveRoleName($validated['role']);
 
+        // Optimistic locking check (PWA sync conflict detection)
+        if (isset($validated['version']) && $team->version !== $validated['version']) {
+            // AJAX request from PWA - return JSON with conflict data
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Conflict detected',
+                    'message' => 'This record was modified by another user',
+                    'server_version' => $team->version,
+                    'server_data' => $team->toArray(),
+                    'client_version' => $validated['version'],
+                ], 409); // HTTP 409 Conflict
+            }
+
+            // Web form submission - redirect with error
+            return redirect()
+                ->back()
+                ->withErrors(['version' => 'This record was modified by another user. Please refresh and try again.'])
+                ->withInput();
+        }
+
         DB::transaction(function () use ($team, $validated, $roleName) {
             $attributes = [
                 'branch_id' => $validated['branch_id'] ?: null,
@@ -262,7 +306,9 @@ class TeamController extends Controller
                 $attributes['password'] = Hash::make($validated['password']);
             }
 
+            // Increment version for optimistic locking
             $team->update($attributes);
+            $team->increment('version');
             $team->syncRoles([$roleName]);
         });
 
@@ -379,6 +425,7 @@ class TeamController extends Controller
 
         if ($team) {
             $rules['password'] = ['nullable', 'string', 'min:8', 'confirmed'];
+            $rules['version'] = ['nullable', 'integer']; // For optimistic locking (PWA sync)
         } else {
             $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
         }
@@ -538,6 +585,118 @@ class TeamController extends Controller
         $key = strtolower($key);
 
         return $this->roleMap[$key] ?? $this->roleMap['employee'];
+    }
+
+    /**
+     * Export employees to CSV with GDPR compliance
+     */
+    public function export(Request $request)
+    {
+        // RBAC check (throws 403 if unauthorized)
+        $this->authorize('team.export');
+
+        $validated = $request->validate([
+            'format' => 'required|in:csv,xlsx',
+            'fields' => 'array',
+        ]);
+
+        // Log export for GDPR audit trail
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'format' => $validated['format'],
+                'fields' => $validated['fields'] ?? 'all',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ])
+            ->log('team_export_initiated');
+
+        // Build filtered query (reuse index filters)
+        $query = $this->buildExportQuery($request);
+
+        return $this->generateCsvExport($query, $validated['fields'] ?? []);
+    }
+
+    /**
+     * Build export query with same filters as index
+     */
+    private function buildExportQuery(Request $request)
+    {
+        $filters = [
+            'search' => trim((string) $request->input('search')),
+            'branch' => $request->input('branch'),
+            'status' => $request->input('status'),
+        ];
+
+        $query = User::query()->with(['branch']);
+
+        if ($filters['search'] !== '') {
+            $query->where(function ($builder) use ($filters) {
+                $builder->where('name', 'like', "%{$filters['search']}%")
+                    ->orWhere('email', 'like', "%{$filters['search']}%");
+            });
+        }
+
+        if ($filters['branch']) {
+            $query->where('branch_id', $filters['branch']);
+        }
+
+        if ($filters['status']) {
+            $query->where('employment_status', $filters['status']);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Generate CSV export with data minimization
+     */
+    private function generateCsvExport($query, array $fields)
+    {
+        $exportableFields = [
+            'employee_id' => ['label' => 'Employee ID', 'pii' => false],
+            'name' => ['label' => 'Full Name', 'pii' => true],
+            'email' => ['label' => 'Email', 'pii' => true],
+            'phone' => ['label' => 'Phone', 'pii' => true],
+            'position' => ['label' => 'Position', 'pii' => false],
+            'employment_status' => ['label' => 'Status', 'pii' => false],
+        ];
+
+        // Default to all fields if none specified
+        if (empty($fields)) {
+            $fields = array_keys($exportableFields);
+            activity()->causedBy(auth()->user())->log('team_export_all_pii_warning');
+        }
+
+        $filename = 'employees_' . now()->format('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Cache-Control' => 'no-store, no-cache',
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+
+        return response()->stream(function () use ($query, $fields, $exportableFields) {
+            $handle = fopen('php://output', 'w');
+
+            // CSV header row
+            $headerRow = array_map(fn($field) => $exportableFields[$field]['label'], $fields);
+            fputcsv($handle, $headerRow);
+
+            // Stream data rows (memory-efficient)
+            $query->chunk(100, function ($users) use ($handle, $fields) {
+                foreach ($users as $user) {
+                    $row = [];
+                    foreach ($fields as $field) {
+                        $row[] = $user->{$field} ?? '';
+                    }
+                    fputcsv($handle, $row);
+                }
+            });
+
+            fclose($handle);
+        }, 200, $headers);
     }
 }
 
