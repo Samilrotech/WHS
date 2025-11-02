@@ -250,6 +250,46 @@ $wrapperClass = [
 [data-bs-theme='light'] .whs-table-sticky-header::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--sensei-accent) 50%, transparent);
 }
+
+/* Action Menu Dropdown */
+.whs-action-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.25rem;
+  min-width: 160px;
+  background: var(--sensei-surface);
+  border: 1px solid var(--sensei-border);
+  border-radius: var(--sensei-radius-sm);
+  box-shadow: var(--sensei-shadow-card);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  gap: 0.25rem;
+}
+
+.whs-action-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--sensei-text-primary);
+  text-decoration: none;
+  border-radius: var(--sensei-radius-xs);
+  transition: background var(--sensei-transition);
+  font-size: 0.875rem;
+}
+
+.whs-action-menu__item:hover {
+  background: color-mix(in srgb, var(--sensei-accent) 8%, transparent);
+  color: var(--sensei-accent);
+}
+
+.whs-action-menu__item i {
+  font-size: 1rem;
+  opacity: 0.7;
+}
 </style>
 @endpush
 
@@ -304,6 +344,47 @@ document.addEventListener('DOMContentLoaded', function() {
       table.dataset.density = savedDensity;
     }
   }
+
+  // Handle action menu (3-dots)
+  document.querySelectorAll('[data-action-menu]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const currentMenu = this.nextElementSibling;
+
+      // Close all other menus
+      document.querySelectorAll('.whs-action-menu').forEach(menu => {
+        if (menu !== currentMenu) {
+          menu.remove();
+        }
+      });
+
+      // Toggle current menu
+      if (currentMenu && currentMenu.classList.contains('whs-action-menu')) {
+        currentMenu.remove();
+      } else {
+        // Create and show menu
+        const menu = document.createElement('div');
+        menu.className = 'whs-action-menu';
+        menu.innerHTML = `
+          <a href="#" class="whs-action-menu__item" onclick="alert('Edit action'); return false;">
+            <i class="icon-base ti ti-pencil"></i>
+            <span>Edit</span>
+          </a>
+          <a href="#" class="whs-action-menu__item" onclick="alert('Delete action'); return false;">
+            <i class="icon-base ti ti-trash"></i>
+            <span>Delete</span>
+          </a>
+        `;
+        this.parentElement.style.position = 'relative';
+        this.parentElement.appendChild(menu);
+      }
+    });
+  });
+
+  // Close menus when clicking outside
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.whs-action-menu').forEach(menu => menu.remove());
+  });
 });
 </script>
 @endpush
