@@ -66,6 +66,9 @@
               <h4 class="mb-3">{{ number_format($vehicle->odometer_reading ?? 0) }} km</h4>
               <div class="alert alert-info mb-0 small py-2 px-3">
                 <i class="ti ti-camera me-1"></i> Photos are required for tyres, sides, and interior each month.
+                <div class="mt-1">
+                  <i class="ti ti-bolt me-1"></i> <strong>Instant upload:</strong> Photos are automatically optimized before upload for faster submission.
+                </div>
               </div>
             </div>
           </div>
@@ -460,6 +463,9 @@
 @endpush
 
 @push('page-script')
+<!-- Image Compression -->
+<script src="{{ asset('js/image-compressor.js') }}"></script>
+
 <script>
   (function () {
     'use strict';
@@ -470,6 +476,13 @@
         if (!form.checkValidity()) {
           event.preventDefault();
           event.stopPropagation();
+        } else {
+          // Show loading state on submit button
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Uploading inspection...';
+          }
         }
         form.classList.add('was-validated');
       }, false);
