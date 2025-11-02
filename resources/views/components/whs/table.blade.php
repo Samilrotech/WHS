@@ -29,15 +29,15 @@ $wrapperClass = [
 
 <div {{ $attributes->merge(['class' => implode(' ', array_filter($wrapperClass))]) }} data-table-wrapper>
   <table class="{{ implode(' ', array_filter($tableClass)) }}" data-table data-density="{{ $density }}">
-    @isset($thead)
+    @isset($header)
       <thead class="whs-dense-table__head">
-        {{ $thead }}
+        {{ $header }}
       </thead>
     @endisset
 
-    @isset($tbody)
+    @isset($body)
       <tbody class="whs-dense-table__body">
-        {{ $tbody }}
+        {{ $body }}
       </tbody>
     @else
       <tbody class="whs-dense-table__body">
@@ -45,9 +45,9 @@ $wrapperClass = [
       </tbody>
     @endisset
 
-    @isset($tfoot)
+    @isset($footer)
       <tfoot class="whs-dense-table__foot">
-        {{ $tfoot }}
+        {{ $footer }}
       </tfoot>
     @endisset
   </table>
