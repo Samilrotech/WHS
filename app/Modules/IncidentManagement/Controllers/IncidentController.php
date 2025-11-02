@@ -25,7 +25,7 @@ class IncidentController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['type', 'severity', 'status', 'search', 'date_from', 'date_to']);
-        $incidents = $this->repository->paginate(15, $filters);
+        $incidents = $this->repository->paginate(25, $filters); // Increased for dense table view
 
         // Get assigned vehicles count for the branch
         $branchId = auth()->user()->branch_id;

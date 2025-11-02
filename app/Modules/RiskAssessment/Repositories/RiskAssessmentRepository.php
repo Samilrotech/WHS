@@ -15,7 +15,7 @@ class RiskAssessmentRepository
      * @param int $perPage
      * @return LengthAwarePaginator
      */
-    public function getPaginated(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function getPaginated(array $filters = [], int $perPage = 25): LengthAwarePaginator // Increased for dense table view
     {
         $query = RiskAssessment::with(['user', 'branch', 'hazards']);
 

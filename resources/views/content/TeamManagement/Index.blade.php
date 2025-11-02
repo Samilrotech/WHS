@@ -22,20 +22,7 @@
 
 <div class="whs-shell">
 
-  {{-- Dense Table Feature Flag Notice (Phase 1-3 Rollout) --}}
-  @if($useDenseTable ?? false)
-  <div class="alert alert-info alert-dismissible mb-4" role="alert">
-    <h6 class="alert-heading mb-2">
-      <i class="bx bx-test-tube me-2"></i>
-      New Dense Table UI Active
-    </h6>
-    <p class="mb-0">
-      You're using the new high-density table interface as part of our gradual rollout.
-      <a href="#" class="alert-link" data-bs-toggle="modal" data-bs-target="#denseTableInfoModal">Learn more</a>
-    </p>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  @endif
+  {{-- Dense Table is now the default UI --}}
 
   <!-- Certifications Expiring Alert -->
   @if(($statistics['certifications_expiring'] ?? 0) > 0)
@@ -101,26 +88,45 @@
     />
   </section>
 
-  <div class="whs-layout">
+  <div class="whs-layout{{ request('view', 'table') !== 'cards' ? ' whs-layout--full-width' : '' }}">
     <div class="whs-main">
       <div class="whs-section-heading">
         <div>
           <h2>Team member directory</h2>
           <p>All employees with roles, certifications, and status tracking.</p>
         </div>
-        <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
+        <div class="whs-section-heading__actions">
+          {{-- View Toggle --}}
+          <div class="btn-group whs-view-toggle" role="group" aria-label="View mode">
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-view="cards" {{ request('view', 'table') === 'cards' ? 'aria-pressed="true"' : '' }}>
+              <i class="ti ti-layout-grid"></i>
+              <span class="d-none d-md-inline ms-1">Cards</span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-view="table" {{ request('view', 'table') === 'table' ? 'aria-pressed="true"' : '' }}>
+              <i class="ti ti-table"></i>
+              <span class="d-none d-md-inline ms-1">Table</span>
+            </button>
+          </div>
+          <span class="whs-updated ms-3">Updated {{ now()->format('H:i') }}</span>
+        </div>
       </div>
 
-      {{-- Export Button (GDPR Compliant) --}}
-      @can('team.export')
-      <div class="mb-3">
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
-          <i class="bx bx-download"></i> Export Employees
-        </button>
-      </div>
-      @endcan
+      {{-- Dense Table View (Default) --}}
+      @if(request('view', 'table') !== 'cards')
+        @include('content.TeamManagement._table-view')
+      @else
+      {{-- Card View (Optional) --}}
+      <div class="whs-card-view">
+        {{-- Export Button (GDPR Compliant) --}}
+        @can('team.export')
+        <div class="mb-3">
+          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="bx bx-download"></i> Export Employees
+          </button>
+        </div>
+        @endcan
 
-      <div class="whs-card-list">
+        <div class="whs-card-list">
         @forelse ($members['data'] as $member)
           @php
             $severity = $member['status'] === 'suspended' ? 'critical' :
@@ -138,17 +144,17 @@
 
             <div class="whs-card__body">
               <div class="mb-3">
-                <h3 class="mb-1">{{ $member['name'] }}</h3>
-                <p class="sensei-micro-copy mb-0">{{ ucfirst($member['role']) }} &middot; {{ $member['branch_name'] }}</p>
+                <h3 class="employee-name mb-1">{{ $member['name'] }}</h3>
+                <p class="employee-role sensei-micro-copy mb-0">{{ ucfirst($member['role']) }} &middot; {{ $member['branch_name'] }}</p>
               </div>
               <div class="sensei-meta-grid">
                 <div>
-                  <span>Contact</span>
-                  <span>{{ $member['email'] }} &middot; {{ $member['phone'] }}</span>
+                  <span class="section-label">Contact</span>
+                  <span class="metadata-value">{{ $member['email'] }} &middot; {{ $member['phone'] }}</span>
                 </div>
                 <div>
-                  <span>Certifications</span>
-                  <span>
+                  <span class="section-label">Certifications</span>
+                  <span class="metadata-value">
                     @if($member['certifications_count'] > 0)
                       <strong class="me-2">{{ $member['certifications_count'] }} Cert{{ $member['certifications_count'] > 1 ? 's' : '' }}</strong>
                       @if($member['has_expiring_certs'])
@@ -157,47 +163,47 @@
                         <span class="whs-chip whs-chip--severity whs-chip--severity-low">Current</span>
                       @endif
                     @else
-                      <span class="text-muted">None</span>
+                      <span class="text-empty">None</span>
                     @endif
                   </span>
                 </div>
                 <div>
-                  <span>Assigned Vehicle</span>
+                  <span class="section-label">Assigned Vehicle</span>
                   @if($member['current_vehicle'])
                     @php $vehicle = $member['current_vehicle']; @endphp
-                    <span>
-                      <strong>{{ $vehicle['registration_number'] }}</strong> &middot; {{ $vehicle['make'] }} {{ $vehicle['model'] }}
-                      <span class="d-block text-muted small">Since {{ $vehicle['assigned_human'] }}</span>
+                    <span class="metadata-value">
+                      <strong class="vehicle-name">{{ $vehicle['registration_number'] }}</strong> &middot; {{ $vehicle['make'] }} {{ $vehicle['model'] }}
+                      <span class="d-block vehicle-timestamp">Since {{ $vehicle['assigned_human'] }}</span>
                     </span>
                   @else
-                    <span class="text-muted">Not assigned</span>
+                    <span class="metadata-value text-empty">Not assigned</span>
                   @endif
                 </div>
                 <div>
-                  <span>Last Inspection</span>
+                  <span class="section-label">Last Inspection</span>
                   @if($member['latest_inspection'])
                     @php $inspection = $member['latest_inspection']; @endphp
                     @php $inspectionResult = $inspection['result'] ?? $inspection['status']; @endphp
                     @php $inspectionBadge = in_array($inspectionResult, ['fail_major','fail_critical']) ? 'danger' : (in_array($inspectionResult, ['pass','pass_minor']) ? 'success' : 'info'); @endphp
-                    <span>
+                    <span class="metadata-value">
                       <strong class="me-2">{{ strtoupper(str_replace('_', ' ', $inspectionResult)) }}</strong>
                       <span class="badge bg-label-{{ $inspectionBadge }}">{{ ucfirst(str_replace('_', ' ', $inspectionResult)) }}</span>
-                      <span class="d-block text-muted small">{{ $inspection['date_human'] }}</span>
+                      <span class="d-block metadata-value">{{ $inspection['date_human'] }}</span>
                     </span>
                   @else
-                    <span class="text-muted">No submissions yet</span>
+                    <span class="metadata-value text-empty">No submissions yet</span>
                   @endif
                 </div>
                 <div>
-                  <span>Last Active</span>
-                  <span>{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</span>
+                  <span class="section-label">Last Active</span>
+                  <span class="metadata-value">{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</span>
                 </div>
               </div>
             </div>
 
             <div class="whs-card__footer">
               <div class="whs-card__actions">
-                <button type="button" class="whs-action-btn" data-drawer-target="employeeDrawer{{ $member['id'] }}" aria-label="Quick view {{ $member['name'] }}">
+                <button type="button" class="whs-action-btn" data-quick-view data-member-id="{{ $member['id'] }}" aria-label="Quick view {{ $member['name'] }}">
                   <i class="icon-base ti ti-eye"></i>
                   <span>Quick View</span>
                 </button>
@@ -264,23 +270,27 @@
             </div>
           </div>
         @endforelse
+        </div>
       </div>
+      @endif
     </div>
 
+    {{-- Hide sidebar in table view to maximize horizontal space --}}
+    @if(request('view') !== 'table')
     <aside class="whs-sidebar">
       <x-whs.sidebar-panel title="Member status">
         <ul class="whs-sidebar__stats">
           <li>
-            <span>Active Members</span>
-            <strong class="text-success">{{ $statistics['active_members'] ?? 0 }}</strong>
+            <span class="section-label">Active Members</span>
+            <strong class="metadata-value text-success">{{ $statistics['active_members'] ?? 0 }}</strong>
           </li>
           <li>
-            <span>On Leave</span>
-            <strong class="text-info">{{ $statistics['on_leave'] ?? 0 }}</strong>
+            <span class="section-label">On Leave</span>
+            <strong class="metadata-value text-info">{{ $statistics['on_leave'] ?? 0 }}</strong>
           </li>
           <li>
-            <span>Certifications Expiring</span>
-            <strong class="text-warning">{{ $statistics['certifications_expiring'] ?? 0 }}</strong>
+            <span class="section-label">Certifications Expiring</span>
+            <strong class="metadata-value text-warning">{{ $statistics['certifications_expiring'] ?? 0 }}</strong>
           </li>
         </ul>
         <p class="whs-sidebar__caption">
@@ -289,30 +299,31 @@
       </x-whs.sidebar-panel>
 
       <x-whs.sidebar-panel title="Common roles">
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          <div style="padding: 0.75rem; background: linear-gradient(135deg, rgba(244, 246, 255, 0.96), rgba(228, 233, 255, 0.98)); border-radius: 12px; border: 1px solid rgba(0, 71, 255, 0.12);">
-            <strong style="display: block; font-size: 0.85rem; color: var(--whs-slate-900); margin-bottom: 0.25rem;">Manager</strong>
-            <span style="font-size: 0.8rem; color: rgba(51, 65, 85, 0.75);">Strategic oversight and team leadership</span>
+        <div class="common-roles-section">
+          <div class="role-card">
+            <strong class="role-title">Manager</strong>
+            <span class="role-description">Strategic oversight and team leadership</span>
           </div>
-          <div style="padding: 0.75rem; background: rgba(248, 249, 253, 0.8); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.18);">
-            <strong style="display: block; font-size: 0.85rem; color: var(--whs-slate-900); margin-bottom: 0.25rem;">Supervisor</strong>
-            <span style="font-size: 0.8rem; color: rgba(51, 65, 85, 0.75);">Daily operations and team management</span>
+          <div class="role-card">
+            <strong class="role-title">Supervisor</strong>
+            <span class="role-description">Daily operations and team management</span>
           </div>
-          <div style="padding: 0.75rem; background: rgba(248, 249, 253, 0.8); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.18);">
-            <strong style="display: block; font-size: 0.85rem; color: var(--whs-slate-900); margin-bottom: 0.25rem;">Safety Officer</strong>
-            <span style="font-size: 0.8rem; color: rgba(51, 65, 85, 0.75);">WHS compliance and safety oversight</span>
+          <div class="role-card">
+            <strong class="role-title">Safety Officer</strong>
+            <span class="role-description">WHS compliance and safety oversight</span>
           </div>
-          <div style="padding: 0.75rem; background: rgba(248, 249, 253, 0.8); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.18);">
-            <strong style="display: block; font-size: 0.85rem; color: var(--whs-slate-900); margin-bottom: 0.25rem;">Operator</strong>
-            <span style="font-size: 0.8rem; color: rgba(51, 65, 85, 0.75);">Equipment operation and field work</span>
+          <div class="role-card">
+            <strong class="role-title">Operator</strong>
+            <span class="role-description">Equipment operation and field work</span>
           </div>
-          <div style="padding: 0.75rem; background: rgba(248, 249, 253, 0.8); border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.18);">
-            <strong style="display: block; font-size: 0.85rem; color: var(--whs-slate-900); margin-bottom: 0.25rem;">Technician/Driver</strong>
-            <span style="font-size: 0.8rem; color: rgba(51, 65, 85, 0.75);">Technical support and transportation</span>
+          <div class="role-card">
+            <strong class="role-title">Technician/Driver</strong>
+            <span class="role-description">Technical support and transportation</span>
           </div>
         </div>
       </x-whs.sidebar-panel>
     </aside>
+    @endif
   </div>
 </div>
 
@@ -576,7 +587,8 @@
               <button
                 type="button"
                 class="btn btn-sm btn-icon btn-label-primary"
-                data-drawer-target="employeeDrawer{{ $member['id'] }}"
+                data-quick-view
+                data-member-id="{{ $member['id'] }}"
                 aria-label="View {{ $member['name'] }}"
               >
                 <i class="bx bx-show"></i>
@@ -597,104 +609,6 @@
   </div>
 </div>
 @endif
-
-{{-- Side Drawer Component Demo (Blocker #5) - Employee Quick View --}}
-@foreach($members['data'] as $member)
-<x-whs.side-drawer
-  id="employeeDrawer{{ $member['id'] }}"
-  title="Employee Quick View"
-  size="lg"
->
-  <div class="mb-4">
-    <div class="d-flex align-items-center gap-3 mb-3">
-      <div class="avatar avatar-lg">
-        <span class="avatar-initial rounded bg-label-primary fs-4">
-          {{ substr($member['name'], 0, 2) }}
-        </span>
-      </div>
-      <div>
-        <h4 class="mb-1">{{ $member['name'] }}</h4>
-        <p class="text-muted mb-0">{{ $member['email'] }}</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="row g-3 mb-4">
-    <div class="col-6">
-      <label class="form-label small text-muted">Employee ID</label>
-      <p class="fw-semibold">{{ $member['employee_id'] }}</p>
-    </div>
-    <div class="col-6">
-      <label class="form-label small text-muted">Status</label>
-      <p>
-        <span class="badge bg-{{ $member['status'] === 'active' ? 'success' : 'secondary' }}">
-          {{ ucfirst($member['status']) }}
-        </span>
-      </p>
-    </div>
-    <div class="col-6">
-      <label class="form-label small text-muted">Branch</label>
-      <p class="fw-semibold">{{ $member['branch_name'] }}</p>
-    </div>
-    <div class="col-6">
-      <label class="form-label small text-muted">Role</label>
-      <p class="fw-semibold">{{ ucfirst($member['role']) }}</p>
-    </div>
-  </div>
-
-  <div class="mb-4">
-    <h6 class="mb-3">Contact Information</h6>
-    <div class="row g-3">
-      <div class="col-12">
-        <label class="form-label small text-muted">Email</label>
-        <p>{{ $member['email'] }}</p>
-      </div>
-      @if($member['phone'])
-      <div class="col-12">
-        <label class="form-label small text-muted">Phone</label>
-        <p>{{ $member['phone'] }}</p>
-      </div>
-      @endif
-    </div>
-  </div>
-
-  <div class="mb-4">
-    <h6 class="mb-3">Activity Summary</h6>
-    <div class="row g-3">
-      <div class="col-6">
-        <label class="form-label small text-muted">Incidents</label>
-        <p class="fw-semibold fs-5 text-primary">{{ $member['incidents_count'] ?? 0 }}</p>
-      </div>
-      <div class="col-6">
-        <label class="form-label small text-muted">Last Active</label>
-        <p class="fw-semibold">{{ \Carbon\Carbon::parse($member['last_active'])->diffForHumans() }}</p>
-      </div>
-    </div>
-  </div>
-
-  @if($member['current_vehicle'])
-  <div class="alert alert-info">
-    <strong>Currently Assigned Vehicle:</strong><br>
-    {{ $member['current_vehicle']['registration_number'] }} -
-    {{ $member['current_vehicle']['make'] }} {{ $member['current_vehicle']['model'] }}
-  </div>
-  @endif
-
-  <x-slot:footer>
-    <button type="button" class="btn btn-label-secondary" data-drawer-close="employeeDrawer{{ $member['id'] }}">
-      Close
-    </button>
-    <a href="{{ route('teams.show', $member['id']) }}" class="btn btn-primary">
-      <i class="bx bx-external-link me-2"></i>
-      View Full Profile
-    </a>
-    <a href="{{ route('teams.edit', $member['id']) }}" class="btn btn-label-primary">
-      <i class="bx bx-edit me-2"></i>
-      Edit Details
-    </a>
-  </x-slot:footer>
-</x-whs.side-drawer>
-@endforeach
 
 {{-- Dense Table Info Modal --}}
 @if($useDenseTable ?? false)
@@ -747,7 +661,197 @@ function viewTrainingHistory(memberId, memberName) {
   new bootstrap.Modal(document.getElementById('trainingHistoryModal')).show();
 }
 
+// View Toggle Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const viewButtons = document.querySelectorAll('[data-view]');
+
+  viewButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const view = this.dataset.view;
+      const url = new URL(window.location);
+      url.searchParams.set('view', view);
+
+      // Save preference to localStorage
+      localStorage.setItem('whsPreferredView', view);
+
+      // Navigate to new URL
+      window.location.href = url.toString();
+    });
+
+    // Highlight active button
+    const currentView = new URL(window.location).searchParams.get('view') || localStorage.getItem('whsPreferredView') || 'cards';
+    if (this.dataset.view === currentView) {
+      this.classList.add('active');
+    }
+  });
+
+  // Bulk Selection
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const rowCheckboxes = document.querySelectorAll('.whs-row-select');
+  const bulkActionsBar = document.querySelector('[data-bulk-actions]');
+  const selectedCountSpan = document.querySelector('[data-selected-count]');
+  const bulkClearBtn = document.querySelector('[data-bulk-clear]');
+
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const isChecked = this.checked;
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+      updateBulkActions();
+    });
+  }
+
+  rowCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      updateBulkActions();
+
+      // Update select all checkbox state
+      if (selectAllCheckbox) {
+        const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+    });
+  });
+
+  if (bulkClearBtn) {
+    bulkClearBtn.addEventListener('click', function() {
+      rowCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      }
+      updateBulkActions();
+    });
+  }
+
+  function updateBulkActions() {
+    const selectedCount = Array.from(rowCheckboxes).filter(cb => cb.checked).length;
+
+    if (selectedCountSpan) {
+      selectedCountSpan.textContent = selectedCount;
+    }
+
+    if (bulkActionsBar) {
+      if (selectedCount > 0) {
+        bulkActionsBar.hidden = false;
+      } else {
+        bulkActionsBar.hidden = true;
+      }
+    }
+  }
+
+  // Bulk Action Handlers
+  document.querySelectorAll('[data-bulk-action]').forEach(button => {
+    button.addEventListener('click', function() {
+      const action = this.dataset.bulkAction;
+      const selectedIds = Array.from(rowCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+      if (selectedIds.length === 0) {
+        alert('Please select at least one member');
+        return;
+      }
+
+      switch(action) {
+        case 'export':
+          handleBulkExport(selectedIds);
+          break;
+        case 'assign-branch':
+          handleBulkAssignBranch(selectedIds);
+          break;
+        case 'mark-leave':
+          handleBulkMarkLeave(selectedIds);
+          break;
+        case 'delete':
+          handleBulkDelete(selectedIds);
+          break;
+      }
+    });
+  });
+
+  function handleBulkExport(ids) {
+    console.log('Exporting members:', ids);
+    // Open export modal with selected IDs
+    const exportModal = document.getElementById('exportModal');
+    if (exportModal) {
+      new bootstrap.Modal(exportModal).show();
+    }
+  }
+
+  function handleBulkAssignBranch(ids) {
+    // Would open a modal for branch selection
+    alert(`Assign branch feature for ${ids.length} members will be implemented`);
+  }
+
+  function handleBulkMarkLeave(ids) {
+    if (confirm(`Mark ${ids.length} members as on leave?`)) {
+      console.log('Marking as on leave:', ids);
+      // Would submit form to mark members as on leave
+    }
+  }
+
+  function handleBulkDelete(ids) {
+    if (confirm(`Delete ${ids.length} members? This action cannot be undone.`)) {
+      console.log('Deleting members:', ids);
+      // Would submit form to delete members
+    }
+  }
+
+  // Restore view preference on page load
+  const preferredView = localStorage.getItem('whsPreferredView');
+  if (preferredView && !window.location.search.includes('view=')) {
+    const url = new URL(window.location);
+    if (!url.searchParams.has('view')) {
+      url.searchParams.set('view', preferredView);
+      window.history.replaceState({}, '', url.toString());
+    }
+  }
+});
 </script>
+
+<style>
+.whs-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.whs-section-heading__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.whs-view-toggle .btn.active {
+  background-color: var(--sensei-brand-primary);
+  color: #fff;
+  border-color: var(--sensei-brand-primary);
+}
+
+[data-bs-theme='light'] .whs-view-toggle .btn.active {
+  background-color: rgba(59, 130, 246, 1);
+  border-color: rgba(59, 130, 246, 1);
+}
+
+@media (max-width: 768px) {
+  .whs-section-heading {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .whs-section-heading__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+</style>
 @endsection
 
 

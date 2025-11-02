@@ -43,7 +43,7 @@ class BranchController extends Controller
 
         $branches = $query
             ->orderBy('name')
-            ->paginate(12)
+            ->paginate(25) // Increased for dense table view
             ->withQueryString();
 
         $branchIds = $branches->getCollection()->pluck('id')->filter()->all();

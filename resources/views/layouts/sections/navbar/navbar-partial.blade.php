@@ -25,7 +25,10 @@ use Illuminate\Support\Facades\Route;
   {{-- Logo & Brand Section --}}
   <div class="sensei-topbar__brand">
     <a href="{{ route('dashboard') }}" class="sensei-topbar__logo">
-      <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural Logo" class="sensei-topbar__logo-img">
+      {{-- Dark theme logo (white text) - hidden in light theme --}}
+      <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural Logo" class="sensei-topbar__logo-img sensei-topbar__logo-img--dark">
+      {{-- Light theme logo (black text) - hidden in dark theme --}}
+      <img src="{{ asset('assets/img/branding/RR_RedBlack.png') }}" alt="Rotech Rural Logo" class="sensei-topbar__logo-img sensei-topbar__logo-img--light">
       <div class="sensei-topbar__brand-text">
         <span class="sensei-topbar__brand-name">WHS5</span>
         <span class="sensei-topbar__brand-tagline">Workplace Safety</span>
@@ -79,6 +82,17 @@ use Illuminate\Support\Facades\Route;
     >
       <i class="ti ti-bell" aria-hidden="true"></i>
       <span class="sensei-topbar__notification-badge">3</span>
+    </button>
+
+    {{-- Theme Toggle Button --}}
+    <button
+      type="button"
+      class="sensei-topbar__theme-toggle"
+      data-theme-toggle
+      aria-label="Switch to dark theme"
+      title="Toggle theme"
+    >
+      <i class="bx bx-moon" aria-hidden="true"></i>
     </button>
 
     {{-- User Menu --}}

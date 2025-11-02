@@ -158,6 +158,81 @@
 }
 
 /* ========================================
+   Light Theme Token Overrides - Map to Sensei Tokens
+   ======================================== */
+
+[data-bs-theme='light'] {
+  /* Surface & Background Tokens → Sensei Surface System */
+  --whs-neutral-25: var(--sensei-surface);           /* Light card backgrounds */
+  --whs-neutral-50: var(--sensei-surface-strong);    /* Elevated surfaces */
+  --whs-neutral-100: var(--sensei-surface-hover);    /* Hover states */
+  --whs-neutral-200: var(--sensei-border-light);     /* Light borders */
+  --whs-neutral-300: var(--sensei-border);           /* Default borders */
+  --whs-neutral-400: var(--sensei-text-muted);       /* Muted text/icons */
+  --whs-neutral-500: var(--sensei-text-metadata);    /* Metadata text */
+  --whs-neutral-600: var(--sensei-text-tertiary);    /* Tertiary text */
+  --whs-neutral-700: var(--sensei-text-secondary);   /* Secondary text */
+  --whs-neutral-800: var(--sensei-text-secondary);   /* Secondary text (darker) */
+  --whs-neutral-900: var(--sensei-text-primary);     /* Primary text (darkest) */
+
+  /* Text Tokens → Sensei Text Hierarchy */
+  --whs-slate-50: var(--sensei-surface);
+  --whs-slate-100: var(--sensei-surface-strong);
+  --whs-slate-200: var(--sensei-border-light);
+  --whs-slate-400: var(--sensei-text-muted);
+  --whs-slate-500: var(--sensei-text-metadata);
+  --whs-slate-600: var(--sensei-text-tertiary);
+  --whs-slate-700: var(--sensei-text-secondary);
+  --whs-slate-900: var(--sensei-text-primary);
+
+  /* Elevation → Sensei Shadow System */
+  --whs-elevation-0: none;
+  --whs-elevation-1: var(--sensei-shadow-card);
+  --whs-elevation-2: var(--sensei-shadow-card);
+  --whs-elevation-3: var(--sensei-shadow-hover);
+  --whs-elevation-4: var(--sensei-shadow-hover);
+  --whs-elevation-5: var(--sensei-shadow-modal);
+  --whs-elevation-6: var(--sensei-shadow-modal);
+
+  /* Legacy Shadow Tokens → Sensei Shadows */
+  --whs-shadow-xs: var(--sensei-shadow-card);
+  --whs-shadow-sm: var(--sensei-shadow-card);
+  --whs-shadow-md: var(--sensei-shadow-hover);
+  --whs-shadow-lg: var(--sensei-shadow-hover);
+  --whs-shadow-xl: var(--sensei-shadow-modal);
+
+  /* Border Tokens → Sensei Borders */
+  --whs-border: var(--sensei-border);
+  --whs-border-light: var(--sensei-border-light);
+
+  /* Semantic Color Tokens → Sensei Semantic Colors */
+  --whs-brand: var(--sensei-accent);
+  --whs-brand-500: var(--sensei-accent);
+  --whs-brand-600: var(--sensei-accent-hover);
+
+  --whs-success: var(--sensei-success);
+  --whs-success-500: var(--sensei-success);
+  --whs-success-600: var(--sensei-success-hover);
+
+  --whs-warning: var(--sensei-warning);
+  --whs-warning-500: var(--sensei-warning);
+  --whs-warning-600: var(--sensei-warning-hover);
+
+  --whs-danger: var(--sensei-alert);
+  --whs-danger-500: var(--sensei-alert);
+  --whs-danger-600: var(--sensei-alert-hover);
+
+  --whs-info: var(--sensei-info);
+  --whs-info-500: var(--sensei-info);
+
+  /* Extended Palette → Sensei Semantic */
+  --whs-emerald-500: var(--sensei-success);
+  --whs-amber-500: var(--sensei-warning);
+  --whs-rose-500: var(--sensei-alert);
+  --whs-sky-400: var(--sensei-accent);
+}
+
+/* ========================================
    Base Styles with Subtle Texture
    ======================================== */
 
@@ -1131,45 +1206,43 @@
 }
 
 /* ========================================
-   Dark Mode Foundation (2025)
+   Dark Theme Overrides - Respects App Theme Toggle
    ======================================== */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --whs-background: var(--whs-neutral-900);
-    --whs-surface: var(--whs-neutral-800);
-    --whs-surface-elevated: var(--whs-neutral-700);
-    --whs-text-primary: var(--whs-neutral-50);
-    --whs-text-secondary: var(--whs-neutral-400);
-    --whs-border: var(--whs-neutral-700);
-  }
+[data-bs-theme='dark'] {
+  --whs-background: var(--whs-neutral-900);
+  --whs-surface: var(--whs-neutral-800);
+  --whs-surface-elevated: var(--whs-neutral-700);
+  --whs-text-primary: var(--whs-neutral-50);
+  --whs-text-secondary: var(--whs-neutral-400);
+  --whs-border: var(--whs-neutral-700);
+}
 
-  .whs-glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+[data-bs-theme='dark'] .whs-glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  .whs-card {
-    background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.02) 100%);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
+[data-bs-theme='dark'] .whs-card {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
 
-  .whs-hero {
-    background:
-      radial-gradient(circle at left top, rgba(96, 165, 250, 0.15), transparent 60%),
-      linear-gradient(135deg, rgba(18, 24, 38, 0.96), rgba(32, 41, 57, 0.98));
-    border-color: rgba(255, 255, 255, 0.08);
-  }
+[data-bs-theme='dark'] .whs-hero {
+  background:
+    radial-gradient(circle at left top, rgba(96, 165, 250, 0.15), transparent 60%),
+    linear-gradient(135deg, rgba(18, 24, 38, 0.96), rgba(32, 41, 57, 0.98));
+  border-color: rgba(255, 255, 255, 0.08);
+}
 
-  .whs-title,
-  .whs-section-heading h2,
-  .whs-metric-card__value,
-  .whs-data-card__value {
-    color: var(--whs-neutral-50);
-    -webkit-text-fill-color: var(--whs-neutral-50);
-  }
+[data-bs-theme='dark'] .whs-title,
+[data-bs-theme='dark'] .whs-section-heading h2,
+[data-bs-theme='dark'] .whs-metric-card__value,
+[data-bs-theme='dark'] .whs-data-card__value {
+  color: var(--whs-neutral-50);
+  -webkit-text-fill-color: var(--whs-neutral-50);
 }
 
 /* ========================================

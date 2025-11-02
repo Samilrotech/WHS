@@ -98,7 +98,7 @@
     />
   </section>
 
-  <div class="whs-layout">
+  <div class="whs-layout whs-layout--full-width">
     <div class="whs-main">
       <div class="whs-section-heading">
         <div>
@@ -108,7 +108,11 @@
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
-      <div class="whs-list whs-list--staggered">
+      {{-- Dense Table View (Default) --}}
+      @include('content.incidents._table-view')
+
+      {{-- Old Card View (Deprecated) --}}
+      <div class="whs-list whs-list--staggered" style="display: none;">
         @forelse ($incidents as $incident)
           <x-whs.card class="incident-card sensei-surface-card">
             <div class="incident-card__header">

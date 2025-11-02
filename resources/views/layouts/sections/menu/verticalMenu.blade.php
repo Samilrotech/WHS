@@ -48,10 +48,17 @@ $activeClassFor = static function ($item) use ($matchesRoute, $hasActiveChild, $
 <aside class="sensei-sidebar" id="sensei-sidebar" data-sensei-sidebar>
   <div class="sensei-sidebar__brand">
     <a href="{{ url('/') }}" class="sensei-sidebar__brand-link">
+      {{-- Dark theme logo (white text) - hidden in light theme --}}
       <img
         src="{{ asset('assets/img/branding/RR_RedWhite.png') }}"
         alt="Rotech Logo"
-        class="sensei-sidebar__brand-logo"
+        class="sensei-sidebar__brand-logo sensei-sidebar__brand-logo--dark"
+      >
+      {{-- Light theme logo (black text) - hidden in dark theme --}}
+      <img
+        src="{{ asset('assets/img/branding/RR_RedBlack.png') }}"
+        alt="Rotech Logo"
+        class="sensei-sidebar__brand-logo sensei-sidebar__brand-logo--light"
       >
       <span class="sensei-sidebar__brand-name">ROTECH WHS</span>
     </a>

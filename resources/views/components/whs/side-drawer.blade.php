@@ -304,7 +304,8 @@ $positionClass = $position === 'left' ? 'drawer-left' : 'drawer-right';
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
     z-index: 1040;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -314,13 +315,13 @@ $positionClass = $position === 'left' ? 'drawer-left' : 'drawer-right';
     opacity: 1;
 }
 
-/* Side Drawer Base */
+/* Side Drawer Base - Sensei Token Styling */
 .side-drawer {
     position: fixed;
     top: 0;
     height: 100%;
-    background: #fff;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    background: var(--sensei-surface);
+    box-shadow: var(--sensei-shadow-hover);
     z-index: 1050;
     display: flex;
     flex-direction: column;
@@ -363,68 +364,75 @@ $positionClass = $position === 'left' ? 'drawer-left' : 'drawer-right';
     width: 800px;
 }
 
-/* Drawer Header */
+/* Drawer Header - Sensei Tokens */
 .drawer-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--sensei-border);
     flex-shrink: 0;
+    background: var(--sensei-surface-strong, var(--sensei-surface));
 }
 
 .drawer-title {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #333;
+    color: var(--sensei-text-primary);
 }
 
 .drawer-close {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #6c757d;
+    color: var(--sensei-text-secondary);
     cursor: pointer;
     padding: 0.25rem;
     line-height: 1;
-    transition: color 0.2s;
+    transition: all var(--sensei-transition);
+    border-radius: var(--sensei-radius-sm);
 }
 
 .drawer-close:hover,
 .drawer-close:focus {
-    color: #333;
-    outline: 2px solid #0d6efd;
+    color: var(--sensei-accent);
+    background: color-mix(in srgb, var(--sensei-accent) 10%, transparent);
+    outline: 2px solid var(--sensei-accent);
     outline-offset: 2px;
 }
 
-/* Drawer Body */
+/* Drawer Body - Sensei Tokens */
 .drawer-body {
     flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
+    background: var(--sensei-surface);
 }
 
-/* Drawer Footer */
+/* Drawer Footer - Sensei Tokens */
 .drawer-footer {
     padding: 1rem 1.5rem;
-    border-top: 1px solid #eee;
-    background: #f8f9fa;
+    border-top: 1px solid var(--sensei-border);
+    background: var(--sensei-surface-strong, var(--sensei-surface));
     flex-shrink: 0;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
 }
 
-/* Accessibility: Focus visible styles */
+/* Accessibility: Focus visible styles - Sensei Tokens */
 .side-drawer:focus {
-    outline: 2px solid #0d6efd;
+    outline: 2px solid var(--sensei-accent);
     outline-offset: -2px;
 }
 
-.side-drawer button:focus,
-.side-drawer a:focus,
-.side-drawer input:focus,
-.side-drawer select:focus,
-.side-drawer textarea:focus {
-    outline: 2px solid #0d6efd;
+.side-drawer button:focus-visible,
+.side-drawer a:focus-visible,
+.side-drawer input:focus-visible,
+.side-drawer select:focus-visible,
+.side-drawer textarea:focus-visible {
+    outline: 2px solid var(--sensei-accent);
     outline-offset: 2px;
 }
 

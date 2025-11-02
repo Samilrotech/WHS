@@ -70,7 +70,7 @@ class InspectionController extends Controller
             });
         }
 
-        $inspections = $query->paginate(15)->withQueryString();
+        $inspections = $query->paginate(25)->withQueryString(); // Increased for dense table view
 
         // Get statistics for dashboard cards
         $stats = $this->getInspectionStatistics();

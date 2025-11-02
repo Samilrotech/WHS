@@ -12,6 +12,7 @@
 <!-- Page Styles -->
 @yield('vendor-style')
 @yield('page-style')
+@stack('page-style')
 
 <!-- Sensei Theme -->
 @vite(['resources/css/sensei-theme.css'])

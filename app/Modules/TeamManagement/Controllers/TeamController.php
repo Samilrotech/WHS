@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\User;
 use App\Modules\InspectionManagement\Models\Inspection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,6 +58,7 @@ class TeamController extends Controller
             'employment_status',
             'created_at',
             'updated_at',
+            'branch_id',
         ];
 
         // Get sort parameters with validation
@@ -66,6 +68,10 @@ class TeamController extends Controller
         // Validate against whitelist (strict type checking prevents type juggling attacks)
         $sortColumn = in_array($sortColumn, $allowedSortColumns, true) ? $sortColumn : 'name';
         $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
+
+        // Pagination: Support 25, 50, 100 items per page with default of 50
+        $perPage = (int) $request->input('per_page', 50);
+        $perPage = in_array($perPage, [25, 50, 100], true) ? $perPage : 50;
 
         $query = User::query()
             ->with(['branch', 'roles', 'currentVehicleAssignment.vehicle'])
@@ -99,7 +105,7 @@ class TeamController extends Controller
 
         /** @var LengthAwarePaginator $users */
         $users = $query->orderBy($sortColumn, $sortDirection)
-            ->paginate(50)->withQueryString();
+            ->paginate($perPage)->withQueryString();
 
         $userIds = $users->getCollection()->pluck('id')->all();
 
@@ -399,6 +405,46 @@ class TeamController extends Controller
         $status = Password::sendResetLink(['email' => $team->email]);
 
         return back()->with($status === Password::RESET_LINK_SENT ? 'success' : 'error', __($status));
+    }
+
+    /**
+     * Get employee quick view data via AJAX
+     */
+    public function quickView(User $team): JsonResponse
+    {
+        $this->ensureBranchAccess($team);
+
+        // Eager load relationships and counts
+        $team->loadMissing(['branch', 'roles', 'currentVehicleAssignment.vehicle'])
+             ->loadCount(['incidents']);
+
+        // Fetch latest inspection for this user
+        $latestInspection = Inspection::with(['vehicle', 'vehicle.branch'])
+            ->where('inspector_user_id', $team->id)
+            ->orderByDesc('inspection_date')
+            ->orderByDesc('created_at')
+            ->first();
+
+        // Use existing formatMemberSummary logic
+        $memberData = $this->formatMemberSummary($team, $latestInspection);
+
+        // Add human-readable last active
+        $memberData['last_active_human'] = $team->last_login_at
+            ? $team->last_login_at->diffForHumans()
+            : ($team->updated_at ? $team->updated_at->diffForHumans() : 'No data');
+
+        // Render the partial view
+        $html = view('content.TeamManagement.partials.quick-view', [
+            'member' => $memberData
+        ])->render();
+
+        return response()->json([
+            'success' => true,
+            'html' => $html,
+            'member_id' => $team->id,
+            'view_url' => route('teams.show', $team),
+            'edit_url' => route('teams.edit', $team)
+        ]);
     }
 
     /**

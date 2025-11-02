@@ -55,21 +55,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ================================================
+  // THEME TOGGLE - Enhanced with light as default
+  // ================================================
+  const DEFAULT_THEME = 'light';
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const html = document.documentElement;
 
+  // Update toggle icon based on current theme
+  const updateToggleIcon = (theme) => {
+    if (!themeToggle) return;
+
+    const icon = themeToggle.querySelector('i');
+    if (icon) {
+      // Sun icon for dark mode (click to get light)
+      // Moon icon for light mode (click to get dark)
+      icon.className = theme === 'dark'
+        ? 'bx bx-sun'
+        : 'bx bx-moon';
+    }
+
+    // Update aria-label for accessibility
+    themeToggle.setAttribute(
+      'aria-label',
+      theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+    );
+  };
+
+  // Initialize theme on page load
+  const initTheme = () => {
+    const storedTheme = localStorage.getItem('sensei-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Priority: stored preference > system preference > default (light)
+    const initialTheme = storedTheme || (prefersDark ? 'dark' : DEFAULT_THEME);
+
+    html.setAttribute('data-bs-theme', initialTheme);
+    updateToggleIcon(initialTheme);
+  };
+
+  // Handle theme toggle click
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-      const current = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-bs-theme', current);
-      localStorage.setItem('sensei-theme', current);
-    });
+      const current = html.getAttribute('data-bs-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
 
-    const storedTheme = localStorage.getItem('sensei-theme');
-    if (storedTheme) {
-      html.setAttribute('data-bs-theme', storedTheme);
-    }
+      html.setAttribute('data-bs-theme', next);
+      localStorage.setItem('sensei-theme', next);
+      updateToggleIcon(next);
+
+      // Add smooth transition class
+      document.body.classList.add('theme-transitioning');
+      setTimeout(() => {
+        document.body.classList.remove('theme-transitioning');
+      }, 300);
+    });
   }
+
+  // Listen for system theme changes (only if user hasn't set preference)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    // Only auto-switch if user hasn't manually set a preference
+    if (!localStorage.getItem('sensei-theme')) {
+      const newTheme = e.matches ? 'dark' : 'light';
+      html.setAttribute('data-bs-theme', newTheme);
+      updateToggleIcon(newTheme);
+    }
+  });
+
+  // Initialize theme
+  initTheme();
 
   const searchForm = document.querySelector('.sensei-search');
   const searchInput = searchForm?.querySelector('.sensei-search__input');
@@ -180,4 +234,72 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  /**
+   * Employee Quick View Modal - AJAX Loading
+   */
+  const quickViewModal = document.getElementById('employeeQuickViewModal');
+  if (quickViewModal) {
+    const modalInstance = new window.bootstrap.Modal(quickViewModal);
+    const loadingEl = document.getElementById('employeeQuickViewLoading');
+    const contentEl = document.getElementById('employeeQuickViewContent');
+    const viewProfileBtn = document.getElementById('employeeViewProfileBtn');
+    const editBtn = document.getElementById('employeeEditBtn');
+
+    // Listen for quick view button clicks
+    document.addEventListener('click', function(e) {
+      const trigger = e.target.closest('[data-quick-view]');
+      if (!trigger) return;
+
+      e.preventDefault();
+      const memberId = trigger.dataset.memberId;
+      if (!memberId) return;
+
+      // Show modal with loading state
+      loadingEl.style.display = 'block';
+      contentEl.style.display = 'none';
+      modalInstance.show();
+
+      // Fetch employee data via AJAX
+      fetch(`/teams/${memberId}/quick-view`, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
+      .then(data => {
+        // Hide loading, show content
+        loadingEl.style.display = 'none';
+        contentEl.innerHTML = data.html;
+        contentEl.style.display = 'block';
+
+        // Update footer links
+        viewProfileBtn.href = data.view_url;
+        editBtn.href = data.edit_url;
+      })
+      .catch(error => {
+        console.error('Error loading employee quick view:', error);
+        contentEl.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bx bx-error-circle me-2"></i>
+            Failed to load employee details. Please try again.
+          </div>
+        `;
+        contentEl.style.display = 'block';
+        loadingEl.style.display = 'none';
+      });
+    });
+
+    // Clear content when modal closes
+    quickViewModal.addEventListener('hidden.bs.modal', function() {
+      contentEl.innerHTML = '';
+      contentEl.style.display = 'none';
+      loadingEl.style.display = 'block';
+    });
+  }
 });

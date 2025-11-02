@@ -293,6 +293,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [TeamController::class, 'create'])->name('create');
         Route::post('/', [TeamController::class, 'store'])->name('store');
         Route::get('/{team}', [TeamController::class, 'show'])->name('show');
+        Route::get('/{team}/quick-view', [TeamController::class, 'quickView'])->name('quick-view');
         Route::get('/{team}/edit', [TeamController::class, 'edit'])->name('edit');
         Route::put('/{team}', [TeamController::class, 'update'])->name('update');
         Route::delete('/{team}', [TeamController::class, 'destroy'])->name('destroy');

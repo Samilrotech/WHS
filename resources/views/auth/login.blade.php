@@ -6,7 +6,10 @@
 <div class="rotech-login">
   <div class="rotech-login__card">
     <div class="rotech-login__logo">
-      <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural logo">
+      {{-- Dark theme logo (white text) - hidden in light theme --}}
+      <img src="{{ asset('assets/img/branding/RR_RedWhite.png') }}" alt="Rotech Rural logo" class="rotech-login__logo-img rotech-login__logo-img--dark">
+      {{-- Light theme logo (black text) - hidden in dark theme --}}
+      <img src="{{ asset('assets/img/branding/RR_RedBlack.png') }}" alt="Rotech Rural logo" class="rotech-login__logo-img rotech-login__logo-img--light">
     </div>
 
     <h1 class="rotech-login__title">Rotech Rural</h1>
@@ -304,6 +307,108 @@ document.querySelectorAll('.rotech-field__toggle').forEach(toggle => {
       padding: 2rem;
       gap: 1.6rem;
     }
+  }
+
+  /* ===================================================================
+     LIGHT THEME OVERRIDES - Login Page
+     Fix dark backgrounds for light theme
+     =================================================================== */
+
+  [data-bs-theme='light'] body {
+    background: radial-gradient(circle at 18% 22%, rgba(59, 130, 246, 0.12), transparent 55%),
+      radial-gradient(circle at 78% 8%, rgba(239, 68, 68, 0.10), transparent 60%),
+      linear-gradient(140deg, #f8fafc, #f1f5f9 45%, #e2e8f0 100%);
+    color: #0f172a;
+  }
+
+  [data-bs-theme='light'] .rotech-login__card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: 0 45px 110px -70px rgba(15, 23, 42, 0.15);
+  }
+
+  [data-bs-theme='light'] .rotech-login__logo {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    box-shadow: 0 30px 60px -38px rgba(239, 68, 68, 0.25);
+  }
+
+  [data-bs-theme='light'] .rotech-login__title {
+    color: #0f172a;
+  }
+
+  [data-bs-theme='light'] .rotech-login__subtitle {
+    color: rgba(71, 85, 105, 0.85);
+  }
+
+  [data-bs-theme='light'] .rotech-login__alert {
+    background: rgba(20, 184, 166, 0.10);
+    border: 1px solid rgba(20, 184, 166, 0.25);
+    color: #0d9488;
+  }
+
+  [data-bs-theme='light'] .rotech-field__label {
+    color: rgba(51, 65, 85, 0.85);
+  }
+
+  [data-bs-theme='light'] .rotech-field__label a {
+    color: #3b82f6;
+  }
+
+  [data-bs-theme='light'] .rotech-field__label a:hover {
+    color: #2563eb;
+  }
+
+  [data-bs-theme='light'] .rotech-field__input {
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    background: rgba(255, 255, 255, 0.90);
+    color: #0f172a;
+  }
+
+  [data-bs-theme='light'] .rotech-field__input:focus {
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  [data-bs-theme='light'] .rotech-field__input::placeholder {
+    color: rgba(71, 85, 105, 0.50);
+  }
+
+  [data-bs-theme='light'] .rotech-field__toggle {
+    color: rgba(71, 85, 105, 0.70);
+  }
+
+  [data-bs-theme='light'] .rotech-field__error {
+    color: #dc2626;
+  }
+
+  [data-bs-theme='light'] .rotech-checkbox {
+    color: rgba(71, 85, 105, 0.80);
+  }
+
+  [data-bs-theme='light'] .rotech-checkbox input {
+    accent-color: #3b82f6;
+  }
+
+  [data-bs-theme='light'] .rotech-login__submit {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 1), rgba(59, 130, 246, 0.95));
+  }
+
+  [data-bs-theme='light'] .rotech-login__submit:hover {
+    box-shadow: 0 26px 56px -32px rgba(239, 68, 68, 0.50);
+  }
+
+  [data-bs-theme='light'] .rotech-login__footer {
+    color: rgba(71, 85, 105, 0.80);
+  }
+
+  [data-bs-theme='light'] .rotech-login__footer a {
+    color: #3b82f6;
+  }
+
+  [data-bs-theme='light'] .rotech-login__footer a:hover {
+    color: #2563eb;
   }
 </style>
 @endsection

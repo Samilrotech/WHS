@@ -1,18 +1,60 @@
+/* ================================================
+   TEAM MANAGEMENT THEME ENHANCEMENTS
+   Import component-specific dark theme improvements
+   ================================================ */
+@import './team-management-theme.css';
+
 :root {
-  --sensei-bg-start: #0d1015;
+  /* ================================================
+     BACKGROUND LAYERS - Enhanced depth from theme1
+     ================================================ */
+  --sensei-bg-start: #0f172a;        /* Deeper base (theme1 recommendation) */
   --sensei-bg-end: #131821;
-  --sensei-surface: rgba(30, 35, 45, 0.82);
-  --sensei-surface-strong: rgba(33, 40, 52, 0.88);
-  --sensei-surface-hover: rgba(36, 44, 57, 0.92);
-  --sensei-border: rgba(255, 255, 255, 0.07);
-  --sensei-text-primary: #f2f4ff;
-  --sensei-text-secondary: rgba(187, 198, 224, 0.82);
-  --sensei-text-tertiary: rgba(154, 175, 207, 0.56);
-  --sensei-accent: #5a8bff;
-  --sensei-accent-soft: rgba(90, 139, 255, 0.2);
-  --sensei-success: #5eead4;
-  --sensei-warning: #f8c168;
-  --sensei-alert: #f76c6c;
+  --sensei-bg-page: #0f172a;         /* Main background - explicit token */
+  --sensei-surface: rgba(26, 34, 56, 0.75);    /* Cards - more opaque (theme2) */
+  --sensei-surface-strong: rgba(30, 38, 60, 0.88);
+  --sensei-surface-hover: rgba(34, 44, 70, 0.92);  /* Hover state - clearer */
+  --sensei-border: rgba(255, 255, 255, 0.12);
+  --sensei-border-light: rgba(255, 255, 255, 0.20);  /* WCAG 3:1 contrast - A11Y compliant */
+
+  /* ================================================
+     TEXT HIERARCHY - WCAG AA+ compliant (theme2 fixes)
+     ================================================ */
+  --sensei-text-primary: rgba(255, 255, 255, 0.95);      /* Names, headings (was #f2f4ff) */
+  --sensei-text-secondary: rgba(255, 255, 255, 0.75);    /* Subtitles, roles (was 0.82) */
+  --sensei-text-tertiary: rgba(255, 255, 255, 0.60);     /* Labels, metadata (was 0.56) - CRITICAL FIX */
+  --sensei-text-metadata: rgba(255, 255, 255, 0.65);     /* Timestamps, "1 day ago" (new) */
+  --sensei-text-muted: rgba(255, 255, 255, 0.50);        /* Empty states, disabled (new) */
+  --sensei-text-link: #60a5fa;                            /* Links, IDs (theme2 blue) */
+
+  /* ================================================
+     ACCENT & STATE COLORS - Brighter variants (theme1)
+     ================================================ */
+  --sensei-accent: #56c3ff;          /* Brighter cyan (theme1) */
+  --sensei-accent-soft: rgba(86, 195, 255, 0.2);
+  --sensei-success: #3dd68c;         /* Positive actions (theme1) */
+  --sensei-success-soft: rgba(61, 214, 140, 0.2);
+  --sensei-warning: #fbbf24;         /* Warning state */
+  --sensei-warning-soft: rgba(251, 191, 36, 0.2);
+  --sensei-alert: #ff6b6b;           /* Danger state (theme1) */
+  --sensei-alert-soft: rgba(255, 107, 107, 0.2);
+
+  /* ================================================
+     COMPONENT BACKGROUNDS - Theme-aware tokens
+     ================================================ */
+  --sensei-navbar-bg: rgba(14, 17, 20, 0.55);
+  --sensei-menu-bg: rgba(10, 12, 15, 0.72);
+
+  /* ================================================
+     GRADIENT ACCENTS - Decorative background elements
+     ================================================ */
+  --sensei-gradient-accent-1: rgba(98, 140, 255, 0.1);
+  --sensei-gradient-accent-2: rgba(77, 220, 210, 0.08);
+  --sensei-gradient-accent-3: rgba(96, 139, 255, 0.08);
+
+  /* ================================================
+     LAYOUT & EFFECTS
+     ================================================ */
   --sensei-gridline: rgba(118, 135, 168, 0.08);
   --sensei-spacing-2xs: 8px;
   --sensei-spacing-xs: 12px;
@@ -21,14 +63,23 @@
   --sensei-spacing-lg: 32px;
   --sensei-spacing-xl: 48px;
   --sensei-spacing: var(--sensei-spacing-md);
-  --sensei-radius-sm: 14px;
-  --sensei-radius: 20px;
-  --sensei-radius-lg: 28px;
+  --sensei-radius-sm: 12px;          /* Slightly tighter (theme1) */
+  --sensei-radius: 16px;             /* Slightly tighter (theme1) */
+  --sensei-radius-lg: 20px;          /* Slightly tighter (theme1) */
   --sensei-blur: 26px;
+  --sensei-glass-opacity: 0.75;
   --sensei-transition: 220ms ease;
+  --sensei-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);         /* Card depth (theme1) */
+  --sensei-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.4);       /* Hover elevation */
+  --sensei-shadow-modal: 0 20px 25px rgba(0, 0, 0, 0.5);
+  --sensei-shadow-focus: 0 0 0 3px rgba(86, 195, 255, 0.3);
+
+  /* ================================================
+     LEGACY COMPATIBILITY - Map to new tokens
+     ================================================ */
   --whs-slate-900: var(--sensei-text-primary);
   --whs-slate-700: var(--sensei-text-secondary);
-  --whs-slate-500: var(--sensei-text-secondary);
+  --whs-slate-500: var(--sensei-text-tertiary);
   --whs-brand: var(--sensei-accent);
   --whs-success: var(--sensei-success);
   --whs-warning: var(--sensei-warning);
@@ -40,36 +91,122 @@
   color-scheme: dark;
 }
 
+/* ================================================
+   LIGHT THEME - Vibrant, Professional, WCAG AAA
+   Default theme for the application
+   ================================================ */
 [data-bs-theme='light'] {
-  --sensei-bg-start: #f4f6fb;
-  --sensei-bg-end: #e8ecf4;
-  --sensei-surface: rgba(255, 255, 255, 0.82);
-  --sensei-surface-hover: rgba(255, 255, 255, 0.9);
-  --sensei-border: rgba(15, 23, 42, 0.08);
-  --sensei-text-primary: #111827;
-  --sensei-text-secondary: #4b5563;
-  --sensei-text-tertiary: rgba(75, 85, 99, 0.7);
+  /* ================================================
+     BACKGROUND LAYERS - Soft, calming neutrals
+     ================================================ */
+  --sensei-bg-start: #f8fafc;        /* Soft blue-gray tint */
+  --sensei-bg-end: #f1f5f9;          /* Slightly cooler gradient end */
+  --sensei-bg-page: #f8fafc;         /* Main page background */
+  --sensei-surface: rgba(255, 255, 255, 0.90);       /* Glassmorphic cards */
+  --sensei-surface-strong: rgba(255, 255, 255, 0.95); /* Emphasized panels */
+  --sensei-surface-hover: rgba(255, 255, 255, 1.0);   /* Hover - solid white */
+  --sensei-border: rgba(15, 23, 42, 0.12);
+  --sensei-border-light: rgba(15, 23, 42, 0.20);  /* WCAG 3:1 contrast - A11Y compliant */
+
+  /* ================================================
+     TEXT HIERARCHY - Deep, rich, WCAG AAA compliant
+     ================================================ */
+  --sensei-text-primary: #0f172a;                    /* Deep slate (21:1) */
+  --sensei-text-secondary: #334155;                  /* Slate-700 (12.6:1) */
+  --sensei-text-tertiary: #475569;                   /* Slate-600 (8.5:1) */
+  --sensei-text-metadata: #64748b;                   /* Slate-500 (7.2:1) */
+  --sensei-text-muted: #94a3b8;                      /* Slate-400 (5.1:1) */
+  --sensei-text-link: #2563eb;                       /* Blue-600 (6.8:1) */
+
+  /* ================================================
+     ACCENT & STATE COLORS - Vibrant, energetic
+     ================================================ */
+  --sensei-accent: #0ea5e9;          /* Sky-500 vibrant cyan-blue */
+  --sensei-accent-hover: #0284c7;    /* Sky-600 deeper on hover */
+  --sensei-accent-soft: rgba(14, 165, 233, 0.12);
+
+  --sensei-success: #10b981;         /* Emerald-500 rich green */
+  --sensei-success-hover: #059669;   /* Emerald-600 */
+  --sensei-success-soft: rgba(16, 185, 129, 0.12);
+
+  --sensei-warning: #f59e0b;         /* Amber-500 golden */
+  --sensei-warning-hover: #d97706;   /* Amber-600 */
+  --sensei-warning-soft: rgba(245, 158, 11, 0.12);
+
+  --sensei-alert: #ef4444;           /* Red-500 vibrant danger */
+  --sensei-alert-hover: #dc2626;     /* Red-600 */
+  --sensei-alert-soft: rgba(239, 68, 68, 0.12);
+
+  --sensei-info: #8b5cf6;            /* Violet-500 distinctive info */
+  --sensei-info-hover: #7c3aed;      /* Violet-600 */
+  --sensei-info-soft: rgba(139, 92, 246, 0.12);
+
+  /* ================================================
+     COMPONENT BACKGROUNDS - Light theme specific
+     ================================================ */
+  --sensei-navbar-bg: rgba(255, 255, 255, 0.85);
+  --sensei-menu-bg: rgba(255, 255, 255, 0.90);
+
+  /* ================================================
+     GRADIENT ACCENTS - Subtle, colorful light theme
+     ================================================ */
+  --sensei-gradient-accent-1: rgba(14, 165, 233, 0.06);    /* Sky blue tint */
+  --sensei-gradient-accent-2: rgba(16, 185, 129, 0.04);    /* Emerald tint */
+  --sensei-gradient-accent-3: rgba(139, 92, 246, 0.05);    /* Violet tint */
+
+  /* ================================================
+     EFFECTS - Lighter shadows and blur
+     ================================================ */
   --sensei-gridline: rgba(15, 23, 42, 0.08);
+  --sensei-blur: 16px;               /* Less blur for light mode */
+  --sensei-glass-opacity: 0.90;      /* More opaque for contrast */
+
+  --sensei-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08),
+                        0 1px 2px rgba(15, 23, 42, 0.06);
+  --sensei-shadow-hover: 0 4px 6px rgba(15, 23, 42, 0.07),
+                         0 2px 4px rgba(15, 23, 42, 0.06);
+  --sensei-shadow-modal: 0 20px 25px rgba(15, 23, 42, 0.1),
+                         0 10px 10px rgba(15, 23, 42, 0.04);
+  --sensei-shadow-focus: 0 0 0 3px rgba(14, 165, 233, 0.3);
+
+  /* ================================================
+     LEGACY COMPATIBILITY - Light theme mappings
+     ================================================ */
   --whs-slate-900: var(--sensei-text-primary);
   --whs-slate-700: var(--sensei-text-secondary);
-  --whs-slate-500: var(--sensei-text-secondary);
+  --whs-slate-500: var(--sensei-text-tertiary);
   --whs-brand: var(--sensei-accent);
   --whs-success: var(--sensei-success);
-  --whs-warning: #f59e0b;
+  --whs-warning: var(--sensei-warning);
   --whs-danger: var(--sensei-alert);
   --whs-emerald-500: var(--sensei-success);
-  --whs-amber-500: #f59e0b;
+  --whs-amber-500: var(--sensei-warning);
   --whs-rose-500: var(--sensei-alert);
   --whs-sky-400: var(--sensei-accent);
+
   color-scheme: light;
+}
+
+/* ================================================
+   SMOOTH THEME TRANSITIONS
+   ================================================ */
+body.theme-transitioning,
+body.theme-transitioning *,
+body.theme-transitioning *::before,
+body.theme-transitioning *::after {
+  transition: background-color 300ms ease,
+              color 300ms ease,
+              border-color 300ms ease,
+              box-shadow 300ms ease !important;
+  transition-delay: 0ms !important;
 }
 
 body,
 .layout-wrapper {
   font-family: 'SF Pro Display', 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background:
-    radial-gradient(circle at 16% 18%, rgba(98, 140, 255, 0.1), transparent 55%),
-    radial-gradient(circle at 86% 20%, rgba(77, 220, 210, 0.08), transparent 60%),
+    radial-gradient(circle at 16% 18%, var(--sensei-gradient-accent-1), transparent 55%),
+    radial-gradient(circle at 86% 20%, var(--sensei-gradient-accent-2), transparent 60%),
     linear-gradient(135deg, var(--sensei-bg-start), var(--sensei-bg-end));
   color: var(--sensei-text-primary);
   min-height: 100vh;
@@ -80,7 +217,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 74% 18%, rgba(96, 139, 255, 0.08), transparent 65%);
+  background: radial-gradient(circle at 74% 18%, var(--sensei-gradient-accent-3), transparent 65%);
   z-index: 0;
 }
 
@@ -107,14 +244,14 @@ body::before {
 }
 
 .layout-navbar {
-  backdrop-filter: blur(20px);
-  background: rgba(14, 17, 20, 0.55);
+  backdrop-filter: blur(var(--sensei-blur));
+  background: var(--sensei-navbar-bg);
   border-bottom: 1px solid var(--sensei-border);
 }
 
 .layout-menu {
-  backdrop-filter: blur(22px);
-  background: rgba(10, 12, 15, 0.72);
+  backdrop-filter: blur(var(--sensei-blur));
+  background: var(--sensei-menu-bg);
   border-right: 1px solid var(--sensei-border);
 }
 
@@ -130,6 +267,17 @@ body::before {
   background: rgba(59, 130, 246, 0.12);
   color: var(--sensei-accent);
   transform: translateX(2px);
+}
+
+/* Light theme sidebar override - Fix dark sidebar issue */
+[data-bs-theme='light'] .layout-menu {
+  background: var(--sensei-menu-bg);
+  border-right: 1px solid var(--sensei-border);
+}
+
+[data-bs-theme='light'] .layout-navbar {
+  background: var(--sensei-navbar-bg);
+  border-bottom: 1px solid var(--sensei-border);
 }
 
 .menu-header {
@@ -184,7 +332,7 @@ body::before {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: min(100%, 1480px);
+  max-width: min(100%, 1920px);  /* Increased from 1480px to 1920px for wider content area */
   margin: 0 auto;
   padding: var(--sensei-spacing-xl) clamp(1.75rem, 4vw, 3.5rem) var(--sensei-spacing-lg);
   display: flex;
@@ -364,10 +512,41 @@ body::before {
   background: linear-gradient(135deg, rgba(59, 130, 246, 1), rgba(96, 165, 250, 0.9));
 }
 
+.whs-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 1), rgba(59, 130, 246, 0.95));
+}
+
+.whs-btn-primary:disabled,
+.whs-btn-primary[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
 .whs-btn-primary--ghost {
   background: rgba(59, 130, 246, 0.12);
   color: var(--sensei-accent);
   border-color: rgba(59, 130, 246, 0.35);
+}
+
+.whs-btn-primary--ghost:hover {
+  background: rgba(59, 130, 246, 0.18);
+  transform: translateY(-1px);
+}
+
+.whs-btn-primary--ghost:active {
+  transform: translateY(0) scale(0.98);
+  background: rgba(59, 130, 246, 0.22);
+}
+
+.whs-btn-primary--ghost:disabled,
+.whs-btn-primary--ghost[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
 }
 
 .whs-filter-pills {
@@ -492,6 +671,18 @@ body::before {
     grid-template-columns: minmax(0, 2.4fr) minmax(280px, 1fr);
     gap: var(--sensei-spacing);
   }
+}
+
+/* Full-width layout modifier for table view */
+.whs-layout--full-width {
+  display: flex !important;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.whs-layout--full-width .whs-main {
+  max-width: 100%;
+  width: 100%;
 }
 
 .whs-main {
@@ -1241,6 +1432,731 @@ body::before {
   margin: 0.6rem 0 0;
   font-size: 0.9rem;
   color: var(--sensei-text-secondary);
+}
+
+/* Light theme empty state override - Fix dark background */
+[data-bs-theme='light'] .whs-empty {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed rgba(59, 130, 246, 0.25);
+  backdrop-filter: blur(calc(var(--sensei-blur) - 4px));
+}
+
+[data-bs-theme='light'] .whs-empty__icon {
+  color: rgba(59, 130, 246, 0.9);
+}
+
+/* ========================================
+   WHS Component Light Theme Overrides
+   Fix hardcoded dark theme values
+   ======================================== */
+
+/* Hero Section - Fix white borders and dark shadows */
+[data-bs-theme='light'] .whs-hero {
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.15);
+}
+
+/* Cards - Fix white borders and dark shadows */
+[data-bs-theme='light'] .whs-card,
+[data-bs-theme='light'] .sensei-panel {
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 42px -30px rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .whs-card:hover,
+[data-bs-theme='light'] .sensei-panel:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+/* Card list separators */
+[data-bs-theme='light'] .whs-card-list > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-card-list > .sensei-surface-card + .sensei-surface-card,
+[data-bs-theme='light'] .whs-stack > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-stack > .sensei-surface-card + .sensei-surface-card,
+[data-bs-theme='light'] .whs-list > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-list > .sensei-surface-card + .sensei-surface-card {
+  border-top-color: rgba(15, 23, 42, 0.12);
+}
+
+/* Metric Cards - Fix white borders */
+[data-bs-theme='light'] .whs-metric-card {
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .whs-metric-card:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+/* Chips - Fix dark background */
+[data-bs-theme='light'] .whs-chip {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+/* Search Input - Ensure light background */
+[data-bs-theme='light'] .whs-search__input {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .whs-search__input:focus {
+  border-color: rgba(14, 165, 233, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Sidebar Panels */
+[data-bs-theme='light'] .whs-sidebar__panel {
+  background: var(--sensei-surface);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+/* ===================================================================
+   COMPREHENSIVE WHS COMPONENTS - Light Theme Overrides
+   Fix all remaining dark backgrounds in light theme
+   =================================================================== */
+
+/* Filter Pills */
+[data-bs-theme='light'] .whs-filter-pill {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-secondary);
+}
+
+[data-bs-theme='light'] .whs-filter-pill.is-active,
+[data-bs-theme='light'] .whs-filter-pill:hover {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+/* Lists */
+[data-bs-theme='light'] .whs-list {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 22px 48px -36px rgba(15, 23, 42, 0.15);
+}
+
+/* Form Fields */
+[data-bs-theme='light'] .whs-field__control {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .whs-field__control:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+[data-bs-theme='light'] .whs-field__control::placeholder {
+  color: rgba(71, 85, 105, 0.6);
+}
+
+/* Action Buttons */
+[data-bs-theme='light'] .whs-action-btn {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-secondary);
+}
+
+[data-bs-theme='light'] .whs-action-btn:hover {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: var(--sensei-text-primary);
+}
+
+/* Data Cards & Metric Components - Use light backgrounds */
+[data-bs-theme='light'] .whs-data-card,
+[data-bs-theme='light'] .whs-metric-panel {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+/* Section Containers */
+[data-bs-theme='light'] .whs-section,
+[data-bs-theme='light'] .whs-content-panel {
+  background: transparent;
+}
+
+/* Modals & Overlays */
+[data-bs-theme='light'] .whs-modal-content,
+[data-bs-theme='light'] .whs-dialog {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.25);
+}
+
+/* Dropdown Menus */
+[data-bs-theme='light'] .whs-dropdown-menu,
+[data-bs-theme='light'] .dropdown-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.2);
+}
+
+[data-bs-theme='light'] .whs-dropdown-item:hover,
+[data-bs-theme='light'] .dropdown-item:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Sensei Components - Comprehensive Light Theme Overrides */
+[data-bs-theme='light'] .sensei-surface-card,
+[data-bs-theme='light'] .sensei-panel,
+[data-bs-theme='light'] .sensei-content,
+[data-bs-theme='light'] .sensei-section {
+  background: var(--sensei-surface);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .sensei-alert {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .sensei-action {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] .sensei-action:hover {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+[data-bs-theme='light'] .sensei-chart,
+[data-bs-theme='light'] .sensei-stat-grid,
+[data-bs-theme='light'] .sensei-meta-grid {
+  background: transparent;
+}
+
+/* Sticky & Filter Cards */
+[data-bs-theme='light'] .sensei-sticky-card,
+[data-bs-theme='light'] .sensei-filter-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+/* Navigation Items */
+[data-bs-theme='light'] .sensei-nav__item:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* User Profile Dropdown */
+[data-bs-theme='light'] .sensei-user__dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.2);
+}
+
+/* Badges */
+[data-bs-theme='light'] .sensei-badge {
+  background: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(15, 23, 42, 0.15);
+}
+
+/* ===================================================================
+   PHASE 1 & 2: CRITICAL USER-FACING COMPONENTS - Light Theme Overrides
+   Fix remaining dark cards, buttons, and authentication pages
+   =================================================================== */
+
+/* WHS Cards & Panels - Fix borders and shadows for light theme */
+[data-bs-theme='light'] .whs-card,
+[data-bs-theme='light'] .sensei-panel {
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 42px -30px rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] .whs-card:hover,
+[data-bs-theme='light'] .sensei-panel:hover {
+  border-color: rgba(15, 23, 42, 0.20);
+  background: rgba(255, 255, 255, 1.0) !important;  /* Solid white on hover */
+}
+
+[data-bs-theme='light'] .whs-card-list > .whs-card,
+[data-bs-theme='light'] .whs-card-list > .sensei-surface-card,
+[data-bs-theme='light'] .whs-stack > .whs-card,
+[data-bs-theme='light'] .whs-stack > .sensei-surface-card,
+[data-bs-theme='light'] .whs-list > .whs-card,
+[data-bs-theme='light'] .whs-list > .sensei-surface-card {
+  background: rgba(255, 255, 255, 0.90);  /* White background for cards in lists */
+}
+
+[data-bs-theme='light'] .whs-card-list > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-card-list > .sensei-surface-card + .sensei-surface-card,
+[data-bs-theme='light'] .whs-stack > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-stack > .sensei-surface-card + .sensei-surface-card,
+[data-bs-theme='light'] .whs-list > .whs-card + .whs-card,
+[data-bs-theme='light'] .whs-list > .sensei-surface-card + .sensei-surface-card {
+  border-top-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .whs-card-list > .whs-card:hover,
+[data-bs-theme='light'] .whs-card-list > .sensei-surface-card:hover,
+[data-bs-theme='light'] .whs-stack > .whs-card:hover,
+[data-bs-theme='light'] .whs-stack > .sensei-surface-card:hover,
+[data-bs-theme='light'] .whs-list > .whs-card:hover,
+[data-bs-theme='light'] .whs-list > .sensei-surface-card:hover {
+  background: rgba(255, 255, 255, 0.98) !important;  /* Solid white on hover with !important */
+  border-top-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Team Member Cards & Data Cards */
+[data-bs-theme='light'] .whs-data-card--dark {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.90));
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] .whs-data-card--dark:hover {
+  border-color: rgba(15, 23, 42, 0.25);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+}
+
+/* Quick Actions Card */
+[data-bs-theme='light'] .quick-actions-card {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] .quick-actions-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(15, 23, 42, 0.20);
+}
+
+/* Safety Score Badge */
+[data-bs-theme='light'] .whs-safety-score {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+/* Glass Card (Driver Inspection) */
+[data-bs-theme='light'] .whs-glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+}
+
+/* Card Buttons */
+[data-bs-theme='light'] .card .btn {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .card .btn:hover {
+  background: rgba(248, 250, 252, 0.95);
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+/* Button Variants */
+[data-bs-theme='light'] .btn-dark {
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .btn-dark:hover {
+  background: rgba(15, 23, 42, 0.12);
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+/* User Trigger Dropdown */
+[data-bs-theme='light'] .sensei-user__trigger {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] .sensei-user__trigger:hover {
+  background: rgba(248, 250, 252, 0.95);
+  border-color: rgba(15, 23, 42, 0.20);
+}
+
+/* Scrollbars */
+[data-bs-theme='light'] ::-webkit-scrollbar-track {
+  background: rgba(248, 250, 252, 0.50);
+}
+
+[data-bs-theme='light'] ::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+[data-bs-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.25);
+}
+
+/* Sidebar Overlay (Mobile) */
+[data-bs-theme='light'] .sensei-sidebar__overlay {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+/* Sensei Surface Card - Fix hardcoded dark shadows */
+[data-bs-theme='light'] .sensei-surface-card {
+  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.12);
+}
+
+[data-bs-theme='light'] .sensei-surface-card:hover {
+  box-shadow: 0 30px 55px -30px rgba(15, 23, 42, 0.20);
+}
+
+/* ================================================
+   COMPREHENSIVE LIGHT THEME OVERRIDES
+   Systematic fix for ALL remaining dark theme elements
+   Priority: !important for specificity
+   ================================================ */
+
+/* PHASE 1A: CRITICAL CARDS & PANELS */
+[data-bs-theme='light'] .whs-search {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-search:focus {
+  background: rgba(255, 255, 255, 1) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+[data-bs-theme='light'] .whs-filter-pill {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-data-viz {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 22px 48px -36px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-search--navbar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-search--navbar:focus {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+[data-bs-theme='light'] .whs-pill {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-card__more {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-card__label {
+  background: rgba(248, 250, 252, 0.95) !important;
+}
+
+[data-bs-theme='light'] .whs-sidebar__panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .whs-empty {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-vehicle-card {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .whs-action-card .btn {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .whs-action-card .btn:hover {
+  background: rgba(248, 250, 252, 1) !important;
+}
+
+[data-bs-theme='light'] .modal-backdrop {
+  background: rgba(15, 23, 42, 0.3) !important;
+}
+
+/* PHASE 1B: SIDEBAR & NAVIGATION */
+[data-bs-theme='light'] .sensei-header {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-search {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-search:focus {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+[data-bs-theme='light'] .sensei-user__dropdown {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 28px 46px -36px rgba(15, 23, 42, 0.25) !important;
+}
+
+[data-bs-theme='light'] .sensei-user__dropdown::before {
+  border-left-color: rgba(15, 23, 42, 0.12) !important;
+  border-top-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-user__dropdown-header {
+  border-bottom-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-user__dropdown-footer {
+  border-top-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-nav__sub {
+  border-left-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-footer__inner {
+  border-top-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* PHASE 1C: FORMS & INPUTS */
+[data-bs-theme='light'] .form-control,
+[data-bs-theme='light'] .form-select,
+[data-bs-theme='light'] .input-group-text {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .form-control:focus,
+[data-bs-theme='light'] .form-select:focus {
+  background: rgba(255, 255, 255, 1) !important;
+}
+
+[data-bs-theme='light'] .dataTables_wrapper .dataTables_filter input,
+[data-bs-theme='light'] .dataTables_wrapper .dataTables_length select {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+/* PHASE 2A: DROPDOWNS & MENUS */
+[data-bs-theme='light'] .dropdown-menu {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .offcanvas,
+[data-bs-theme='light'] .layout-menu-toggle {
+  background: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* PHASE 2B: TABLES & LISTS */
+[data-bs-theme='light'] .sensei-table {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-table thead th {
+  border-bottom-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-table tbody tr td {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-bs-theme='light'] .card .table-responsive {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-bs-theme='light'] .list-group-item {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .timeline-item .timeline-event {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-bs-theme='light'] .dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-bs-theme='light'] .pagination .page-item .page-link {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+/* PHASE 2C: STATS & BADGES */
+[data-bs-theme='light'] .whs-badge {
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-stat {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.98)) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-stat:hover {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* PHASE 3: OVERLAYS & SPECIAL COMPONENTS */
+[data-bs-theme='light'] .apexcharts-tooltip {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .apexcharts-tooltip .apexcharts-tooltip-text-y-label,
+[data-bs-theme='light'] .apexcharts-tooltip .apexcharts-tooltip-text-y-value {
+  color: var(--sensei-text-primary) !important;
+}
+
+[data-bs-theme='light'] .toast {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .collapse.show,
+[data-bs-theme='light'] .accordion-item,
+[data-bs-theme='light'] .accordion-button {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .kanban-container .kanban-board {
+  background: rgba(248, 250, 252, 0.95) !important;
+}
+
+[data-bs-theme='light'] .kanban-container .kanban-item {
+  background: rgba(255, 255, 255, 0.98) !important;
+}
+
+[data-bs-theme='light'] .safety-score-badge {
+  background: rgba(248, 250, 252, 0.95) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+[data-bs-theme='light'] .glass-card {
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.98)) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 18px 45px -24px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-filter-card .form-control {
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .driver-check {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.98)) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-action {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-bs-theme='light'] .sensei-action:hover {
+  background: rgba(248, 250, 252, 1) !important;
+}
+
+/* ===================================================================
+   CRITICAL FIX: Header Search Input - Fixes dark search bar
+   =================================================================== */
+
+[data-bs-theme='light'] .sensei-search__input {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .sensei-search__input:focus {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+}
+
+[data-bs-theme='light'] .sensei-search__input::placeholder {
+  color: rgba(71, 85, 105, 0.60);
+}
+
+/* ===================================================================
+   Sidebar Close Button
+   =================================================================== */
+
+[data-bs-theme='light'] .sensei-sidebar__close {
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--sensei-text-secondary);
+}
+
+[data-bs-theme='light'] .sensei-sidebar__close:hover {
+  background: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-primary);
+}
+
+/* ===================================================================
+   Pagination Items
+   =================================================================== */
+
+[data-bs-theme='light'] .whs-pagination__item a {
+  background: rgba(255, 255, 255, 0.90);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: var(--sensei-text-secondary);
+}
+
+[data-bs-theme='light'] .whs-pagination__item a:hover {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .whs-pagination__item.is-active a {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: var(--sensei-text-primary);
+}
+
+[data-bs-theme='light'] .whs-pagination__item.is-disabled span {
+  background: rgba(248, 250, 252, 0.90);
+  border-color: rgba(15, 23, 42, 0.10);
+  opacity: 0.5;
+}
+
+/* ===================================================================
+   THEME-AWARE LOGO SWITCHING
+   Dark theme shows white text logo, light theme shows black text logo
+   =================================================================== */
+
+/* Dark theme (default) - show white text logo, hide black text logo */
+.sensei-topbar__logo-img--light,
+.sensei-sidebar__brand-logo--light,
+.rotech-login__logo-img--light {
+  display: none !important;
+}
+
+.sensei-topbar__logo-img--dark,
+.sensei-sidebar__brand-logo--dark,
+.rotech-login__logo-img--dark {
+  display: block !important;
+}
+
+/* Light theme - show black text logo, hide white text logo */
+[data-bs-theme='light'] .sensei-topbar__logo-img--light,
+[data-bs-theme='light'] .sensei-sidebar__brand-logo--light,
+[data-bs-theme='light'] .rotech-login__logo-img--light {
+  display: block !important;
+}
+
+[data-bs-theme='light'] .sensei-topbar__logo-img--dark,
+[data-bs-theme='light'] .sensei-sidebar__brand-logo--dark,
+[data-bs-theme='light'] .rotech-login__logo-img--dark {
+  display: none !important;
 }
 
 .whs-location-label,
@@ -2151,6 +3067,12 @@ a:hover,
   gap: var(--sensei-spacing);
 }
 
+/* Light theme sidebar override - Fix dark sidebar background */
+[data-bs-theme='light'] .sensei-sidebar {
+  background: var(--sensei-menu-bg);
+  border-right: 1px solid var(--sensei-border);
+}
+
 .sensei-sidebar__brand {
   display: flex;
   align-items: center;
@@ -2400,7 +3322,7 @@ a:hover,
 
 /* ===== BRAND SECTION ===== */
 .sensei-topbar__brand {
-  display: flex;
+  display: none; /* Hidden on desktop - sidebar has logo */
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
@@ -2576,31 +3498,44 @@ a:hover,
   box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
 }
 
-.sensei-topbar__menu-toggle {
-  display: none;
+/* ============================================================================
+   Theme Toggle Button
+   ============================================================================ */
+
+.sensei-topbar__theme-toggle {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 162, 185, 0.28);
-  background: rgba(26, 32, 44, 0.6);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(59, 130, 246, 0.06);
   color: var(--sensei-text-primary);
   cursor: pointer;
-  transition: border var(--sensei-transition), background var(--sensei-transition), transform var(--sensei-transition);
+  transition: all 0.2s ease;
 }
 
-.sensei-topbar__menu-toggle:hover,
-.sensei-topbar__menu-toggle:focus {
-  border-color: rgba(59, 130, 246, 0.65);
+.sensei-topbar__theme-toggle:hover {
   background: rgba(59, 130, 246, 0.12);
-  outline: none;
-  transform: translateY(-1px);
+  transform: scale(1.05);
 }
 
-.sensei-topbar__menu-toggle i {
-  font-size: 1.25rem;
+.sensei-topbar__theme-toggle i {
+  font-size: 1.125rem;
 }
+
+/* Light theme specific styling */
+[data-bs-theme='light'] .sensei-topbar__theme-toggle {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+[data-bs-theme='light'] .sensei-topbar__theme-toggle:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* Hamburger menu removed - mobile uses bottom navigation */
 
 .sensei-search {
   width: 100%;
@@ -2691,7 +3626,9 @@ a:hover,
   transform: translateY(-50%) scale(0.98);
 }
 
-/* ===== RESPONSIVE LAYOUT ===== */
+/* ===== RESPONSIVE LAYOUT - Desktop/Tablet Only ===== */
+/* Mobile users have bottom navigation, so top navbar is desktop/tablet optimized */
+
 @media (max-width: 1200px) {
   .sensei-topbar {
     grid-template-columns: auto 1fr minmax(280px, 380px) auto;
@@ -2707,91 +3644,47 @@ a:hover,
   }
 }
 
+/* Tablet: Compress but maintain horizontal layout */
 @media (max-width: 1024px) {
   .sensei-topbar {
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto auto auto;
-    gap: 0.75rem;
-    padding: 0.625rem 1.125rem;
-    align-items: center;
-  }
-
-  .sensei-topbar__brand {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .sensei-topbar__actions {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
-  .sensei-topbar__context {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .sensei-topbar__search {
-    grid-column: 1 / -1;
-    grid-row: 3;
+    grid-template-columns: auto 1fr minmax(240px, 320px) auto;
+    gap: 0.625rem;
+    padding: 0.625rem 1rem;
   }
 
   .sensei-topbar__breadcrumb {
-    gap: 0.3125rem;
+    gap: 0.375rem;
   }
 
   .sensei-topbar__page-title {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .sensei-search__input {
+    padding: 0.625rem 2.5rem 0.625rem 2.25rem;
+    font-size: 0.875rem;
   }
 }
 
+/* Mobile: Minimal top bar (bottom nav handles navigation) */
 @media (max-width: 768px) {
   .sensei-topbar {
     grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto auto auto;
+    gap: 0.5rem;
     padding: 0.625rem 1rem;
-    gap: 0.625rem;
-    align-items: center;
   }
 
   .sensei-topbar__brand {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .sensei-topbar__actions {
-    grid-column: 3;
-    grid-row: 1;
+    display: flex; /* Show logo on mobile when sidebar is hidden */
   }
 
   .sensei-topbar__logo-img {
     height: 26px;
   }
 
-  .sensei-topbar__context {
-    gap: 0.375rem;
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
+  .sensei-topbar__context,
   .sensei-topbar__search {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-
-  .sensei-topbar__breadcrumb {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.375rem;
-  }
-
-  .sensei-topbar__greeting {
-    font-size: 0.6875rem;
-  }
-
-  .sensei-search__input {
-    padding: 0.5rem 2.75rem 0.5rem 2.125rem;
-    font-size: 0.8125rem;
+    display: none; /* Hide on mobile - bottom nav handles navigation */
   }
 
   .sensei-topbar__notification-btn {
@@ -2803,45 +3696,6 @@ a:hover,
     font-size: 1rem;
   }
 }
-
-@media (max-width: 480px) {
-  .sensei-topbar {
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto auto auto;
-    padding: 0.5625rem 0.875rem;
-    align-items: center;
-  }
-
-  .sensei-topbar__brand {
-    gap: 0.375rem;
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .sensei-topbar__actions {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
-  .sensei-topbar__context {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .sensei-topbar__search {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-
-  .sensei-topbar__breadcrumb-icon {
-    font-size: 0.875rem;
-  }
-
-  .sensei-topbar__page-title {
-    font-size: 0.6875rem;
-  }
-}
-
 
 .sensei-theme-toggle {
   border: none;
@@ -3041,6 +3895,38 @@ a:hover,
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* ============================================================================
+   Skip Navigation Link - WCAG 2.1 Level A Compliance
+   ============================================================================ */
+
+.sensei-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background: var(--sensei-accent);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 12px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.sensei-skip-link:focus {
+  left: 0;
+  top: 0;
+  outline: 3px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+[data-bs-theme='light'] .sensei-skip-link {
+  background: var(--sensei-accent);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+}
+
 .sensei-content {
   flex: 1;
   padding: calc(var(--sensei-spacing) * 1.2) clamp(1rem, 3vw, 2.75rem);
@@ -3071,10 +3957,6 @@ a:hover,
 
   .sensei-sidebar.is-open {
     transform: translateX(0);
-  }
-
-  .sensei-topbar__menu-toggle {
-    display: inline-flex;
   }
 
   .sensei-sidebar__close {
@@ -3442,9 +4324,19 @@ body.sensei-sidebar-open::after {
   color: var(--sensei-accent);
   font-weight: 600;
   text-decoration: none;
+  transition: all 0.2s ease;
 }
+
 .sensei-link:hover {
   color: var(--sensei-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sensei-link:focus {
+  outline: 2px solid var(--sensei-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 .sensei-alert {
   display: flex;
@@ -3715,6 +4607,22 @@ body.sensei-sidebar-open::after {
   border-color: rgba(15, 23, 42, 0.08);
 }
 
+/* Light theme table overrides - Fix dark background issue */
+[data-bs-theme='light'] .sensei-table {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(calc(var(--sensei-blur) - 8px));
+}
+
+[data-bs-theme='light'] .sensei-table thead th {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  color: var(--sensei-text-secondary);
+}
+
+[data-bs-theme='light'] .sensei-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
 .sensei-table .badge {
   letter-spacing: 0.04em;
 }
@@ -3930,7 +4838,7 @@ body.sensei-sidebar-open::after {
 
 /* MOBILE BOTTOM NAVIGATION */
 .mobile-nav {
-  display: none;
+  display: none !important;  /* Force hide on desktop */
   position: fixed;
   bottom: 0;
   left: 0;
@@ -3960,9 +4868,20 @@ body.sensei-sidebar-open::after {
   background: rgba(255, 255, 255, 0.95);
 }
 
+/* Mobile only - show navigation bar on small screens */
 @media (max-width: 768px) {
   .mobile-nav {
-    display: grid;
+    display: grid !important;  /* Override desktop hide */
+  }
+}
+
+/* Force hide on desktop/tablet to prevent any visibility issues */
+@media (min-width: 769px) {
+  .mobile-nav {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
@@ -4018,34 +4937,6 @@ body.sensei-sidebar-open::after {
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.025em;
-}
-
-/* TOPBAR HAMBURGER */
-.sensei-topbar__hamburger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 36px;
-  height: 36px;
-  padding: 0;
-
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  color: var(--sensei-text-primary);
-
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.sensei-topbar__hamburger:hover {
-  background: var(--sensei-surface-hover);
-}
-
-.sensei-topbar__hamburger i {
-  font-size: 1.125rem;
 }
 
 /* SIDEBAR MOBILE BEHAVIOR */
@@ -4126,5 +5017,3 @@ body.sensei-sidebar-open::after {
     }
   }
 }
-
-

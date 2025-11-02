@@ -86,7 +86,7 @@
     />
   </section>
 
-  <div class="whs-layout">
+  <div class="whs-layout whs-layout--full-width">
     <div class="whs-main">
       <div class="whs-section-heading">
         <div>
@@ -96,7 +96,11 @@
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
-      <form method="GET" class="card sensei-surface-card sensei-filter-card mb-4 border-0 p-3">
+      {{-- Dense Table View (Default) --}}
+      @include('content.vehicles._table-view')
+
+      {{-- Old Filter Form (Deprecated) --}}
+      <form method="GET" class="card sensei-surface-card sensei-filter-card mb-4 border-0 p-3" style="display: none;">
         <div class="row g-3 align-items-end">
           <div class="col-lg-3">
             <label for="filter_branch" class="form-label">Branch</label>

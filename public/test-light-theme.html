@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Theme Test - Rotech WHS</title>
+    <link rel="stylesheet" href="/build/assets/sensei-theme-DZhGvaI8.css">
+    <style>
+        body {
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .debug-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .debug-info h2 {
+            margin-top: 0;
+            color: #3b82f6;
+        }
+        .debug-row {
+            margin: 8px 0;
+        }
+        .debug-label {
+            font-weight: bold;
+            color: #0f172a;
+        }
+        .debug-value {
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="debug-info">
+            <h2>🧪 Theme Debug Information</h2>
+            <div class="debug-row">
+                <span class="debug-label">HTML Theme Attribute:</span>
+                <span class="debug-value" id="theme-attr"></span>
+            </div>
+            <div class="debug-row">
+                <span class="debug-label">--sensei-surface-strong:</span>
+                <span class="debug-value" id="surface-strong"></span>
+            </div>
+            <div class="debug-row">
+                <span class="debug-label">--sensei-text-primary:</span>
+                <span class="debug-value" id="text-primary"></span>
+            </div>
+            <div class="debug-row">
+                <span class="debug-label">--sensei-border:</span>
+                <span class="debug-value" id="border"></span>
+            </div>
+        </div>
+
+        <!-- WHS Hero Test -->
+        <div class="whs-hero">
+            <div class="whs-hero__main">
+                <div>
+                    <span class="whs-eyebrow">Light Theme Test</span>
+                    <h1 class="whs-title">WHS Hero Component</h1>
+                    <p class="whs-subtitle">This should have a WHITE background with dark borders and text in light theme.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: 30px;"></div>
+
+        <!-- WHS Card Test -->
+        <div class="whs-card">
+            <div class="whs-card__header">
+                <h3>WHS Card Component</h3>
+            </div>
+            <div class="whs-card__body">
+                <p>This card should have a WHITE background with dark borders in light theme.</p>
+            </div>
+        </div>
+
+        <div style="height: 30px;"></div>
+
+        <!-- WHS Chip Test -->
+        <div class="whs-chip-group">
+            <span class="whs-chip">Active</span>
+            <span class="whs-chip">Closed</span>
+            <span class="whs-chip">Pending</span>
+        </div>
+
+        <div style="height: 30px;"></div>
+
+        <!-- WHS Search Test -->
+        <div class="whs-search">
+            <input type="text" class="whs-search__input" placeholder="Search incidents..." />
+        </div>
+    </div>
+
+    <script>
+        // Display computed CSS values
+        const html = document.documentElement;
+        const style = window.getComputedStyle(html);
+
+        document.getElementById('theme-attr').textContent = html.getAttribute('data-bs-theme') || 'NOT SET';
+        document.getElementById('surface-strong').textContent = style.getPropertyValue('--sensei-surface-strong');
+        document.getElementById('text-primary').textContent = style.getPropertyValue('--sensei-text-primary');
+        document.getElementById('border').textContent = style.getPropertyValue('--sensei-border');
+
+        // Console output for debugging
+        console.group('🎨 Theme Diagnostic');
+        console.log('HTML Theme:', html.getAttribute('data-bs-theme'));
+        console.log('--sensei-surface-strong:', style.getPropertyValue('--sensei-surface-strong'));
+        console.log('--sensei-text-primary:', style.getPropertyValue('--sensei-text-primary'));
+        console.log('--sensei-border:', style.getPropertyValue('--sensei-border'));
+
+        const hero = document.querySelector('.whs-hero');
+        if (hero) {
+            const heroStyle = window.getComputedStyle(hero);
+            console.group('WHS Hero Computed Styles');
+            console.log('background:', heroStyle.background);
+            console.log('border:', heroStyle.border);
+            console.log('box-shadow:', heroStyle.boxShadow);
+            console.groupEnd();
+        }
+
+        const card = document.querySelector('.whs-card');
+        if (card) {
+            const cardStyle = window.getComputedStyle(card);
+            console.group('WHS Card Computed Styles');
+            console.log('background:', cardStyle.background);
+            console.log('border:', cardStyle.border);
+            console.log('box-shadow:', cardStyle.boxShadow);
+            console.groupEnd();
+        }
+
+        const chip = document.querySelector('.whs-chip');
+        if (chip) {
+            const chipStyle = window.getComputedStyle(chip);
+            console.group('WHS Chip Computed Styles');
+            console.log('background:', chipStyle.background);
+            console.log('border:', chipStyle.border);
+            console.groupEnd();
+        }
+
+        console.groupEnd();
+    </script>
+</body>
+</html>

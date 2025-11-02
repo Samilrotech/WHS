@@ -1,0 +1,663 @@
+/* ================================================
+   WHS TEAM MANAGEMENT - DARK THEME IMPROVEMENTS
+   Component-specific fixes from theme2.md analysis
+   ================================================ */
+
+/* ================================================
+   EMPLOYEE CARD HEADER - Enhanced readability
+   ================================================ */
+
+.employee-card {
+  background: var(--sensei-surface);
+  border: 1px solid var(--sensei-border-light);
+  border-radius: var(--sensei-radius);
+  padding: var(--sensei-spacing-md);
+  box-shadow: var(--sensei-shadow-card);
+  transition: all var(--sensei-transition);
+}
+
+.employee-card:hover {
+  background: var(--sensei-surface-hover);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: var(--sensei-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.employee-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Avatar for employee quick view */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+}
+
+.avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--sensei-accent-soft);
+  color: var(--sensei-accent);
+  font-weight: 600;
+}
+
+.employee-id {
+  color: var(--sensei-text-link);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.employee-name {
+  color: var(--sensei-text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.employee-role,
+.employee-subtitle {
+  color: var(--sensei-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ================================================
+   SECTION LABELS - WCAG AA+ compliance (was 0.35)
+   ================================================ */
+
+.section-label,
+label:not(.btn):not(.form-check-label),
+[class*="label"]:not(.badge):not(.status-badge) {
+  color: var(--sensei-text-tertiary) !important;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ================================================
+   CONTACT SECTION - Blue links for emails
+   ================================================ */
+
+.contact-section {
+  margin: var(--sensei-spacing-sm) 0;
+}
+
+.contact-email,
+a[href^="mailto:"] {
+  color: var(--sensei-text-link);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: color var(--sensei-transition);
+}
+
+.contact-email:hover,
+a[href^="mailto:"]:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.contact-phone,
+a[href^="tel:"] {
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  text-decoration: none;
+}
+
+/* ================================================
+   METADATA & TIMESTAMPS - Enhanced from 0.40 to 0.65
+   ================================================ */
+
+.metadata-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.metadata-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  gap: var(--sensei-spacing-xs);
+}
+
+.metadata-label {
+  color: var(--sensei-text-tertiary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.metadata-value,
+[class*="timestamp"],
+[class*="time-ago"],
+.text-muted {
+  color: var(--sensei-text-metadata) !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Empty states */
+.metadata-value.empty,
+.text-empty,
+[class*="no-data"],
+[class*="none"] {
+  color: var(--sensei-text-muted) !important;
+  font-style: italic;
+}
+
+/* ================================================
+   VEHICLE ASSIGNMENT SECTION
+   ================================================ */
+
+.vehicle-section {
+  margin: var(--sensei-spacing-sm) 0;
+}
+
+.vehicle-name {
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 6px 0;
+}
+
+.vehicle-timestamp,
+.vehicle-meta {
+  color: var(--sensei-text-metadata);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ================================================
+   ACTION BUTTONS - Enhanced visibility
+   ================================================ */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: var(--sensei-spacing-sm);
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: var(--sensei-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+}
+
+/* Outline/secondary buttons - brighter borders */
+.btn-outline,
+.btn-secondary,
+button[class*="outline"] {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.btn-outline:hover,
+.btn-secondary:hover,
+button[class*="outline"]:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(96, 165, 250, 0.5) !important;
+  color: var(--sensei-text-link);
+  transform: translateY(-1px);
+}
+
+/* Primary button */
+.btn-primary {
+  background: var(--sensei-accent);
+  color: white;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background: #4ab3ef;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Warning button (Leave) */
+.btn-warning {
+  background: var(--sensei-warning-soft);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: var(--sensei-warning);
+}
+
+.btn-warning:hover {
+  background: rgba(251, 191, 36, 0.25);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+/* Danger button (Delete) */
+.btn-danger {
+  background: var(--sensei-alert-soft);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: var(--sensei-alert);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 107, 107, 0.25);
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+/* Icon-only button */
+.btn-icon {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 10px;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+/* ================================================
+   STATUS BADGES - Well-designed already, keep them
+   ================================================ */
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.status-active,
+.badge-success {
+  background: var(--sensei-success-soft);
+  color: var(--sensei-success);
+  border: 1px solid rgba(61, 214, 140, 0.3);
+}
+
+.status-inactive,
+.badge-secondary {
+  background: rgba(248, 113, 113, 0.20);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.status-on-leave,
+.badge-warning {
+  background: var(--sensei-warning-soft);
+  color: var(--sensei-warning);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* ================================================
+   COMMON ROLES SECTION (Sidebar) - Dark theme
+   ================================================ */
+
+.common-roles-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-heading {
+  color: var(--sensei-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: var(--sensei-spacing-sm);
+}
+
+.role-card {
+  background: var(--sensei-surface);
+  border-radius: var(--sensei-radius-sm);
+  padding: 12px;
+  margin-bottom: 0;
+  border: 1px solid var(--sensei-border-light);
+  transition: all var(--sensei-transition);
+}
+
+.role-card:hover {
+  background: var(--sensei-surface-hover);
+  border-color: rgba(86, 195, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.role-title {
+  display: block;
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.role-description {
+  display: block;
+  color: var(--sensei-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ================================================
+   ACTIVITY & TIMELINE SECTIONS
+   ================================================ */
+
+.activity-section,
+.activity-summary,
+.timeline-section {
+  margin: var(--sensei-spacing-md) 0;
+}
+
+.section-title {
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.activity-label {
+  color: var(--sensei-text-tertiary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--sensei-spacing-xs);
+}
+
+.activity-item {
+  padding: var(--sensei-spacing-xs);
+  border-left: 2px solid var(--sensei-border-light);
+  margin-left: var(--sensei-spacing-xs);
+  margin-bottom: var(--sensei-spacing-xs);
+}
+
+.activity-title {
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.activity-time {
+  color: var(--sensei-text-metadata);
+  font-size: 12px;
+}
+
+/* Metric Pills - For activity summary */
+.metric-pill {
+  background: var(--sensei-surface-strong);
+  border: 1px solid var(--sensei-border);
+  border-radius: var(--sensei-radius);
+  padding: 1rem;
+  text-align: center;
+  transition: all var(--sensei-transition);
+}
+
+.metric-pill:hover {
+  background: var(--sensei-surface-hover);
+  border-color: rgba(86, 195, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.metric-label {
+  display: block;
+  color: var(--sensei-text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  display: block;
+  color: var(--sensei-accent);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ================================================
+   CERTIFICATION PANELS
+   ================================================ */
+
+.certification-card {
+  background: var(--sensei-surface);
+  border: 1px solid var(--sensei-border-light);
+  border-radius: var(--sensei-radius-sm);
+  padding: var(--sensei-spacing-sm);
+  margin-bottom: var(--sensei-spacing-xs);
+}
+
+.cert-name {
+  color: var(--sensei-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cert-status,
+.cert-expiry {
+  color: var(--sensei-text-metadata);
+  font-size: 12px;
+}
+
+.cert-expiring {
+  color: var(--sensei-warning);
+}
+
+.cert-expired {
+  color: var(--sensei-alert);
+}
+
+/* ================================================
+   GENERAL TEXT UTILITIES - Apply globally
+   ================================================ */
+
+.text-primary {
+  color: var(--sensei-text-primary) !important;
+}
+
+.text-secondary {
+  color: var(--sensei-text-secondary) !important;
+}
+
+.text-tertiary {
+  color: var(--sensei-text-tertiary) !important;
+}
+
+.text-metadata {
+  color: var(--sensei-text-metadata) !important;
+}
+
+.text-muted {
+  color: var(--sensei-text-muted) !important;
+}
+
+.text-link {
+  color: var(--sensei-text-link) !important;
+}
+
+/* ================================================
+   RESPONSIVE ADJUSTMENTS
+   ================================================ */
+
+@media (max-width: 768px) {
+  .employee-name {
+    font-size: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ================================================
+   LIGHT THEME ENHANCEMENTS - Vibrant, Colorful
+   ================================================ */
+[data-bs-theme='light'] {
+  /* Enhanced Primary Button - Vibrant gradient */
+  .btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border: none;
+    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    box-shadow: 0 4px 8px rgba(14, 165, 233, 0.4);
+  }
+
+  /* Enhanced Success Badge - Gradient with white text */
+  .status-active,
+  .badge-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+    font-weight: 600;
+  }
+
+  /* Enhanced Warning Badge - Golden gradient */
+  .status-on-leave,
+  .badge-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
+    font-weight: 600;
+  }
+
+  /* Enhanced Danger Badge - Red gradient */
+  .status-inactive,
+  .badge-secondary {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+    font-weight: 600;
+  }
+
+  /* Enhanced Outline Button - Colored border with hover fill */
+  .btn-outline,
+  .btn-secondary {
+    background: rgba(14, 165, 233, 0.05);
+    border: 2px solid #0ea5e9 !important;
+    color: #0ea5e9;
+    font-weight: 500;
+  }
+
+  .btn-outline:hover,
+  .btn-secondary:hover {
+    background: #0ea5e9;
+    color: white;
+    border-color: #0ea5e9 !important;
+  }
+
+  /* Enhanced Employee Cards - Subtle shadows */
+  .employee-card {
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08),
+                0 1px 2px rgba(15, 23, 42, 0.06);
+  }
+
+  .employee-card:hover {
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.1),
+                0 2px 4px rgba(15, 23, 42, 0.06);
+    border-color: rgba(14, 165, 233, 0.3);
+  }
+
+  /* Enhanced Role Cards - Colored accents */
+  .role-card {
+    border-left: 3px solid transparent;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  }
+
+  .role-card:nth-child(1) {
+    border-left-color: #8b5cf6;  /* Violet for Manager */
+  }
+
+  .role-card:nth-child(2) {
+    border-left-color: #0ea5e9;  /* Sky blue for Supervisor */
+  }
+
+  .role-card:nth-child(3) {
+    border-left-color: #f59e0b;  /* Amber for Safety Officer */
+  }
+
+  .role-card:nth-child(4) {
+    border-left-color: #10b981;  /* Emerald for Operator */
+  }
+
+  .role-card:nth-child(5) {
+    border-left-color: #ef4444;  /* Red for Technician/Driver */
+  }
+
+  .role-card:hover {
+    background: white;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.1);
+    transform: translateX(2px);
+  }
+}
+
+/* ================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ================================================ */
+
+/* Focus indicators */
+.btn:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--sensei-accent);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

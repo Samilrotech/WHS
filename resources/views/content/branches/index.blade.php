@@ -76,15 +76,20 @@
     />
   </section>
 
-  <div class="whs-main">
-    <div class="whs-section-heading">
-      <div>
-        <h2>Branch Directory</h2>
-        <p>Comprehensive list of all organizational locations with employee allocation and operational status.</p>
+  <div class="whs-layout whs-layout--full-width">
+    <div class="whs-main">
+      <div class="whs-section-heading">
+        <div>
+          <h2>Branch Directory</h2>
+          <p>Comprehensive list of all organizational locations with employee allocation and operational status.</p>
+        </div>
       </div>
-    </div>
 
-    @if($branches->isEmpty())
+      {{-- Dense Table View (Default) --}}
+      @include('content.branches._table-view')
+
+      {{-- Old Empty/Card View (Deprecated) --}}
+      @if(false && $branches->isEmpty())
       <div class="whs-empty">
         <div class="whs-empty__icon">
           <i class="icon-base ti ti-building"></i>

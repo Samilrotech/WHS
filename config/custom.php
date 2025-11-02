@@ -4,7 +4,7 @@ return [
   'custom' => [
     'layout' => 'vertical',
     'contentLayout' => 'wide',
-    'theme' => 'dark',
+    'theme' => 'light',
     'menuCollapsed' => false,
     'rtl' => false,
   ],

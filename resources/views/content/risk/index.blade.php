@@ -91,7 +91,7 @@
     />
   </section>
 
-  <div class="whs-layout">
+  <div class="whs-layout whs-layout--full-width">
     <div class="whs-main">
       <div class="whs-section-heading">
         <div>
@@ -101,7 +101,11 @@
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
-      <div class="whs-card-list">
+      {{-- Dense Table View (Default) --}}
+      @include('content.risk._table-view')
+
+      {{-- Old Card View (Deprecated) --}}
+      <div class="whs-card-list" style="display: none;">
         @forelse ($risks as $risk)
           @php
             $riskScore = $risk->initial_risk_score;

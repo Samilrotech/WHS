@@ -86,7 +86,7 @@
     />
   </section>
 
-  <div class="whs-layout">
+  <div class="whs-layout whs-layout--full-width">
     <div class="whs-main">
       <div class="whs-section-heading">
         <div>
@@ -96,7 +96,11 @@
         <span class="whs-updated">Updated {{ now()->format('H:i') }}</span>
       </div>
 
-      <div class="whs-card-list">
+      {{-- Dense Table View (Default) --}}
+      @include('content.inspections._table-view')
+
+      {{-- Old Card View (Deprecated) --}}
+      <div class="whs-card-list" style="display: none;">
         @forelse ($inspections as $inspection)
           @php
             $severity = $inspection->critical_defects > 0 ? 'critical' : ($inspection->major_defects > 0 ? 'high' : ($inspection->minor_defects > 0 ? 'medium' : 'low'));
