@@ -38,6 +38,7 @@ $typeClass = match($type) {
     'numeric' => 'font-monospace',
     'badge' => 'badge-cell',
     'actions' => 'actions-cell',
+    'checkbox' => 'checkbox-cell',
     default => '',
 };
 
@@ -51,14 +52,23 @@ $ariaLabel = $label ?? ($value ? strip_tags($value) : '');
     ]) }}
     @if($sortable) data-sortable="true" @endif
 >
-    @if($type === 'text')
+    @if($type === 'checkbox')
+        {{-- Checkbox Cell --}}
+        {{ $slot }}
+
+    @elseif($type === 'text')
         {{-- Text Cell --}}
-        <div class="cell-content">
-            <span class="cell-value">{{ $value }}</span>
-            @if($meta)
-                <span class="cell-meta text-muted small">{{ $meta }}</span>
-            @endif
-        </div>
+        @if(!$slot->isEmpty())
+            {{-- Render slot content if provided --}}
+            {{ $slot }}
+        @else
+            <div class="cell-content">
+                <span class="cell-value">{{ $value }}</span>
+                @if($meta)
+                    <span class="cell-meta text-muted small">{{ $meta }}</span>
+                @endif
+            </div>
+        @endif
 
     @elseif($type === 'badge')
         {{-- Badge Cell (Status, Role, etc.) --}}
