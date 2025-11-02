@@ -1,0 +1,17 @@
+{
+  "_index.html": {
+    "file": "index.html",
+    "src": "_index.html"
+  },
+  "resources/css/sensei-theme.css": {
+    "file": "assets/sensei-theme-D_65GQr3.css",
+    "src": "resources/css/sensei-theme.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-T5nIyxI3.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}
