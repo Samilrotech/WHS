@@ -274,56 +274,6 @@
       </div>
       @endif
     </div>
-
-    {{-- Hide sidebar in table view to maximize horizontal space --}}
-    @if(request('view') !== 'table')
-    <aside class="whs-sidebar">
-      <x-whs.sidebar-panel title="Member status">
-        <ul class="whs-sidebar__stats">
-          <li>
-            <span class="section-label">Active Members</span>
-            <strong class="metadata-value text-success">{{ $statistics['active_members'] ?? 0 }}</strong>
-          </li>
-          <li>
-            <span class="section-label">On Leave</span>
-            <strong class="metadata-value text-info">{{ $statistics['on_leave'] ?? 0 }}</strong>
-          </li>
-          <li>
-            <span class="section-label">Certifications Expiring</span>
-            <strong class="metadata-value text-warning">{{ $statistics['certifications_expiring'] ?? 0 }}</strong>
-          </li>
-        </ul>
-        <p class="whs-sidebar__caption">
-          Track employee availability, certification compliance, and workforce readiness across all branches.
-        </p>
-      </x-whs.sidebar-panel>
-
-      <x-whs.sidebar-panel title="Common roles">
-        <div class="common-roles-section">
-          <div class="role-card">
-            <strong class="role-title">Manager</strong>
-            <span class="role-description">Strategic oversight and team leadership</span>
-          </div>
-          <div class="role-card">
-            <strong class="role-title">Supervisor</strong>
-            <span class="role-description">Daily operations and team management</span>
-          </div>
-          <div class="role-card">
-            <strong class="role-title">Safety Officer</strong>
-            <span class="role-description">WHS compliance and safety oversight</span>
-          </div>
-          <div class="role-card">
-            <strong class="role-title">Operator</strong>
-            <span class="role-description">Equipment operation and field work</span>
-          </div>
-          <div class="role-card">
-            <strong class="role-title">Technician/Driver</strong>
-            <span class="role-description">Technical support and transportation</span>
-          </div>
-        </div>
-      </x-whs.sidebar-panel>
-    </aside>
-    @endif
   </div>
 </div>
 
