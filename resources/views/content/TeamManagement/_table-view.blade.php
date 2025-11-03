@@ -101,7 +101,7 @@
     :current-sort="request('sort', 'name')"
     :current-direction="request('direction', 'asc')"
   >
-    <x-slot:thead>
+    <x-slot:header>
       <tr>
         <th class="whs-table__cell--checkbox">
           <div class="form-check">
@@ -128,9 +128,9 @@
         </th>
         <th class="text-end">Actions</th>
       </tr>
-    </x-slot:thead>
+    </x-slot:header>
 
-    <x-slot:tbody>
+    <x-slot:body>
       @forelse($members['data'] as $member)
         @php
           $severityMap = [
@@ -343,7 +343,7 @@
           </td>
         </tr>
       @endforelse
-    </x-slot:tbody>
+    </x-slot:body>
   </x-whs.table>
 
   {{-- Pagination --}}
