@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -122,7 +123,7 @@ class TeamController extends Controller
         $memberCollection = $users->getCollection()->map(fn (User $member) => $this->formatMemberSummary($member, $latestDriverInspections->get($member->id)));
 
         // Debug: Log collection count
-        \Log::info('TeamManagement Index Debug', [
+        Log::info('TeamManagement Index Debug', [
             'total_from_paginator' => $users->total(),
             'collection_count' => $memberCollection->count(),
             'per_page' => $users->perPage(),
