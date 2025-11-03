@@ -69,9 +69,9 @@ class TeamController extends Controller
         $sortColumn = in_array($sortColumn, $allowedSortColumns, true) ? $sortColumn : 'name';
         $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'asc';
 
-        // Pagination: Support 25, 50, 100 items per page with default of 50
-        $perPage = (int) $request->input('per_page', 50);
-        $perPage = in_array($perPage, [25, 50, 100], true) ? $perPage : 50;
+        // Pagination: Support 25, 50, 100 items per page with default of 25
+        $perPage = (int) $request->input('per_page', 25);
+        $perPage = in_array($perPage, [25, 50, 100], true) ? $perPage : 25;
 
         $query = User::query()
             ->with(['branch', 'roles', 'currentVehicleAssignment.vehicle'])
@@ -120,6 +120,14 @@ class TeamController extends Controller
                 ->keyBy('inspector_user_id');
 
         $memberCollection = $users->getCollection()->map(fn (User $member) => $this->formatMemberSummary($member, $latestDriverInspections->get($member->id)));
+
+        // Debug: Log collection count
+        \Log::info('TeamManagement Index Debug', [
+            'total_from_paginator' => $users->total(),
+            'collection_count' => $memberCollection->count(),
+            'per_page' => $users->perPage(),
+            'current_page' => $users->currentPage(),
+        ]);
 
         $members = [
             'data' => $memberCollection->all(),
