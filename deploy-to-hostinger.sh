@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-SSH_KEY="$HOME/.ssh/whs5_hostinger"
+SSH_KEY="$HOME/.ssh/whs5_deployment_key"
 SERVER="whs.rotechrural.com.au"
 USER="root"
 APP_PATH="/home/whs5"
