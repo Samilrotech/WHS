@@ -96,7 +96,7 @@
     :striped="true"
     :hover="true"
     :responsive="true"
-    :sticky-header="true"
+    :sticky-header="false"
     :sortable="true"
     :current-sort="request('sort', 'name')"
     :current-direction="request('direction', 'asc')"
