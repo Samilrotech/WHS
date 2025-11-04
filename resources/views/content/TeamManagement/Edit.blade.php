@@ -20,6 +20,9 @@
       @csrf
       @method('PUT')
 
+      {{-- Hidden field for employee_id (read-only, shown in Current Status section) --}}
+      <input type="hidden" name="employee_id" value="{{ $member['employee_id'] ?? 'EMP-001' }}">
+
       <!-- Current Status -->
       <div class="card mb-4">
         <div class="card-header">
