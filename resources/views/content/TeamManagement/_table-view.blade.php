@@ -131,6 +131,8 @@
     </x-slot:header>
 
     <x-slot:body>
+      {{-- DEBUG: Show count of members in data array --}}
+      <tr><td colspan="12" style="background: #fff3cd; padding: 10px; font-weight: bold;">DEBUG: Total members in data array: {{ count($members['data']) }}</td></tr>
       @forelse($members['data'] as $member)
         @php
           $severityMap = [
