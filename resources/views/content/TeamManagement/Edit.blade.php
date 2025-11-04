@@ -2,10 +2,6 @@
 
 @section('title', 'Edit Team Member - Team Management')
 
-@section('page-style')
-<link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}">
-@endsection
-
 @section('content')
 <div class="row">
   <!-- Main Form Column -->
@@ -139,7 +135,7 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="branch_id" class="form-label">Branch *</label>
-              <select id="branch_id" name="branch_id" class="form-select select2 @error('branch_id') is-invalid @enderror" required>
+              <select id="branch_id" name="branch_id" class="form-select @error('branch_id') is-invalid @enderror" required>
                 <option value="">Select branch</option>
                 @php
                   $currentBranchId = old('branch_id', $member['branch_id'] ?? null);
@@ -412,102 +408,109 @@
 @endsection
 
 @section('page-script')
-<script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
-  // Initialize Select2 for branch selection
-  if ($('#branch_id').length) {
-    $('#branch_id').select2({
-      placeholder: 'Select branch',
-      allowClear: false
+  const editForm = document.getElementById('editMemberForm');
+  const passwordField = document.getElementById('password');
+  const confirmPasswordField = document.getElementById('password_confirmation');
+  const phoneField = document.getElementById('phone');
+  const roleField = document.getElementById('role');
+  const isActiveField = document.getElementById('is_active');
+
+  // Form validation
+  if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+      const password = passwordField.value;
+      const confirmPassword = confirmPasswordField.value;
+
+      // Only validate password if it's being changed
+      if (password || confirmPassword) {
+        // Check password match
+        if (password !== confirmPassword) {
+          e.preventDefault();
+          alert('Passwords do not match. Please check and try again.');
+          confirmPasswordField.focus();
+          return false;
+        }
+
+        // Check minimum password requirements
+        if (password.length < 8) {
+          e.preventDefault();
+          alert('Password must be at least 8 characters long.');
+          passwordField.focus();
+          return false;
+        }
+
+        if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+          e.preventDefault();
+          alert('Password must include uppercase letters, lowercase letters, and numbers.');
+          passwordField.focus();
+          return false;
+        }
+      }
     });
   }
 
-  // Form validation
-  $('#editMemberForm').on('submit', function(e) {
-    const password = $('#password').val();
-    const confirmPassword = $('#password_confirmation').val();
-
-    // Only validate password if it's being changed
-    if (password || confirmPassword) {
-      // Check password match
-      if (password !== confirmPassword) {
-        e.preventDefault();
-        alert('Passwords do not match. Please check and try again.');
-        $('#password_confirmation').focus();
-        return false;
-      }
-
-      // Check minimum password requirements
-      if (password.length < 8) {
-        e.preventDefault();
-        alert('Password must be at least 8 characters long.');
-        $('#password').focus();
-        return false;
-      }
-
-      if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
-        e.preventDefault();
-        alert('Password must include uppercase letters, lowercase letters, and numbers.');
-        $('#password').focus();
-        return false;
-      }
-    }
-  });
-
   // Auto-format phone number (Australian format)
-  $('#phone').on('input', function() {
-    let value = $(this).val().replace(/\D/g, '');
+  if (phoneField) {
+    phoneField.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
 
-    if (value.length > 0) {
-      if (value.length <= 4) {
-        $(this).val(value);
-      } else if (value.length <= 7) {
-        $(this).val(value.slice(0, 4) + ' ' + value.slice(4));
-      } else {
-        $(this).val(value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 10));
+      if (value.length > 0) {
+        if (value.length <= 4) {
+          this.value = value;
+        } else if (value.length <= 7) {
+          this.value = value.slice(0, 4) + ' ' + value.slice(4);
+        } else {
+          this.value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 10);
+        }
       }
-    }
-  });
+    });
+  }
 
   // Role change warning
-  $('#role').on('change', function() {
-    const role = $(this).val();
+  if (roleField) {
     const originalRole = '{{ $member["role"] ?? "employee" }}';
 
-    if (role === 'admin' && role !== originalRole) {
-      if (!confirm('Admin role grants full system access including user management and system settings. Continue?')) {
-        $(this).val(originalRole);
+    roleField.addEventListener('change', function() {
+      const role = this.value;
+
+      if (role === 'admin' && role !== originalRole) {
+        if (!confirm('Admin role grants full system access including user management and system settings. Continue?')) {
+          this.value = originalRole;
+        }
       }
-    }
-  });
+    });
+  }
 
   // Account status change warning
-  $('#is_active').on('change', function() {
-    const status = $(this).val();
+  if (isActiveField) {
+    isActiveField.addEventListener('change', function() {
+      const status = this.value;
 
-    if (status == '0') {
-      if (!confirm('Deactivating this account will immediately prevent the user from logging in. Continue?')) {
-        $(this).val('1');
+      if (status == '0') {
+        if (!confirm('Deactivating this account will immediately prevent the user from logging in. Continue?')) {
+          this.value = '1';
+        }
       }
-    }
-  });
+    });
+  }
 });
 
 // Quick action functions
 function deactivateAccount() {
   if (confirm('Deactivate this user account? The user will no longer be able to log in.')) {
-    $('#is_active').val('0');
-    $('#editMemberForm').submit();
+    document.getElementById('is_active').value = '0';
+    document.getElementById('editMemberForm').submit();
   }
 }
 
 function activateAccount() {
   if (confirm('Activate this user account? The user will be able to log in again.')) {
-    $('#is_active').val('1');
-    $('#editMemberForm').submit();
+    document.getElementById('is_active').value = '1';
+    document.getElementById('editMemberForm').submit();
   }
 }
 </script>
